@@ -66,12 +66,17 @@ router.post('/login', async (req, res) => {
   if (!user) {
     return res.status(401).json({ message: 'Invalid email' });
   }
-   const passwordMatch = await bcrypt.compare(password, user.password);
-
-  if (! passwordMatch) {
+if (user.roles == 'admin') {
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log(password,'00000000000000',user.password,passwordMatch)
+  if (!passwordMatch) {
     return res.status(401).json({ message: 'Invalid password' });
   }
-
+}
+  if (user.password !== password && user.roles !=='admin' ) {
+    return res.status(401).json({ message: 'Invalid password' });
+  }
+  
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
