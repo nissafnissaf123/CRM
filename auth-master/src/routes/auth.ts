@@ -66,8 +66,9 @@ router.post('/login', async (req, res) => {
   if (!user) {
     return res.status(401).json({ message: 'Invalid email' });
   }
- 
-  if (user.password !== password) {
+   const passwordMatch = await bcrypt.compare(password, user.password);
+
+  if (! passwordMatch) {
     return res.status(401).json({ message: 'Invalid password' });
   }
 
@@ -80,10 +81,12 @@ router.post('/login', async (req, res) => {
 //Register admin
 router.post('/register', async (req: Request, res: Response) => {
   const { password } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+
   console.log(password)
  const user = await prisma.user.create({
      data: {
-         password: password,
+         password: hashedPassword,
          email:req.body.email,
          roles:'admin'
    },

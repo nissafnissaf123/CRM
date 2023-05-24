@@ -5,19 +5,21 @@ const prisma = new PrismaClient();
 
 // get all employees
 router.get("/", async (req, res, next) => {
-try {
-        const employee = await prisma.employee.findMany({
-            include: {
-                department: true , user:true
-            }
-        });   
+  try {
+    const employees = await prisma.employee.findMany({
+      include: {
+        department: true,
+        user: true
+      }
+    });
 
-       res.json({ employee });
-    } catch (error: any) {
-        console.error('Error fetching employee:', error);
-       next(new Error('Something went wrong to get Employee!'));
-    }
+    res.json({ employees });
+  } catch (error: any) {
+    console.error('Error fetching employees:', error);
+    next(new Error('Something went wrong while fetching employees!'));
+  }
 });
+
 // get an employee by id
 router.get("/:userId", async (req, res, next) => {
     try {
