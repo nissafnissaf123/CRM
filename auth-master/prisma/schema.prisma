@@ -1,0 +1,224 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  createdAt DateTime  @default(now())
+  id        String    @id @default(cuid())
+  password  String
+  username  String?   @unique
+  roles     String?
+  email     String?   @unique
+  updatedAt DateTime  @updatedAt
+  employee  Employee?
+  client    Client?
+  admin     Admin?
+  trainee   Trainee?
+}
+
+model Admin {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  avatar    String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  updatedAt DateTime @updatedAt
+ 
+}
+
+model Project {
+  budget      String?
+  client      Client?            @relation(fields: [clientId], references: [id])
+  clientId    String?
+  createdAt   DateTime           @default(now())
+  description String?
+  category    String?
+  framework   String?
+  endDate     DateTime?
+  id          String             @id @default(cuid())
+  isInternal  Boolean?
+  progress    Float?
+  name        String
+  startDate   DateTime?
+  status      EnumProjectStatus?
+  tasks       Task[]
+  tickets     Ticket[]
+  updatedAt   DateTime           @updatedAt
+}
+
+model Task {
+  createdAt   DateTime          @default(now())
+  description String?
+  endDate     DateTime?
+  id          String            @id @default(cuid())
+  name        String
+  priority    EnumTaskPriority?
+  project     Project?          @relation(fields: [projectId], references: [id])
+  projectId   String?
+  startDate   DateTime?
+  status      EnumTaskStatus?
+  updatedAt   DateTime          @updatedAt
+  employeeId  String?
+  employee    Employee?         @relation(fields: [employeeId], references: [userId])
+  labels      Label[]
+}
+
+model Label {
+  id     String @id @default(cuid())
+  text   String
+  color  String
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id])
+}
+
+model Ticket {
+  client         Client?             @relation(fields: [clientId], references: [id])
+  clientId       String?
+  createdAt      DateTime            @default(now())
+  description    String?
+  emergencyLevel EnumTicketPriority?
+  id             String              @id @default(cuid())
+  name           String?
+  project        Project?            @relation(fields: [projectId], references: [id])
+  projectId      String?
+  screenshots    String?
+  status         EnumTicketStatus?
+  updatedAt      DateTime            @updatedAt
+  video          String?
+  employee   Employee? @relation(fields: [employeeId], references: [userId])
+  employeeId String?
+}
+
+model Invoice {
+  client            Client?   @relation(fields: [clientId], references: [id])
+  clientId          String?
+  createdAt         DateTime  @default(now())
+  date              DateTime?
+  id                String    @id @default(cuid())
+  reference         String?
+  totalIncludingVat String?
+  totalWithoutVat   String?
+  updatedAt         DateTime  @updatedAt
+  vatAmount         String?
+}
+
+model Client {
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String    @unique
+  companyName String?
+  createdAt   DateTime  @default(now())
+  facebook    String?
+  id          String    @id @default(cuid())
+  instagram   String?
+  avatar      String?
+  invoices    Invoice[]
+  projects    Project[]
+  taxId       String?
+  fullname    String
+  phone       String?
+  tickets     Ticket[]
+  updatedAt   DateTime  @updatedAt
+  whatsapp    String?
+}
+
+model Trainee {
+  user             User      @relation(fields: [userId], references: [id])
+  userId           String    @unique
+  academicProjects String?
+  coverLetter      String?
+  createdAt        DateTime  @default(now())
+  endDate          DateTime?
+  id               String    @id @default(cuid())
+  motion           String?
+  phone            String?
+  resume           String?
+  avatar           String?
+  startDate        DateTime?
+  updatedAt        DateTime  @updatedAt
+}
+
+model Employee {
+  user         User        @relation(fields: [userId], references: [id])
+  userId       String      @unique
+  id           String      @id @default(cuid())
+  phone        String?
+  startDate    DateTime?
+  updatedAt    DateTime    @updatedAt
+  poste        String?
+  endDate      DateTime?
+  avatar       String?
+  fullname     String?
+  createdAt    DateTime    @default(now())
+  task         Task[]
+  tickets Ticket[]
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+}
+
+model Department {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  employee  Employee[]
+}
+
+model Database {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Framework {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Categorie {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum EnumProjectStatus {
+  Planned
+  Active
+  OnHold
+  Completed
+}
+
+enum EnumTicketPriority {
+  Low
+  Medium
+  High
+}
+
+enum EnumTaskPriority {
+  Low
+  Medium
+  High
+}
+
+enum EnumTaskStatus {
+  Todo
+  Doing
+  Done
+}
+
+enum EnumTicketStatus {
+  pending
+  resolved
+  readonly
+}
