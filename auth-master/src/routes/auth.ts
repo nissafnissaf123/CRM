@@ -1,16 +1,16 @@
 // routes/auth.ts
 import express, { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const router = express.Router();
+
 const jwtConfig = {
   JWT_SECRET: 'your-access-token-secret', 
   expirationTime: '1h', 
 };
-
 
 router.get('/me',async  (req, res) => {
   const authorizationHeader = req.headers.authorization;
@@ -77,21 +77,24 @@ router.post('/login', async (req, res) => {
   res.json({ accessToken, refreshToken, userData: { role: user.roles, id: user.id, email: user.email } });
 });
 
-
 //Register admin
 router.post('/register', async (req: Request, res: Response) => {
-  const { password, email } = req.body;
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-      data: {
-          password: hashedPassword,
-          email,
-          ...req.body
-      },
-  });
-
-  res.send({user, message: 'Registered Successfully' })
+  const { password } = req.body;
+  console.log(password)
+ const user = await prisma.user.create({
+     data: {
+         password: password,
+         email:req.body.email,
+         roles:'admin'
+   },
+ });
+     const admin = await prisma.admin.create({
+       data: {
+           avatar: req.body.avatar,
+           userId: user.id
+       },
+     });
+ res.send({user,admin })
  
 });
  
@@ -101,11 +104,6 @@ router.post('/token/refresh', async (req, res) => {
   const {  refresh } = req.body;
  
  console.log(refresh)
- 
- 
- 
- 
-
  
  try {
     // Verify the refresh token against the secret key
@@ -126,16 +124,5 @@ router.post('/token/refresh', async (req, res) => {
     res.status(401).json({ error: 'Invalid refresh token' });
   }
 });
- 
-
- 
- 
- 
-
- 
- 
-
-  
-
 
 export default router; // Ajouter cette ligne à la fin du fichier
