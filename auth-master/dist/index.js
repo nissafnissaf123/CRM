@@ -40,6 +40,8 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 const cors = require('cors');
 app.use(cors());
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
     res.header("Access-Control-Allow-Methods", "GET, post, PATCH, PUT, DELETE, OPTIONS");
@@ -58,6 +60,19 @@ app.use('/employee', createEmployee_1.default, updateEmployee_1.default, detailE
 app.use('/trainee', createTrainee_1.default, detailTrainee_1.default, updateTrainee_1.default);
 app.use('/label', CreateLabel_1.default);
 app.use(errorHandler_1.errorHandler);
+async function testConnection() {
+    try {
+        await prisma.$connect();
+        console.log('Connected to the database');
+    }
+    catch (error) {
+        console.error('Failed to connect to the database:', error);
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+testConnection();
 app.listen(4001, () => {
     console.log('Server listening on port 4001');
 });

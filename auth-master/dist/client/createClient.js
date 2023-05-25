@@ -20,9 +20,11 @@ const transporter = nodemailer.createTransport({
 router.post("/", async (req, res, next) => {
     try {
         const password = generatePassword();
+        const email = req.body.email;
+        const username = email.split('@')[0];
         const user = await prisma.user.create({
             data: {
-                email: req.body.email, username: req.body.username, roles: 'client', password,
+                email: req.body.email, username: username, roles: 'client', password,
             },
         });
         console.log(user);

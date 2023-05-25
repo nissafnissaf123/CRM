@@ -10,16 +10,23 @@ const prisma = new client_1.PrismaClient();
 router.use(express_1.default.urlencoded({ extended: true }));
 router.patch("/:id", async (req, res, next) => {
     try {
-        const client = await prisma.client.update({
-            where: {
-                id: String(req.params.id),
-            },
-            data: req.body,
+        const { id } = req.params;
+        const { email, username, password, fullname, facebook, instagram, taxId, whatsapp, avatar, phone, companyName } = req.body;
+        const updatedUser = await prisma.user.update({
+            where: { id: id },
+            data: { email, username, password },
         });
-        res.json({ client });
+        const updatedClient = await prisma.client.update({
+            where: { userId: id },
+            data: { fullname, facebook, instagram, taxId, whatsapp, avatar, phone, companyName },
+        });
+        console.log(updatedUser);
+        console.log(updatedClient);
+        res.json({ client: updatedClient });
     }
     catch (error) {
-        next(error.message);
+        console.error('Error updating employee:', error);
+        next(new Error('Something went wrong while updating the employee!'));
     }
 });
 exports.default = router;
