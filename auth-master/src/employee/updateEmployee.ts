@@ -44,11 +44,8 @@ const upload = multer({ storage: storage });
   router.patch("/:id", upload.single('avatar'),async (req, res, next) => {
   try {
     const { id } = req.params;
-<<<<<<< HEAD
-    const { email, username,password, avatar, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab } = req.body;
-=======
-    const { email, username,password, phone, departmentId ,fullname,poste,startDate,endDate} = req.body;
->>>>>>> a604d7c9176bb986466fc0d462a71a2bd522372d
+
+    const { email, username,password, avatar, phone, departmentId,poste,startDate,endDate, fullname, adresse, facebook, instagram, slack, github, gitlab } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: { id: id },
@@ -59,21 +56,20 @@ const upload = multer({ storage: storage });
       }   
     const updatedEmployee = await prisma.employee.update({
       where: { userId: id },
-<<<<<<< HEAD
-      data: { avatar, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab },
-=======
-      data: { avatar:req.file.path, phone, departmentId ,fullname,poste,startDate,endDate},
->>>>>>> a604d7c9176bb986466fc0d462a71a2bd522372d
+
+      data: { avatar:req.file.path, phone, departmentId, fullname,poste,startDate,endDate, adresse, facebook, instagram, slack, github, gitlab },
       include: { department: true },
     });
 
     console.log(updatedUser);
     console.log(updatedEmployee);
 
-    res.json({ employee: updatedEmployee });
+    res.json({ Notification:true, employee: updatedEmployee });
   } catch (error: any) {
-    console.error('Error updating employee:', error);
-    next(new Error('Something went wrong while updating the employee!'));
+  console.error('Error updating employee:', error);
+    const updatedError = new error('Something went wrong while updating the employee!');
+    (updatedError as any).Notification = false;
+    next(updatedError);
   }
 });
 

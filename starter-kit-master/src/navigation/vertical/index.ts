@@ -1,48 +1,61 @@
 // ** Type import
-import { VerticalNavItemsType } from 'src/@core/layouts/types'
+import { HorizontalNavItemsType } from 'src/@core/layouts/types'
+
+
+
+
 
 import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 
-const navigation = (): VerticalNavItemsType => {
+const navigation = (): HorizontalNavItemsType => {
   let items = [
     {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
-      path: '/dashboards/crm', 
+      path: '/dashboards/crm',
       type:'employee'
-      
+
+    },
+     {
+      title: 'Dashboard',
+      icon: 'mdi:home-outline',
+      path: '/dashboards/crm',
+      type:'admin'
+
     },
     {
-      sectionTitle: 'Apps & Pages'
+      sectionTitle: 'Apps & Pages',
+      type:'employee'
     },
-    
+
     {
       title: 'Employees',
       icon: 'mdi:face-agent',
       path: '/employee/projects',
-      type:'employee'
+      type:'admin'
     },
     {
       title: 'Customers',
       icon: 'mdi:account-group',
       path: '/employee/tickets',
-      type:'employee'
+      type:'admin'
     },
     {
       title: 'Trainees',
       icon: 'mdi:account-group-outline',
       path: ''
-      
+
     },
     {
       title: 'Projects',
       icon:  'mdi:view-dashboard-outline',
-      path: '/apps/projects/list'
-      
-      
+      path: '/apps/projects/list',
+      type:'employee'
+
+
     },
-    
+
     {
       title: 'Invoice',
       icon: 'mdi:file-document-outline',
@@ -51,24 +64,26 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Tickets',
       icon:  'mdi:ticket-outline',
-      path: '/apps/tickets/list'
-      
+      path: '/apps/tickets/list',
+      type:'employee'
+
     },
     {
       title: 'Departments',
       icon: 'mdi:office-building',
       path: '/apps/department/list'
-     
+
     },
-   
- 
+
+
     {
       sectionTitle: 'User Interface'
     },
     {
       title: 'User Profile',
       icon: 'mdi:account-circle',
-      path: '/pages/user-profile/profile'
+      path: '/pages/user-profile/profile',
+         type:'employee'
     },
     {
       title: 'Account Settings',
@@ -81,11 +96,11 @@ const navigation = (): VerticalNavItemsType => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const auth = useAuth()
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const router = useRouter()
+  // const router = useRouter()
 
   // modify the items array based on some condition
-  if (auth.user?.role === 'Employee') {
-    items = items.filter(item => item.type === 'employee')
+  if (auth.user?.role == 'Employee') {
+    items = items.filter(item => item.type == 'employee')
   } else if (auth.user?.role === 'client') {
     items = items.filter(item => item.type == 'client')
   } else if (auth.user?.role === 'trainner') {
