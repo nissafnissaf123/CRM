@@ -12,6 +12,9 @@ router.post("/", async (req, res, next) => {
     try {
         const ticket = await prisma.ticket.create({
             data: Object.assign({ name: '' }, req.body),
+            include: {
+                employee: true
+            }
         });
         res.json({ ticket });
     }

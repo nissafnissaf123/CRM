@@ -11,8 +11,13 @@ router.get("/", async (req, res, next) => {
     try {
         const tickets = await prisma.ticket.findMany({
             include: {
-                client: true,
-                project: true
+                client: {
+                    include: {
+                        user: true
+                    }
+                },
+                project: true,
+                employee: true
             }
         });
         res.json({ tickets });
@@ -28,7 +33,8 @@ router.get("/:id", async (req, res, next) => {
                 id: String(req.params.id),
             },
             include: {
-                client: true
+                client: true,
+                employee: true
             }
         });
         res.json({ ticket });

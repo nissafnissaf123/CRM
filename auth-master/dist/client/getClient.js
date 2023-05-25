@@ -9,7 +9,9 @@ const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
 router.get("/", async (req, res, next) => {
     try {
-        const client = await prisma.client.findMany({});
+        const client = await prisma.client.findMany({
+            include: { user: true }
+        });
         res.json({ client });
     }
     catch (error) {
@@ -22,6 +24,7 @@ router.get("/:id", async (req, res, next) => {
             where: {
                 id: String(req.params.id),
             },
+            include: { user: true },
         });
         res.json({ client });
     }

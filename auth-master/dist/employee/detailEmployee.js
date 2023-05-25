@@ -9,26 +9,27 @@ const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
 router.get("/", async (req, res, next) => {
     try {
-        const employee = await prisma.employee.findMany({
+        const employees = await prisma.employee.findMany({
             include: {
-                department: true
+                department: true,
+                user: true
             }
         });
-        res.json({ employee });
+        res.json({ employees });
     }
     catch (error) {
-        next(new Error('Something went wrong to get Employee!'));
+        console.error('Error fetching employees:', error);
+        next(new Error('Something went wrong while fetching employees!'));
     }
 });
-router.get("/:id", async (req, res, next) => {
+router.get("/:userId", async (req, res, next) => {
     try {
         const employee = await prisma.employee.findUnique({
             where: {
-                id: String(req.params.id),
+                userId: String(req.params.userId),
             },
-            include: { department: true },
+            include: { department: true, user: true },
         });
-        console.log('can not Show ');
         res.json({ employee });
     }
     catch (error) {
