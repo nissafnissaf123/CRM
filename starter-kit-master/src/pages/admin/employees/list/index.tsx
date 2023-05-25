@@ -145,18 +145,7 @@ const RowOptions = ({ id }: Props) => {
       department: { name: "" },
     });
     
-    useEffect(() => {
-      const fetchEmployeeById = async () => {
-        try {
-          const response = await fetch(`http://localhost:4001/employee/${id}`);
-          const data = await response.json();
-          setEmployee(data.employee);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      fetchEmployeeById();
-    }, [id]);
+   
   
   
 
@@ -178,6 +167,24 @@ const RowOptions = ({ id }: Props) => {
   
   
    
+    useEffect(() => {
+      const fetchEmployeeById = async () => {
+        try {
+
+         // Retrieve the employee data from local storage or from an API
+        const response = await fetch(`http://localhost:4001/employee/${id}`);
+        const data = await response.json();
+  
+        // Set the employee state with the retrieved data
+        setEmployee(data.employee);
+        console.log(data.employee);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      
+      fetchEmployeeById();
+    }, [id]);
   
     
     
@@ -185,10 +192,10 @@ const RowOptions = ({ id }: Props) => {
   
     const handleEdit = useCallback(() => {
       setShow(true);
-      setFullname(employee.fullname);
-      setEmail(employee.user.email);
+      setFullname(fullname);
+      setEmail(employee.user?.email);
       setPhone(employee.phone);
-      setDepartment(employee.department.name); 
+      setDepartment(employee.department?.name); 
       handleRowOptionsClose();
     }, [setShow, handleRowOptionsClose, employee]);
   

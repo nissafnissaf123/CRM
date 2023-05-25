@@ -25,6 +25,10 @@ import Icon from 'src/@core/components/icon'
 import { ProfileHeaderType } from 'src/@fake-db/types'
 
 interface Props {
+  id: string;
+}
+
+interface Props {
     teams: ProfileTeamsType[]
     about: ProfileTabCommonType[]
     contacts: ProfileTabCommonType[]
@@ -78,16 +82,61 @@ const renderList = (arr: ProfileTabCommonType[]) => {
   
 
 
-const UserProfileHeader = () => {
+const UserProfileHeader = ({ id }: Props) => {
 
      const router = useRouter();
       
         const handleClickAccountSettings = () => {
           router.push('/employee/profile/TabAccount');
         };
-   
 
-  return  (
+
+        //Get Employee
+
+        const [employee, setEmployee] = useState({
+          id: "",
+          fullname: "",
+          phone: "",
+          user: { email: "", username: "" },
+          department: { name: "" },
+          departmentRole:"",
+          adresse:"",
+          facebook:"",
+          instagram:"",
+          slack:"",
+          github:"",
+          gitlab:"", 
+          createdAt:""
+        });
+      
+        useEffect(() => {
+          const fetchEmployeeById = async () => {
+            try {
+              const userData = JSON.parse(localStorage.getItem('userData'));
+              console.log(userData)
+              const employeeId = userData.id;
+              console.log(employeeId)
+              
+             // Retrieve the employee data from local storage or from an API
+            const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
+            const data = await response.json();
+      
+            // Set the employee state with the retrieved data
+            setEmployee(data.employee);
+            console.log(data.employee);
+            } catch (error) {
+              console.log(error);
+            }
+          };
+          
+          fetchEmployeeById();
+        }, [id]);
+   
+        const joinDate = new Date(employee.createdAt);
+        const formattedJoinDate = joinDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        const capitalizedMonth = formattedJoinDate.charAt(0).toUpperCase() + formattedJoinDate.slice(1);
+
+return  (
     <>
     <Card>
       <CardMedia
@@ -121,7 +170,7 @@ const UserProfileHeader = () => {
         >
           <Box sx={{ mb: [6, 0], display: 'flex', flexDirection: 'column', alignItems: ['center', 'flex-start'] }}>
             <Typography variant='h5' sx={{ mb: 4, fontSize: '1.375rem' }}>
-             Nissaf Dhahri
+            {employee.fullname}
             </Typography>
             <Box
               sx={{
@@ -132,15 +181,15 @@ const UserProfileHeader = () => {
             >
               <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
               <Icon icon='mdi:home-outline' />
-                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>Web Develpment</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>{employee.department?.name}</Typography>
               </Box>
               <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
                 <Icon icon='mdi:map-marker-outline' />
-                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>Nabeul</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>{employee.adresse}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
                 <Icon icon='mdi:calendar-blank-outline' />
-                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>Joined April 2001 </Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>Joined {capitalizedMonth} </Typography>
               </Box>
             </Box>
           </Box>
@@ -176,7 +225,7 @@ const UserProfileHeader = () => {
             FullName: 
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-              Nissaf dhahri
+              {employee.fullname}
             </Typography>
           </Box>
         </Box>
@@ -198,7 +247,7 @@ const UserProfileHeader = () => {
             UserName :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-              nissafdhahri2
+              {employee.user?.username}
             </Typography>
           </Box>
         </Box>
@@ -219,7 +268,7 @@ const UserProfileHeader = () => {
             Role: 
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-            Backend Developer
+            {employee.departmentRole}
             </Typography>
           </Box>
         </Box>
@@ -249,7 +298,7 @@ const UserProfileHeader = () => {
             Phone :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-             95071382
+             {employee.phone}
             </Typography>
           </Box>
 
@@ -271,7 +320,7 @@ const UserProfileHeader = () => {
             Email :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-            nissafdhahri2@gmail.com
+            {employee.user?.email}
             </Typography>
           </Box>
 
@@ -379,7 +428,7 @@ const UserProfileHeader = () => {
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          @http:facebook/nissafdhahri2
+                          {employee.facebook}
                         </Typography>
                         
                      
@@ -415,7 +464,7 @@ const UserProfileHeader = () => {
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          @http:facebook/nissafdhahri2
+                          {employee.intagram}
                         </Typography>
                         
                      
@@ -452,7 +501,7 @@ const UserProfileHeader = () => {
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          @http:slack/nissafdhahri123
+                           {employee.slack}
                         </Typography>
                         
                      
@@ -489,7 +538,7 @@ const UserProfileHeader = () => {
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          @http:github/nissafdhahri2
+                           {employee.github}
                         </Typography>
                         
                      
@@ -525,7 +574,7 @@ const UserProfileHeader = () => {
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          @http:whatsapp/nissafdhahri2
+                           {employee.gitlab}
                         </Typography>
                         
                      

@@ -24,7 +24,7 @@ router.patch("/:id", async (req, res) => {
   router.patch("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { email, username,password, avatar, phone, departmentId } = req.body;
+    const { email, username,password, avatar, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: { id: id },
@@ -33,7 +33,7 @@ router.patch("/:id", async (req, res) => {
 
     const updatedEmployee = await prisma.employee.update({
       where: { userId: id },
-      data: { avatar, phone, departmentId },
+      data: { avatar, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab },
       include: { department: true },
     });
 

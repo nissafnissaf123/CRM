@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent } from 'react'
+import { useState, ElementType, ChangeEvent, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -25,12 +25,18 @@ import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button, { ButtonProps } from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import toast from 'react-hot-toast'
+
 
 // ** Third Party Imports
 import { useForm, Controller } from 'react-hook-form'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+
+interface Props {
+  id: string;
+}
 
 interface Data {
   email: string
@@ -45,6 +51,7 @@ interface Data {
   organization: string
   number: number | string
   zipCode: number | string
+  userId: string
 }
 
 const initialData: Data = {
@@ -86,7 +93,7 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   }
 }))
 
-const TabAccount = () => {
+const TabAccount = ({ id }: Props) => {
   // ** State
   const [open, setOpen] = useState<boolean>(false)
   const [inputValue, setInputValue] = useState<string>('')
@@ -114,26 +121,112 @@ const TabAccount = () => {
     setSecondDialogOpen(true)
   }
 
-  const handleInputImageChange = (file: ChangeEvent) => {
-    const reader = new FileReader()
-    const { files } = file.target as HTMLInputElement
+  const handleInputImageChange = (file: ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    const { files } = file.target;
     if (files && files.length !== 0) {
-      reader.onload = () => setImgSrc(reader.result as string)
-      reader.readAsDataURL(files[0])
-
-      if (reader.result !== null) {
-        setInputValue(reader.result as string)
-      }
+      reader.onload = () => {
+        const base64Image = reader.result as string;
+        setAvatar(base64Image);
+        handleUpdateEmployee(base64Image); // Mettre à jour l'état de l'employé avec la nouvelle valeur de l'image
+      };
+      reader.readAsDataURL(files[0]);
     }
-  }
+  };
+
   const handleInputImageReset = () => {
     setInputValue('')
-    setImgSrc('/images/avatars/1.png')
+    setAvatar('/images/avatars/1.png')
   }
 
-  const handleFormChange = (field: keyof Data, value: Data[keyof Data]) => {
-    setFormData({ ...formData, [field]: value })
-  }
+ 
+
+
+  //Get Employee: 
+
+  
+  const [avatar, setAvatar]= useState<string>('/images/avatars/1.png')
+  const [employee, setEmployee] = useState({
+    id: "",
+    fullname: "",
+    phone: "",
+    user: { email: "", username: "", password:"" },
+    department: { name: "" },
+    departmentRole:"",
+    adresse:"",
+    facebook:"",
+    instagram:"",
+    slack:"",
+    github:"",
+    gitlab:"",
+    avatar:"",
+    
+  });
+
+  useEffect(() => {
+    const fetchEmployeeById = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        console.log(userData)
+        const employeeId = userData.id;
+        console.log(employeeId)
+        
+       // Retrieve the employee data from local storage or from an API
+      const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
+      const data = await response.json();
+
+      // Set the employee state with the retrieved data
+      setEmployee(data.employee);
+      console.log(data.employee);
+
+   
+ 
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    
+    fetchEmployeeById();
+  }, [id]);
+
+  const handleUpdateEmployee = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      const employeeId = userData.id;
+  
+      const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(employee),
+      });
+  
+      const updatedEmployee = await response.json();
+      console.log(updatedEmployee);
+  
+      toast.success('Employee updated successfully!');
+      // Handle the updated employee data as needed
+  
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      toast.error('Error updating employee');
+      // Handle update errors as needed
+    }
+  };
+
+
+  const handleInputChange = (field: string, value: string) => {
+    setEmployee((prevEmployee) => ({
+      ...prevEmployee,
+      [field]: value,
+    }));
+  };
+
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+
+  
 
   return (
     <Grid container spacing={6}>
@@ -144,7 +237,7 @@ const TabAccount = () => {
           <form>
             <CardContent sx={{ pt: 0 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ImgStyled src={imgSrc} alt='Profile Pic' />
+                <ImgStyled src={avatar} alt='Profile Pic' />
                 <div>
                   <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                     Upload New Photo
@@ -170,38 +263,30 @@ const TabAccount = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label='First Name'
+                    label='FullName'
                     placeholder='John'
-                    value={formData.firstName}
-                    onChange={e => handleFormChange('firstName', e.target.value)}
+                    value={employee.fullname}
+                    onChange={(e) => handleInputChange('fullname', e.target.value)}
+                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label='Last Name'
+                    label='UserName'
                     placeholder='Doe'
-                    value={formData.lastName}
-                    onChange={e => handleFormChange('lastName', e.target.value)}
+                    value={employee.user?.username}
+                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    type='email'
                     label='Email'
-                    value={formData.email}
-                    placeholder='john.doe@example.com'
-                    onChange={e => handleFormChange('email', e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label='Organization'
-                    placeholder='Pixinvent'
-                    value={formData.organization}
-                    onChange={e => handleFormChange('organization', e.target.value)}
+                    placeholder='John'
+                    value={employee.user?.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -209,123 +294,95 @@ const TabAccount = () => {
                     fullWidth
                     type='number'
                     label='Phone Number'
-                    value={formData.number}
+                    value={employee.phone}
                     placeholder='202 555 0111'
-                    onChange={e => handleFormChange('number', e.target.value)}
-                    InputProps={{ startAdornment: <InputAdornment position='start'>US (+1)</InputAdornment> }}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    type='text'
+                    label='Department'
+                    value={employee.department?.name}
+                    placeholder='Department'
+                   
+                     />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label='Role'
+                    placeholder='Role'
+                    value={employee.departmentRole}
+                    onChange={(e) => handleInputChange('departmentRole', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label='Address'
-                    placeholder='Address'
-                    value={formData.address}
-                    onChange={e => handleFormChange('address', e.target.value)}
+                    label='Adresse'
+                    placeholder='Adresse'
+                    value={employee.adresse}
+                    onChange={(e) => handleInputChange('adresse', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label='State'
-                    placeholder='California'
-                    value={formData.state}
-                    onChange={e => handleFormChange('state', e.target.value)}
+                    type='Lien'
+                    label='Lien Facebook'
+                    placeholder='Lien Facebook'
+                    value={employee.facebook}
+                    onChange={(e) => handleInputChange('facebook', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField
+                <TextField
                     fullWidth
-                    type='number'
-                    label='Zip Code'
-                    placeholder='231465'
-                    value={formData.zipCode}
-                    onChange={e => handleFormChange('zipCode', e.target.value)}
+                    type='Lien'
+                    label='Lien Instagram'
+                    placeholder='Lien instagram'
+                    value={employee.instagram}
+                    onChange={(e) => handleInputChange('instagram', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Country</InputLabel>
-                    <Select
-                      label='Country'
-                      value={formData.country}
-                      onChange={e => handleFormChange('country', e.target.value)}
-                    >
-                      <MenuItem value='australia'>Australia</MenuItem>
-                      <MenuItem value='canada'>Canada</MenuItem>
-                      <MenuItem value='france'>France</MenuItem>
-                      <MenuItem value='united-kingdom'>United Kingdom</MenuItem>
-                      <MenuItem value='united-states'>United States</MenuItem>
-                    </Select>
-                  </FormControl>
+                <TextField
+                    fullWidth
+                    type='Lien'
+                    label='Lien Slack'
+                    placeholder='Lien slack'
+                    value={employee.slack}
+                    onChange={(e) => handleInputChange('slack', e.target.value)}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Language</InputLabel>
-                    <Select
-                      label='Language'
-                      value={formData.language}
-                      onChange={e => handleFormChange('language', e.target.value)}
-                    >
-                      <MenuItem value='arabic'>Arabic</MenuItem>
-                      <MenuItem value='english'>English</MenuItem>
-                      <MenuItem value='french'>French</MenuItem>
-                      <MenuItem value='german'>German</MenuItem>
-                      <MenuItem value='portuguese'>Portuguese</MenuItem>
-                    </Select>
-                  </FormControl>
+                <TextField
+                    fullWidth
+                    type='Lien'
+                    label='Lien GitHub'
+                    placeholder='Lien GitHub'
+                    value={employee.github}
+                    onChange={(e) => handleInputChange('github', e.target.value)}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Timezone</InputLabel>
-                    <Select
-                      label='Timezone'
-                      value={formData.timezone}
-                      onChange={e => handleFormChange('timezone', e.target.value)}
-                    >
-                      <MenuItem value='gmt-12'>(GMT-12:00) International Date Line West</MenuItem>
-                      <MenuItem value='gmt-11'>(GMT-11:00) Midway Island, Samoa</MenuItem>
-                      <MenuItem value='gmt-10'>(GMT-10:00) Hawaii</MenuItem>
-                      <MenuItem value='gmt-09'>(GMT-09:00) Alaska</MenuItem>
-                      <MenuItem value='gmt-08'>(GMT-08:00) Pacific Time (US & Canada)</MenuItem>
-                      <MenuItem value='gmt-08-baja'>(GMT-08:00) Tijuana, Baja California</MenuItem>
-                      <MenuItem value='gmt-07'>(GMT-07:00) Chihuahua, La Paz, Mazatlan</MenuItem>
-                      <MenuItem value='gmt-07-mt'>(GMT-07:00) Mountain Time (US & Canada)</MenuItem>
-                      <MenuItem value='gmt-06'>(GMT-06:00) Central America</MenuItem>
-                      <MenuItem value='gmt-06-ct'>(GMT-06:00) Central Time (US & Canada)</MenuItem>
-                      <MenuItem value='gmt-06-mc'>(GMT-06:00) Guadalajara, Mexico City, Monterrey</MenuItem>
-                      <MenuItem value='gmt-06-sk'>(GMT-06:00) Saskatchewan</MenuItem>
-                      <MenuItem value='gmt-05'>(GMT-05:00) Bogota, Lima, Quito, Rio Branco</MenuItem>
-                      <MenuItem value='gmt-05-et'>(GMT-05:00) Eastern Time (US & Canada)</MenuItem>
-                      <MenuItem value='gmt-05-ind'>(GMT-05:00) Indiana (East)</MenuItem>
-                      <MenuItem value='gmt-04'>(GMT-04:00) Atlantic Time (Canada)</MenuItem>
-                      <MenuItem value='gmt-04-clp'>(GMT-04:00) Caracas, La Paz</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Currency</InputLabel>
-                    <Select
-                      label='Currency'
-                      value={formData.currency}
-                      onChange={e => handleFormChange('currency', e.target.value)}
-                    >
-                      <MenuItem value='usd'>USD</MenuItem>
-                      <MenuItem value='eur'>EUR</MenuItem>
-                      <MenuItem value='pound'>Pound</MenuItem>
-                      <MenuItem value='bitcoin'>Bitcoin</MenuItem>
-                    </Select>
-                  </FormControl>
+                <TextField
+                    fullWidth
+                    type='Lien'
+                    label='Lien GitLab'
+                    placeholder='Lien Gitlab'
+                    value={employee.gitlab}
+                    onChange={(e) => handleInputChange('gitlab', e.target.value)}
+                  />
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Button variant='contained' sx={{ mr: 3 }}>
+                  <Button variant='contained' sx={{ mr: 3 }} onClick={handleUpdateEmployee}>
                     Save Changes
                   </Button>
-                  <Button type='reset' variant='outlined' color='secondary' onClick={() => setFormData(initialData)}>
-                    Reset
-                  </Button>
+              
                 </Grid>
               </Grid>
             </CardContent>
@@ -340,37 +397,7 @@ const TabAccount = () => {
       <CardContent>
         <form >
           <Grid container spacing={6}>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor='input-current-password' >
-                  Current Password
-                </InputLabel>
-               
-                    <OutlinedInput
-                   
-                      label='Current Password'
-                     
-                      id='input-current-password'
-                     
-                      type={ 'password'}
-                      endAdornment={
-                        <InputAdornment position='end'>
-                          <IconButton
-                            edge='end'
-                            onMouseDown={e => e.preventDefault()}
-                      
-                          >
-                            <Icon icon={ 'mdi:eye-off-outline'} />
-                          </IconButton>
-                        </InputAdornment>
-                      }
-                    />
-                 
-              
-                  <FormHelperText sx={{ color: 'error.main' }}></FormHelperText>
-             
-              </FormControl>
-            </Grid>
+            
           </Grid>
           <Grid container spacing={6} sx={{ mt: 0 }}>
             <Grid item xs={12} sm={6}>
@@ -380,22 +407,13 @@ const TabAccount = () => {
                 </InputLabel>
     
                     <OutlinedInput
-                     
+                    
                       label='New Password'
                      
+                      onChange={(e) => handleInputChange('password', e.target.value)}
                       id='input-new-password'
-                     
-                      endAdornment={
-                        <InputAdornment position='end'>
-                          <IconButton
-                            edge='end'
-                           
-                            onMouseDown={e => e.preventDefault()}
-                          >
-                            <Icon icon={  'mdi:eye-off-outline'} />
-                          </IconButton>
-                        </InputAdornment>
-                      }
+                     type='password'
+                      
                     />
                 
               
@@ -408,24 +426,22 @@ const TabAccount = () => {
                   Confirm New Password
                 </InputLabel>
               
-                    <OutlinedInput
-                      
-                      label='Confirm New Password'
-                    
-                      id='input-confirm-new-password'
-                    
-                      endAdornment={
-                        <InputAdornment position='end'>
-                          <IconButton
-                            edge='end'
-                            onMouseDown={e => e.preventDefault()}
-                          
-                          >
-                            <Icon icon={  'mdi:eye-off-outline'} />
-                          </IconButton>
-                        </InputAdornment>
-                      }
-                    />
+                <OutlinedInput
+  label='Confirm New Password'
+  id='input-confirm-new-password'
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+  endAdornment={
+    <InputAdornment position='end'>
+      <IconButton
+        edge='end'
+        onMouseDown={e => e.preventDefault()}
+      >
+        <Icon icon='mdi:eye-off-outline' />
+      </IconButton>
+    </InputAdornment>
+  }
+/>
                 
               
                   <FormHelperText sx={{ color: 'error.main' }}></FormHelperText>
@@ -436,17 +452,15 @@ const TabAccount = () => {
               <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>Password Requirements:</Typography>
               <Box component='ul' sx={{ pl: 4, mb: 0, '& li': { mb: 1, color: 'text.secondary' } }}>
                 <li>Minimum 8 characters long - the more, the better</li>
-                <li>At least one lowercase & one uppercase character</li>
+                
                 <li>At least one number, symbol, or whitespace character</li>
               </Box>
             </Grid>
             <Grid item xs={12}>
-              <Button variant='contained' type='submit' sx={{ mr: 3 }}>
+              <Button variant='contained' type='submit' onClick={handleUpdateEmployee} sx={{ mr: 3 }}>
                 Save Changes
               </Button>
-              <Button type='reset' variant='outlined' color='secondary' >
-                Reset
-              </Button>
+           
             </Grid>
           </Grid>
         </form>
