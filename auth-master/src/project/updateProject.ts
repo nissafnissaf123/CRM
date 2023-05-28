@@ -16,7 +16,7 @@ router.patch("/:id", async (req, res, next) => {
             data: req.body,
         });
 
-        res.json({ project });
+        res.json({Notification:true, project });
     } catch (error: any) {
         next(error.message);
     }
