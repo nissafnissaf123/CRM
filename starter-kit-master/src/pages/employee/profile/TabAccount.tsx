@@ -125,10 +125,41 @@ const TabAccount = ({ id }: Props) => {
     const reader = new FileReader();
     const { files } = file.target;
     if (files && files.length !== 0) {
-      reader.onload = () => {
+      reader.onload = async () => {
         const base64Image = reader.result as string;
         setAvatar(base64Image);
-        handleUpdateEmployee(base64Image); // Mettre à jour l'état de l'employé avec la nouvelle valeur de l'image
+        
+        try {
+          // Convert the base64 image to a Blob object
+          const base64Response = await fetch(base64Image);
+          const blob = await base64Response.blob();
+  
+          // Create a FormData object and append the blob image
+          const formData = new FormData();
+          formData.append('avatar', blob);
+
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          const employeeId = userData.id;
+  
+          // Send the FormData to the backend using fetch
+          const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
+            method: 'PATCH',
+            headers: {
+              // No need to set the 'Content-Type' header, it will be automatically set by fetch
+            },
+            body: formData,
+          });
+  
+          const updatedEmployee = await response.json();
+          console.log(updatedEmployee);
+  
+          toast.success('Employee updated successfully!');
+          // Handle the updated employee data as needed
+        } catch (error) {
+          console.error('Error updating employee:', error);
+          toast.error('Error updating employee');
+          // Handle update errors as needed
+        }
       };
       reader.readAsDataURL(files[0]);
     }
@@ -145,7 +176,7 @@ const TabAccount = ({ id }: Props) => {
   //Get Employee: 
 
   
-  const [avatar, setAvatar]= useState<string>('/images/avatars/1.png')
+  const [avatar, setAvatar]= useState<string>('')
   const [employee, setEmployee] = useState({
     id: "",
     fullname: "",
@@ -237,7 +268,7 @@ const TabAccount = ({ id }: Props) => {
           <form>
             <CardContent sx={{ pt: 0 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ImgStyled src={avatar} alt='Profile Pic' />
+                <ImgStyled src={employee.avatar} alt='Profile Pic' />
                 <div>
                   <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                     Upload New Photo

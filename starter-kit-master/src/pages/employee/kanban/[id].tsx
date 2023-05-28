@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Board from "src/pages/components/Board/Board";
+import Board from "src/pages/components/Board/BoardEmployee";
 import CustomInput from "src/pages/components/CustomInput/CustomInput";
 import { ICard, IBoard } from "src/pages/components/Interfaces/Kanban";
 import { fetchBoardList, updateLocalStorageBoards } from "src/pages/components//Helper/APILayers";
@@ -37,25 +37,33 @@ function Dashboard() {
           try {
             const response = await fetch(`http://localhost:4001/project/${id}`);
             const data = await response.json();
+
             setProject(data.project);
             setProjectId(data.project.id);
             const tempBoardsList = [...boards];
 
-            // Parcourez les cartes du projet de manière asynchrone
-            await Promise.all(
-              data.project.tasks.map(async (task: ICard) => {
-                // Trouvez le tableau correspondant en fonction du statut de la carte
-                const boardIndex = tempBoardsList.findIndex(
-                  (item: IBoard) => item.title === task.status
-                );
-        
-                // Si le tableau existe, ajoutez la carte à ce tableau
-                if (boardIndex !== -1) {
-                  tempBoardsList[boardIndex].cards.push(task);
-                }
-              })
-            );
-        
+            
+      //Get Id
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      const employeeId = userData.id;
+
+      // Filtrer les tâches du projet où l'ID de l'employé correspond à l'ID récupéré
+      const filteredTasks = data.project.tasks.filter(
+        (task: ICard) => task.projectId === id && task.employeeId === employeeId
+      );
+
+      // Parcourir les tâches filtrées
+      filteredTasks.forEach((task: ICard) => {
+        // Trouver le tableau correspondant en fonction du statut de la carte
+        const boardIndex = tempBoardsList.findIndex(
+          (item: IBoard) => item.title === task.status
+        );
+
+        // Si le tableau existe, ajouter la carte à ce tableau
+        if (boardIndex !== -1) {
+          tempBoardsList[boardIndex].cards.push(task);
+        }
+      });
             setBoards(tempBoardsList);
           } catch (error) {
             console.log(error);
@@ -235,39 +243,34 @@ const [targetCard, setTargetCard] = useState({
 
 
 
-const onDragEnd = async (boardId: number, cardId: string) => {
-  const sourceBoardIndex = boards.findIndex((item: IBoard) => item.id === boardId);
+const onDragEnd = async (sourceBoardId: number, sourceCardId: string) => {
+  const sourceBoardIndex = boards.findIndex((item: IBoard) => item.id === sourceBoardId);
   if (sourceBoardIndex < 0) return;
 
   const sourceCardIndex = boards[sourceBoardIndex]?.cards?.findIndex(
-    (item) => item.id === cardId,
+    (item) => item.id === sourceCardId,
   );
   if (sourceCardIndex < 0) return;
 
   const targetBoardIndex = boards.findIndex((item: IBoard) => item.id === targetCard.boardId);
   if (targetBoardIndex < 0) return;
 
-  const targetCardIndex = boards[targetBoardIndex]?.cards?.findIndex(
-    (item) => item.id === targetCard.cardId,
-  );
-  if (targetCardIndex < 0) return;
-
   const tempBoardsList = [...boards];
 
   const sourceCard = tempBoardsList[sourceBoardIndex].cards[sourceCardIndex];
-  sourceCard.status = tempBoardsList[targetBoardIndex].title; // Mettre à jour le statut de la carte avec le statut du tableau cible
+  sourceCard.status = tempBoardsList[targetBoardIndex].title; // Update the card's status with the target board's title
   tempBoardsList[sourceBoardIndex].cards.splice(sourceCardIndex, 1);
-  tempBoardsList[targetBoardIndex].cards.splice(targetCardIndex, 0, sourceCard);
+  tempBoardsList[targetBoardIndex].cards.push(sourceCard); // Push the card to the target board's cards array
   setBoards(tempBoardsList);
 
   try {
-    // Enregistrer la modification du statut de la carte dans le backend
-    const response = await fetch(`http://localhost:4001/task/${cardId}`, {
+    // Save the card's status update to the backend
+    const response = await fetch(`http://localhost:4001/task/${sourceCardId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status: sourceCard.status }), // Utilisez sourceCard.status pour mettre à jour le statut de la carte
+      body: JSON.stringify({ status: sourceCard.status }),
     });
 
     if (!response.ok) {
@@ -275,21 +278,22 @@ const onDragEnd = async (boardId: number, cardId: string) => {
     }
   } catch (error) {
     console.log(error);
-    // Gérez les erreurs de requête PATCH ici
+    // Handle PATCH request errors here
   }
 
   setTargetCard({
     boardId: 0,
-    cardId: "", // Réinitialisez l'état targetCard après l'opération de glisser-déposer
+    cardId: "",
   });
 };
 
 const onDragEnter = (boardId: number, cardId: string) => {
-  if (targetCard.cardId === cardId) return;
-  setTargetCard({
-    boardId: boardId,
-    cardId: cardId,
-  });
+  if (targetCard.cardId !== cardId || targetCard.boardId !== boardId) {
+    setTargetCard({
+      boardId: boardId,
+      cardId: cardId,
+    });
+  }
 };
 
   return (

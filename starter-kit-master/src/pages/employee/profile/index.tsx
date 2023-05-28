@@ -14,6 +14,9 @@ import CardContent from '@mui/material/CardContent'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
+import toast from 'react-hot-toast'
+import Tooltip from '@mui/material/Tooltip';
+
 
 // ** Third Party Imports
 import axios from 'axios'
@@ -45,7 +48,10 @@ const ProfilePicture = styled('img')(({ theme }) => ({
   }
 }))
 
+
+
 import { ProfileTeamsType, ProfileTabCommonType } from 'src/@fake-db/types'
+import { Avatar, AvatarGroup } from '@mui/material'
 
 const renderList = (arr: ProfileTabCommonType[]) => {
     if (arr && arr.length) {
@@ -79,6 +85,10 @@ const renderList = (arr: ProfileTabCommonType[]) => {
     }
   }
 
+
+   
+
+  
   
 
 
@@ -106,7 +116,8 @@ const UserProfileHeader = ({ id }: Props) => {
           slack:"",
           github:"",
           gitlab:"", 
-          createdAt:""
+          createdAt:"",
+          avatar:""
         });
       
         useEffect(() => {
@@ -136,6 +147,23 @@ const UserProfileHeader = ({ id }: Props) => {
         const formattedJoinDate = joinDate.toLocaleString('default', { month: 'long', year: 'numeric' });
         const capitalizedMonth = formattedJoinDate.charAt(0).toUpperCase() + formattedJoinDate.slice(1);
 
+
+
+        //Get Departments 
+   const [departments, setDepartments] = useState([]);
+
+   useEffect(() => {
+     fetch("http://localhost:4001/department")
+       .then((response) => response.json())
+       .then((data) => {
+         setDepartments(data.departments);
+       })
+      
+       .catch((error) => {
+         console.error(error);
+       });
+   }, []);
+
 return  (
     <>
     <Card>
@@ -157,7 +185,7 @@ return  (
           justifyContent: { xs: 'center', md: 'flex-start' }
         }}
       >
-        <ProfilePicture src='/images/pages/1.png'  alt='profile-picture' />
+        <ProfilePicture src={employee.avatar}  alt='profile-picture' />
         <Box
           sx={{
             width: '100%',
@@ -348,7 +376,7 @@ return  (
 
           <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Task to Compiled : 
+            Task Compiled : 
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
           4
@@ -357,29 +385,44 @@ return  (
 
         </Box>
 
-        <Box
-          
-          sx={{
-            display: 'flex',
-            '&:not(:last-of-type)': { mb: 4 },
-            '& svg': { color: 'text.secondary' }
-          }}
-        >
-          <Box sx={{ display: 'flex', mr: 2 }}>
-          <Icon icon='mdi:view-dashboard-outline' />
-          </Box>
+        
+        
+  
+    <Box>
+      <div>
+        <Typography variant='body2' sx={{ marginTop:"25px" ,mb: 4, color: 'text.disabled', textTransform: 'uppercase' }}>
+          Departments
+        </Typography>
+        {departments.map((department) => (
+  <Box
+    key={department.id}
+    sx={{
+      display: 'flex',
+      '&:not(:last-of-type)': { mb: 4 },
+      '& svg': { color: 'text.secondary' }
+    }}
+  >
+    <Box sx={{ display: 'flex', mr: 2 }}></Box>
 
-          <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Projects Compiled :
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-            3
-            </Typography>
-          </Box>
+    <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+      <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
+        {department.name} :
+      </Typography>
 
-        </Box>
-       
+      <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 30, height: 30, fontSize: '0.875rem' } }} >
+        {department.employee.map((employee) => (
+        <Tooltip title={employee.fullname} key={employee.id}>
+        <Avatar src={employee.avatar} alt={employee.fullname} />
+      </Tooltip>
+        ))}
+      </AvatarGroup>
+    </Box>
+  </Box>
+))}
+      </div>
+    </Box>
+ 
+
 
         
 
@@ -595,63 +638,7 @@ return  (
         </Card>
       </Grid>
     </Grid>
-<Grid item xs={12} md={4} >
-  <Card>
-    <CardContent>
-      <div>
-        <Typography variant='body2' sx={{ mb: 4, color: 'text.disabled', textTransform: 'uppercase' }}>
-          Departments
-        </Typography>
-        <Box
-          
-          sx={{
-            display: 'flex',
-            '&:not(:last-of-type)': { mb: 4 },
-            '& svg': { color: 'text.secondary' }
-          }}
-        >
-          <Box sx={{ display: 'flex', mr: 2 }}>
-          
-          </Box>
 
-          <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Web Develpment:
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-           (126 Members)
-            </Typography>
-          </Box>
-          
-
-        </Box>
-        <Box
-          
-          sx={{
-            display: 'flex',
-            '&:not(:last-of-type)': { mb: 4 },
-            '& svg': { color: 'text.secondary' }
-          }}
-        >
-          <Box sx={{ display: 'flex', mr: 2 }}>
-          
-          </Box>
-
-          <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Mobile Develpment:
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-           (15 Members)
-            </Typography>
-          </Box>
-          
-
-        </Box>
-      </div>
-    </CardContent>
-  </Card>
-</Grid>
 
 
 

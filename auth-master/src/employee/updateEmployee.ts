@@ -26,9 +26,9 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { v2: cloudinary } = require('cloudinary');
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: 'dymjsitwp',
-  api_key: '444551698815242',
-  api_secret: 'n5Ru7UvyLOR9t9Vwb7FSKxEx4m0'
+  cloud_name: 'dbopvb3i8',
+  api_key: '743974992731346',
+  api_secret: 'hRFjFTyFXF87wIH3AxOtt7MZ_dc'
 });
 
 // Configure multer and Cloudinary storage
@@ -41,29 +41,33 @@ const storage = new CloudinaryStorage({
   }
 });
 const upload = multer({ storage: storage });
-  router.patch("/:id", upload.single('avatar'),async (req, res, next) => {
+router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
   try {
     const { id } = req.params;
-<<<<<<< HEAD
-    const { email, username,password, avatar, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab } = req.body;
-=======
-    const { email, username,password, phone, departmentId ,fullname,poste,startDate,endDate} = req.body;
->>>>>>> a604d7c9176bb986466fc0d462a71a2bd522372d
+    const { email, username, password, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab, poste, startDate, endDate } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: { id: id },
-      data: { email, username,password },
+      data: { email, username, password },
     });
- if (!req.file) {
-      throw new Error('No file uploaded');
-      }   
+
+    let avatarPath = null;
+
+    const existingEmployee = await prisma.employee.findUnique({
+      where: { userId: id },
+    });
+
+    if (existingEmployee && req.file) {
+      // New avatar is uploaded
+      avatarPath = req.file.path;
+    } else if (existingEmployee) {
+      // No new avatar is uploaded, use the existing avatar path
+      avatarPath = existingEmployee.avatar;
+    }
+
     const updatedEmployee = await prisma.employee.update({
       where: { userId: id },
-<<<<<<< HEAD
-      data: { avatar, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab },
-=======
-      data: { avatar:req.file.path, phone, departmentId ,fullname,poste,startDate,endDate},
->>>>>>> a604d7c9176bb986466fc0d462a71a2bd522372d
+      data: { avatar: avatarPath, phone, departmentId, fullname, poste, startDate, endDate, departmentRole, adresse, facebook, instagram, slack, github, gitlab },
       include: { department: true },
     });
 

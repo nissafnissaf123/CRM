@@ -258,7 +258,7 @@ const columns: GridColDef[] = [
   
       return (
         <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
-         
+         {dateString}
         </Typography>
       );
     }

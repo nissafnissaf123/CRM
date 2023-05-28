@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MoreHorizontal } from "react-feather";
 
-import Card from "../Card/Card";
+import Card from "../Card/CardEmployee";
 import Dropdown from "../DropDown/DropDown";
 import CustomInput from "../CustomInput/CustomInput";
 
@@ -42,8 +42,8 @@ function Board(props: BoardProps) {
 
   return (
     <div className="board"  onDragEnter={() => onDragEnter(board.id, "")}>
-      <div className="board-inner " key={board?.id} >
-        <div className="board-header " >
+      <div className="board-inner" key={board?.id} >
+        <div className="board-header" >
           <p className="board-header-title">
            {board?.title}
             <span>{board?.cards?.length || 0}</span>
@@ -51,7 +51,7 @@ function Board(props: BoardProps) {
           </p>
          
         </div>
-        <div className="board-cards custom-scroll ">
+        <div className="board-cards custom-scroll">
           
           {board?.cards?.map((item) => (
             <Card
@@ -65,13 +65,7 @@ function Board(props: BoardProps) {
             />
           ))}
           
-          <CustomInput
-            text="+ Add Card"
-            placeholder="Enter Card Title"
-            displayClass="app-boards-add-board"
-            editClass="board-add-card-edit"
-            onSubmit={(value: string) => addCard(board?.id, value)}
-          />
+         
         </div>
       </div>
     </div>

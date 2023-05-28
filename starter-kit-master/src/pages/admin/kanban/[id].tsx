@@ -234,39 +234,34 @@ const [targetCard, setTargetCard] = useState({
 
 
 
-const onDragEnd = async (boardId: number, cardId: string) => {
-  const sourceBoardIndex = boards.findIndex((item: IBoard) => item.id === boardId);
+const onDragEnd = async (sourceBoardId: number, sourceCardId: string) => {
+  const sourceBoardIndex = boards.findIndex((item: IBoard) => item.id === sourceBoardId);
   if (sourceBoardIndex < 0) return;
 
   const sourceCardIndex = boards[sourceBoardIndex]?.cards?.findIndex(
-    (item) => item.id === cardId,
+    (item) => item.id === sourceCardId,
   );
   if (sourceCardIndex < 0) return;
 
   const targetBoardIndex = boards.findIndex((item: IBoard) => item.id === targetCard.boardId);
   if (targetBoardIndex < 0) return;
 
-  const targetCardIndex = boards[targetBoardIndex]?.cards?.findIndex(
-    (item) => item.id === targetCard.cardId,
-  );
-  if (targetCardIndex < 0) return;
-
   const tempBoardsList = [...boards];
 
   const sourceCard = tempBoardsList[sourceBoardIndex].cards[sourceCardIndex];
-  sourceCard.status = tempBoardsList[targetBoardIndex].title; // Mettre à jour le statut de la carte avec le statut du tableau cible
+  sourceCard.status = tempBoardsList[targetBoardIndex].title; // Update the card's status with the target board's title
   tempBoardsList[sourceBoardIndex].cards.splice(sourceCardIndex, 1);
-  tempBoardsList[targetBoardIndex].cards.splice(targetCardIndex, 0, sourceCard);
+  tempBoardsList[targetBoardIndex].cards.push(sourceCard); // Push the card to the target board's cards array
   setBoards(tempBoardsList);
 
   try {
-    // Enregistrer la modification du statut de la carte dans le backend
-    const response = await fetch(`http://localhost:4001/task/${cardId}`, {
+    // Save the card's status update to the backend
+    const response = await fetch(`http://localhost:4001/task/${sourceCardId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status: sourceCard.status }), // Utilisez sourceCard.status pour mettre à jour le statut de la carte
+      body: JSON.stringify({ status: sourceCard.status }),
     });
 
     if (!response.ok) {
@@ -274,21 +269,22 @@ const onDragEnd = async (boardId: number, cardId: string) => {
     }
   } catch (error) {
     console.log(error);
-    // Gérez les erreurs de requête PATCH ici
+    // Handle PATCH request errors here
   }
 
   setTargetCard({
     boardId: 0,
-    cardId: "", // Réinitialisez l'état targetCard après l'opération de glisser-déposer
+    cardId: "",
   });
 };
 
 const onDragEnter = (boardId: number, cardId: string) => {
-  if (targetCard.cardId === cardId) return;
-  setTargetCard({
-    boardId: boardId,
-    cardId: cardId,
-  });
+  if (targetCard.cardId !== cardId || targetCard.boardId !== boardId) {
+    setTargetCard({
+      boardId: boardId,
+      cardId: cardId,
+    });
+  }
 };
 
   return (

@@ -143,6 +143,7 @@ const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
       .then((res) => res.json())
       .then(() => {
         handleClose();
+        
       })
   } else {
     alert("Invalid input");
