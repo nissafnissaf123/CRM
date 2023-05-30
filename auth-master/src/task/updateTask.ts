@@ -36,17 +36,18 @@ router.patch("/:id", async (req, res, next) => {
             },
         });
          let notification;
+    const employee = await prisma.employee.findFirst({});
+    const employeeName = employee?.fullname;
 
     if (req.body.status) {
       // If an employee updates the task status, send notification to the admin
         const admin = await prisma.admin.findFirst();
         const adminId = admin?.userId;
-       
-        notification = await createNotification("task status updated", adminId, undefined, undefined);
+        notification = await createNotification( `task status updates by the employee ${employeeName}`, adminId, undefined, undefined);
     } else {
          const employee = await prisma.employee.findFirst();
         const employeeId = employee?.userId;
-        notification = await createNotification("task updated", undefined, employeeId, undefined);
+        notification = await createNotification("task updated by the admin", undefined, employeeId, undefined);
     }
         
         res.json({ task, notification });

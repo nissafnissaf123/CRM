@@ -70,12 +70,14 @@ router.patch("/:id", async (req, res, next) => {
     });
 
     let notification;
-
+    const employee = await prisma.employee.findFirst({});
+    const employeeName = employee?.fullname;
+    const client = await prisma.client.findFirst({});
+    const clientName = client?.fullname;
     if (req.body.employeeId) {
       // If an admin updates the ticket (adds an employee), send notification to the employee
-       
-        const employee = await prisma.employee.findFirst();
-        const employeeId = employee?.userId;
+      const employee = await prisma.employee.findFirst();
+      const employeeId = employee?.userId;
         notification = await createNotification("Ticket assigned to you", undefined, employeeId, undefined);
       
     } else if (req.body.status == 'resolved') {
@@ -84,13 +86,13 @@ router.patch("/:id", async (req, res, next) => {
         const adminId = admin?.userId;
         const client = await prisma.client.findFirst();
         const clientId = client?.userId;
-      notification = await createNotification("Ticket Resolved ", adminId, undefined, clientId);
+      notification = await createNotification(`Ticket Resolved by the employee ${employeeName}`, adminId, undefined, clientId);
       
     }else if (req.body.status) {
       // If an employee updates the ticket (updates the status), send notification to the admin 
         const admin = await prisma.admin.findFirst();
         const adminId = admin?.userId;
-        notification = await createNotification("Ticket status updated", adminId, undefined, undefined);
+        notification = await createNotification(`Ticket status updated by ${employeeName}`, adminId, undefined, undefined);
       
     }
     else {
@@ -98,7 +100,7 @@ router.patch("/:id", async (req, res, next) => {
       const adminId = admin?.userId;
       const employee = await prisma.employee.findFirst();
       const employeeId = employee?.userId;
-      notification = await createNotification("Ticket updated by the customer", adminId, employeeId, undefined);
+      notification = await createNotification(`Ticket updated by the customer ${clientName}`, adminId, employeeId, undefined);
     }
     res.json({ updatedTicket, notification });
   } catch (error: any) {
