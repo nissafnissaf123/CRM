@@ -302,39 +302,14 @@ useEffect(() => {
 
   </div>
 
-  <p className="card-footer-item" style={{ marginTop: '-6px' }}>
-  {task && task.employee  &&(
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <CustomAvatar style={{ marginRight: '0.5rem', width: '25px', height: '25px' }} src={task.employee.avatar} />
-      <Typography>{task.employee.fullname}</Typography>
-    </Box>
- 
-   
+    <p className="card-footer-item"  style={{marginTop:'-6px'}}>
+    {task.employee && (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <CustomAvatar style={{marginRight: '0.5rem', width: '25px', height: '25px' }} src={task.employee.avatar} ></CustomAvatar>
+    <Typography>{task.employee?.fullname}</Typography></Box>
   )}
-</p>
-  <Grid  style={{marginTop:'9px'}} item sm={8} xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id='status-select'>Select Employee</InputLabel>
-                <Select
-                 inputProps={{ placeholder: 'Select Employee' }} 
-                 fullWidth 
-                 labelId='employee-select' 
-                 
-                 value={cardValues.employee}
-                 name='employees'
-                 onChange={(e) => {setCardValues({ ...cardValues, employee: e.target.value }); updateEmployee(e.target.value);}}
-                 label='Select Employee'>
-
-{ employees.map((dep) => ( 
-<MenuItem key={dep.id} value={dep.userId}>
-<Box sx={{ display: 'flex', alignItems: 'center' }}>
-    <CustomAvatar src={dep.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
-    <Typography>{dep.fullname}</Typography>
-  </Box>
-  </MenuItem> // Use dep.id as the value
-      ))}
-                </Select>
-              </FormControl></Grid>
+   </p>
+  
 
       
      

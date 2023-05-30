@@ -27,9 +27,7 @@ router.get("/:id", async (req, res, next) => {
             where: {
                 id: String(req.params.id),
             },
-            include: {
-                employee: { select: { userId: true } },
-        project:true    }
+            include: { employee: : true  ,project:true   }
         });
 
         res.json({ task });

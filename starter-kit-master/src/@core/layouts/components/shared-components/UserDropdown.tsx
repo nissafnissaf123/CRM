@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment } from 'react'
+import { useState, SyntheticEvent, Fragment, useEffect } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -25,6 +25,7 @@ import { Settings } from 'src/@core/context/settingsContext'
 
 interface Props {
   settings: Settings
+  id: string;
 }
 
 // ** Styled Components
@@ -81,6 +82,50 @@ const UserDropdown = (props: Props) => {
     handleDropdownClose()
   }
 
+
+  //Get Employee 
+  //Get Employee
+
+  const [employee, setEmployee] = useState({
+    id: "",
+    fullname: "",
+    phone: "",
+    user: { email: "", username: "" },
+    department: { name: "" },
+    departmentRole:"",
+    adresse:"",
+    facebook:"",
+    instagram:"",
+    slack:"",
+    github:"",
+    gitlab:"", 
+    createdAt:"",
+    avatar:""
+  });
+
+  useEffect(() => {
+    const fetchEmployeeById = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        console.log(userData)
+        const employeeId = userData.id;
+        console.log(employeeId)
+        
+       // Retrieve the employee data from local storage or from an API
+      const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
+      const data = await response.json();
+
+      // Set the employee state with the retrieved data
+      setEmployee(data.employee);
+      console.log(data.employee);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    
+    fetchEmployeeById();
+  }, []);
+
   return (
     <Fragment>
       <Badge
@@ -97,7 +142,7 @@ const UserDropdown = (props: Props) => {
           alt='John Doe'
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
-          src='/images/avatars/1.png'
+          src={employee.avatar}
         />
       </Badge>
       <Menu
@@ -118,12 +163,12 @@ const UserDropdown = (props: Props) => {
                 horizontal: 'right'
               }}
             >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt='John Doe' src={employee.avatar} sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
+              <Typography sx={{ fontWeight: 600 }}>{employee.fullname}</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                Admin
+                {employee.departmentRole}
               </Typography>
             </Box>
           </Box>
@@ -135,18 +180,8 @@ const UserDropdown = (props: Props) => {
             Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='mdi:email-outline' />
-            Inbox
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='mdi:message-outline' />
-            Chat
-          </Box>
-        </MenuItem>
+       
+       
         <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
@@ -154,12 +189,7 @@ const UserDropdown = (props: Props) => {
             Settings
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='mdi:currency-usd' />
-            Pricing
-          </Box>
-        </MenuItem>
+        
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
             <Icon icon='mdi:help-circle-outline' />

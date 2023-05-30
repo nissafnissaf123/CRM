@@ -242,6 +242,7 @@ const columns: GridColDef[] = [
       const [showDialog, setShowDialog] = useState<boolean>(false);
       const [status, setStatus] = useState("");
       const [employee, setEmployee] = useState("");
+      const [employeeId, setEmployeeId] = useState('');
       const [ticket, setTicket] = useState
   ({
     id: "",
@@ -249,7 +250,7 @@ const columns: GridColDef[] = [
     emergencyLevel: "",
     status: "",
     client: { fullname: "" },
-    employee: {fullname:""}
+    employee: {fullname:"" , userId:""}
     
    });
  
@@ -272,6 +273,7 @@ const columns: GridColDef[] = [
     setShowDialog(true);
     setStatus(ticket.status);
     setEmployee(ticket.employee?.fullname)
+    setEmployeeId(ticket.employee?.userId);
   }, [setShowDialog, ticket]);
 
   
@@ -289,7 +291,7 @@ const columns: GridColDef[] = [
           },
           body: JSON.stringify({
             status: status,
-            employeeId: employee,
+            employeeId: employeeId,
      
           
           
@@ -326,7 +328,7 @@ const columns: GridColDef[] = [
     fetch("http://localhost:4001/employee")
       .then(response => response.json())
       .then(data => {
-        setEmployees(data.employee);
+        setEmployees(data.employees);
 
       })
       .catch(error => {
@@ -405,9 +407,9 @@ const columns: GridColDef[] = [
                  inputProps={{ placeholder: 'Select Employee' }} 
                  fullWidth 
                  labelId='employee-select' 
-                 value={employee}
+                 value={employeeId}
                  name='employees'
-                 onChange={(e) => setEmployee(e.target.value)}
+                 onChange={(e) => setEmployeeId(e.target.value)}
                  label='Select Employee'>
 
 {employees.map((dep) => ( 
