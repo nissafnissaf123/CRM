@@ -13,10 +13,10 @@ router.patch("/:id", async (req, res, next) => {
             where: {
                 id: String(req.params.id),
             },
-            data: req.body,
+            data: { ...req.body },
         });
 
-        res.json({Notification:true, project });
+        res.json({ project });
     } catch (error: any) {
         next(error.message);
     }

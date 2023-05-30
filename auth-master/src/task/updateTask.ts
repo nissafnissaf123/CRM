@@ -13,10 +13,32 @@ router.patch("/:id", async (req, res, next) => {
             where: {
                 id: String(req.params.id),
             },
-            data: req.body,
+            data: {
+                description: req.body.description,
+                name: req.body.name,
+                priority: req.body.priority,
+                projectId: req.body.projectId,
+                startDate: req.body.startDate,
+                status: req.body.status,
+                employeeId: req.body.employeeId
+            },
         });
-
-        res.json({ task });
+        console.log(task)
+        // Get the admin ID
+            const admin = await prisma.admin.findFirst();
+            const adminId = admin?.userId;
+        if (!adminId) {
+            throw new Error("No admin found in the database");
+        }
+        console.log(adminId)
+    const notification = await prisma.notification.create({
+        data: {
+            name: "Task updated",
+            adminId: adminId,
+        },
+    });
+        console.log(notification)
+        res.json({ task, notification });
     } catch (error: any) {
         next(error.message);
     }

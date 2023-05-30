@@ -20,7 +20,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // get a project by id
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", async (req, res) => {
     try {
       const project = await prisma.project.findUnique({
         where: {
@@ -64,8 +64,31 @@ router.get("/:id", async (req, res, next) => {
       }
   
       project.progress = progress;
-      console.log(project)
-      res.json({ project });
+      console.log(progress)
+      const projects = await prisma.project.findUnique({
+        where: {
+          id: String(req.params.id),
+        }
+      });
+        const projectName = projects?.name;
+        const admin = await prisma.admin.findFirst();
+        const adminId = admin?.userId;
+        if (!adminId) {
+            throw new Error("No admin found in the database");
+        }
+        let notification;
+
+      if (progress === 100) {
+       notification =  await prisma.notification.create({
+        data: {
+          name:  `Project '${projectName}' completed`,
+          adminId: adminId,
+        },
+      });
+        console.log(notification)
+      }
+        
+      res.json({ project ,notification});
     } catch (error) {
     console.error('Error occurred while counting tasks:', error);
     }

@@ -51,13 +51,11 @@ const upload = multer({ storage: storage });
       where: { id: id },
       data: { email, username,password },
     });
- if (!req.file) {
-      throw new Error('No file uploaded');
-      }   
+   
     const updatedEmployee = await prisma.employee.update({
       where: { userId: id },
 
-      data: { avatar:req.file.path, phone, departmentId, fullname,poste,startDate,endDate, adresse, facebook, instagram, slack, github, gitlab },
+      data: { avatar:req.file?.path, phone, departmentId, fullname,poste,startDate,endDate, adresse, facebook, instagram, slack, github, gitlab },
       include: { department: true },
     });
 
