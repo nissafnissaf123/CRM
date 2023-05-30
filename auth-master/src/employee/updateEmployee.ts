@@ -44,12 +44,10 @@ const upload = multer({ storage: storage });
 router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
   try {
     const { id } = req.params;
-<<<<<<< HEAD
-    const { email, username, password, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab, poste, startDate, endDate } = req.body;
-=======
 
-    const { email, username,password, avatar, phone, departmentId,poste,startDate,endDate, fullname, adresse, facebook, instagram, slack, github, gitlab } = req.body;
->>>>>>> f1170a7b8a2bda2c8e75e3b890a99a21bdac4003
+    const { email, username, password, phone, departmentId, fullname, departmentRole, adresse, facebook, instagram, slack, github, gitlab, poste, startDate, endDate } = req.body;
+
+
 
     const updatedUser = await prisma.user.update({
       where: { id: id },
@@ -72,12 +70,11 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
 
     const updatedEmployee = await prisma.employee.update({
       where: { userId: id },
-<<<<<<< HEAD
-      data: { avatar: avatarPath, phone, departmentId, fullname, poste, startDate, endDate, departmentRole, adresse, facebook, instagram, slack, github, gitlab },
-=======
 
-      data: { avatar:req.file.path, phone, departmentId, fullname,poste,startDate,endDate, adresse, facebook, instagram, slack, github, gitlab },
->>>>>>> f1170a7b8a2bda2c8e75e3b890a99a21bdac4003
+      data: { avatar: avatarPath, phone, departmentId, fullname, poste, startDate, endDate, departmentRole, adresse, facebook, instagram, slack, github, gitlab },
+
+
+  
       include: { department: true },
     });
 

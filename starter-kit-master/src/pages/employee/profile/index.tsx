@@ -358,32 +358,9 @@ return  (
        
       </Box>
       <Box sx={{ mb: 7 }}>
-        <Typography variant='body2' sx={{ mb: 4, color: 'text.disabled', textTransform: 'uppercase' }}>
-         Projects
-        </Typography>
+      
 
-        <Box
-          
-          sx={{
-            display: 'flex',
-            '&:not(:last-of-type)': { mb: 4 },
-            '& svg': { color: 'text.secondary' }
-          }}
-        >
-          <Box sx={{ display: 'flex', mr: 2 }}>
-          <Icon icon='mdi:checkbox-marked-circle-outline' />
-          </Box>
-
-          <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Task Compiled : 
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-          4
-            </Typography>
-          </Box>
-
-        </Box>
+        
 
         
         
@@ -521,6 +498,42 @@ return  (
                     <Icon icon={  'mdi:link-variant'} />
                   </Button>
                 </Box>
+                <Box
+                 style={{marginTop:"25px"}}
+                  sx={{
+                    gap: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    '&:not(:last-of-type)': { mb: 4 }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
+                      <img  height='30' src= '/images/pages/in5.png' />
+                    </Box>
+                    <div>
+                    <Typography sx={{ fontWeight: 500 }}>LinkedIn</Typography>
+                    <Typography
+                          href='/'
+                          component={Link}
+                         
+                          sx={{ color: 'primary.main', textDecoration: 'none' }}
+                        >
+                          {employee.intagram}
+                        </Typography>
+                        
+                     
+                    </div>
+                  </Box>
+                  <Button
+                    variant='outlined'
+                    sx={{ p: 1.5, minWidth: 38 }}
+                    color={'secondary'}
+                  >
+                    <Icon icon={  'mdi:link-variant'} />
+                  </Button>
+                </Box>
 
                 <Box
                  style={{marginTop:"25px"}}
@@ -607,7 +620,7 @@ return  (
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/git.jpg' />
+                      <img  height='30' src= '/images/pages/gitlab2.png' />
                     </Box>
                     <div>
                     <Typography sx={{ fontWeight: 500 }}>GitLab</Typography>
