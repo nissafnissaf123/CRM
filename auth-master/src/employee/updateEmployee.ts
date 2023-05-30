@@ -81,7 +81,7 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
     console.log(updatedUser);
     console.log(updatedEmployee);
 
-    res.json({ Notification:true, employee: updatedEmployee });
+    res.json({ employee: updatedEmployee });
   } catch (error: any) {
   console.error('Error updating employee:', error);
     const updatedError = new error('Something went wrong while updating the employee!');

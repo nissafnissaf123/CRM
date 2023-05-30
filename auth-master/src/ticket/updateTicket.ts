@@ -73,31 +73,25 @@ router.patch("/:id", async (req, res, next) => {
 
     if (req.body.employeeId) {
       // If an admin updates the ticket (adds an employee), send notification to the employee
-        const admin = await prisma.admin.findFirst();
-        const adminId = admin?.userId;
+       
         const employee = await prisma.employee.findFirst();
         const employeeId = employee?.userId;
-      if (adminId && employeeId) {
         notification = await createNotification("Ticket assigned to you", undefined, employeeId, undefined);
-      }
+      
     } else if (req.body.status == 'resolved') {
       // If an employee updates the ticket (updates the status to resolved), send notification to the admin and client
         const admin = await prisma.admin.findFirst();
         const adminId = admin?.userId;
         const client = await prisma.client.findFirst();
         const clientId = client?.userId;
-      if (adminId && clientId) {
-        notification = await createNotification("Ticket Resolved ", adminId, undefined, clientId);
-      }
+      notification = await createNotification("Ticket Resolved ", adminId, undefined, clientId);
+      
     }else if (req.body.status) {
       // If an employee updates the ticket (updates the status), send notification to the admin 
         const admin = await prisma.admin.findFirst();
         const adminId = admin?.userId;
-        const client = await prisma.client.findFirst();
-        const clientId = client?.userId;
-      if (adminId && clientId) {
-        notification = await createNotification("Ticket status updated  ", adminId, undefined, undefined);
-      }
+        notification = await createNotification("Ticket status updated", adminId, undefined, undefined);
+      
     }
     else {
       const admin = await prisma.admin.findFirst();

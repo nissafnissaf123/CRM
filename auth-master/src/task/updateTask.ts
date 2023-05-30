@@ -6,6 +6,18 @@ const prisma = new PrismaClient();
 
 router.use(express.urlencoded({ extended: true }));
 
+// Create a notification
+const createNotification = async (name: string, adminId: string | undefined, employeeId: string | undefined, clientId: string | undefined) => {
+  return prisma.notification.create({
+    data: {
+      name: name,
+      adminId: adminId,
+      employeeId: employeeId,
+      clientId: clientId,
+    },
+  });
+};
+
 // update a task
 router.patch("/:id", async (req, res, next) => {
     try {
@@ -23,21 +35,20 @@ router.patch("/:id", async (req, res, next) => {
                 employeeId: req.body.employeeId
             },
         });
-        console.log(task)
-        // Get the admin ID
-            const admin = await prisma.admin.findFirst();
-            const adminId = admin?.userId;
-        if (!adminId) {
-            throw new Error("No admin found in the database");
-        }
-        console.log(adminId)
-    const notification = await prisma.notification.create({
-        data: {
-            name: "Task updated",
-            adminId: adminId,
-        },
-    });
-        console.log(notification)
+         let notification;
+
+    if (req.body.status) {
+      // If an employee updates the task status, send notification to the admin
+        const admin = await prisma.admin.findFirst();
+        const adminId = admin?.userId;
+       
+        notification = await createNotification("task status updated", adminId, undefined, undefined);
+    } else {
+         const employee = await prisma.employee.findFirst();
+        const employeeId = employee?.userId;
+        notification = await createNotification("task updated", undefined, employeeId, undefined);
+    }
+        
         res.json({ task, notification });
     } catch (error: any) {
         next(error.message);
