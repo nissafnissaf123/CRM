@@ -25,18 +25,20 @@ model User {
 }
 
 model Admin {
-  createdAt DateTime @default(now())
-  id        String   @id @default(cuid())
-  avatar    String?
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @unique
-  updatedAt DateTime @updatedAt
- 
+  createdAt     DateTime       @default(now())
+  id            String         @id @default(cuid())
+  avatar        String?
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String         @unique
+  updatedAt     DateTime       @updatedAt
+  keys          Json?
+  endpoint      String?
+  notifications Notification[]
 }
 
 model Project {
   budget      String?
-  client      Client?            @relation(fields: [clientId], references: [id])
+  client      Client?            @relation(fields: [clientId], references: [userId])
   clientId    String?
   createdAt   DateTime           @default(now())
   description String?
@@ -79,8 +81,21 @@ model Label {
   task   Task   @relation(fields: [taskId], references: [id])
 }
 
+model Notification {
+  id         String    @id @default(cuid())
+  name       String
+  adminId    String?
+  admin      Admin?    @relation(fields: [adminId], references: [userId])
+  employee   Employee? @relation(fields: [employeeId], references: [userId])
+  employeeId String?
+  client     Client?   @relation(fields: [clientId], references: [userId])
+  clientId   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
 model Ticket {
-  client         Client?             @relation(fields: [clientId], references: [id])
+  client         Client?             @relation(fields: [clientId], references: [userId])
   clientId       String?
   createdAt      DateTime            @default(now())
   description    String?
@@ -93,12 +108,12 @@ model Ticket {
   status         EnumTicketStatus?
   updatedAt      DateTime            @updatedAt
   video          String?
-  employee   Employee? @relation(fields: [employeeId], references: [userId])
-  employeeId String?
+  employee       Employee?           @relation(fields: [employeeId], references: [userId])
+  employeeId     String?
 }
 
 model Invoice {
-  client            Client?   @relation(fields: [clientId], references: [id])
+  client            Client?   @relation(fields: [clientId], references: [userId])
   clientId          String?
   createdAt         DateTime  @default(now())
   date              DateTime?
@@ -111,22 +126,23 @@ model Invoice {
 }
 
 model Client {
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String    @unique
-  companyName String?
-  createdAt   DateTime  @default(now())
-  facebook    String?
-  id          String    @id @default(cuid())
-  instagram   String?
-  avatar      String?
-  invoices    Invoice[]
-  projects    Project[]
-  taxId       String?
-  fullname    String
-  phone       String?
-  tickets     Ticket[]
-  updatedAt   DateTime  @updatedAt
-  whatsapp    String?
+  user          User           @relation(fields: [userId], references: [id])
+  userId        String         @unique
+  companyName   String?
+  createdAt     DateTime       @default(now())
+  facebook      String?
+  id            String         @id @default(cuid())
+  instagram     String?
+  avatar        String?
+  invoices      Invoice[]
+  projects      Project[]
+  taxId         String?
+  fullname      String
+  phone         String?
+  tickets       Ticket[]
+  updatedAt     DateTime       @updatedAt
+  whatsapp      String?
+  notifications Notification[]
 }
 
 model Trainee {
@@ -146,28 +162,29 @@ model Trainee {
 }
 
 model Employee {
-  user         User        @relation(fields: [userId], references: [id])
-  userId       String      @unique
-  id           String      @id @default(cuid())
-  phone        String?
-  startDate    DateTime?
-  updatedAt    DateTime    @updatedAt
-  poste        String?
-  endDate      DateTime?
-  avatar       String?
-  departmentRole     String?
-  adresse      String?
-  facebook     String?
-  instagram    String?
-  slack        String?
-  github       String?
-  gitlab       String?
-  fullname     String?
-  createdAt    DateTime    @default(now())
-  task         Task[]
-  tickets Ticket[]
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId String?
+  user           User           @relation(fields: [userId], references: [id])
+  userId         String         @unique
+  id             String         @id @default(cuid())
+  phone          String?
+  startDate      DateTime?
+  updatedAt      DateTime       @updatedAt
+  poste          String?
+  endDate        DateTime?
+  avatar         String?
+  departmentRole String?
+  adresse        String?
+  facebook       String?
+  instagram      String?
+  slack          String?
+  github         String?
+  gitlab         String?
+  fullname       String?
+  createdAt      DateTime       @default(now())
+  task           Task[]
+  tickets        Ticket[]
+  department     Department?    @relation(fields: [departmentId], references: [id])
+  departmentId   String?
+  notifications  Notification[]
 }
 
 model Department {

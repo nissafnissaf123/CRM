@@ -7,7 +7,13 @@ const prisma = new PrismaClient();
 // get all tasks
 router.get("/", async (req, res, next) => {
     try {
-        const tasks = await prisma.task.findMany({});
+        const tasks = await prisma.task.findMany({
+             include: {
+                employee: true,
+                project:true
+            }
+           
+        });
 
         res.json({ tasks });
     } catch (error: any) {
@@ -21,7 +27,7 @@ router.get("/:id", async (req, res, next) => {
             where: {
                 id: String(req.params.id),
             },
-            include: { employee: true}
+            include: { employee:  true  ,project:true   }
         });
 
         res.json({ task });
