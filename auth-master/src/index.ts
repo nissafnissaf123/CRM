@@ -14,6 +14,7 @@ import clientDetails from './client/getClient';
 
 import createDepartment from './department/createDepartment'
 import departmentDetails from './department/detailDepartment'
+import updateDepartment from './department/updateDepartment'
 
 import createInvoice from './invoice/createInvoice';
 import invoiceDetails from './invoice/getInvoice';
@@ -24,7 +25,6 @@ import taskDetails from './task/detailTask';
 import updateTask from './task/updateTask';
 import deleteTask from './task/deleteTask';
 
-import createLabel from './label/CreateLabel';
 
 import createCategory from './category/createCategory';
 import categoryDetails from './category/detailCategory';
@@ -67,14 +67,13 @@ app.use(function(req, res, next) {
 app.use('/auth', authRoutes);
 app.use('/project', createProject, projectDetails, updateProject, deleteProject);
 app.use('/client', createClient, deleteClient, clientUpdate, clientDetails);
-app.use('/department', createDepartment, departmentDetails);
+app.use('/department', createDepartment, departmentDetails,updateDepartment);
 app.use('/invoice', createInvoice, invoiceDetails, updateInvoice);
 app.use('/task', createTask, taskDetails, deleteTask, updateTask);
 app.use('/category', createCategory, categoryDetails);
 app.use('/ticket', createTicket, deleteTicket, ticketDetails, updateTicket);
 app.use('/employee', createEmployee, updateEmployee, employeeDetails);
 app.use('/trainee', createTrainee, traineeDetails, updateTrainee);
-app.use('/label',createLabel)
 app.use(errorHandler);
 
 async function testConnection() {
