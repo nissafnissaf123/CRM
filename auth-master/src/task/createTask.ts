@@ -21,7 +21,6 @@ router.post("/", async (req, res, next) => {
                 employee: true,
                 project:true
             }
-           
         });
   const notification = await prisma.notification.create({
       data: {
