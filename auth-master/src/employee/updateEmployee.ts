@@ -5,22 +5,6 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.use(express.urlencoded({ extended: true }));
-/*
-router.patch("/:id", async (req, res) => {
-  try {
-      const employee = await prisma.employee.update({
-        where: {
-          id: String(req.params.id),
-        },
-        data: req.body,
-      });
-  
-      res.json({ employee });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-});*/
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { v2: cloudinary } = require('cloudinary');
@@ -54,7 +38,6 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
     });
 
     let avatarPath = null;
-
     const existingEmployee = await prisma.employee.findUnique({
       where: { userId: id },
     });
@@ -63,7 +46,6 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
       // New avatar is uploaded
       avatarPath = req.file.path;
     } else if (existingEmployee) {
-      // No new avatar is uploaded, use the existing avatar path
       avatarPath = existingEmployee.avatar;
     }
 
@@ -85,7 +67,6 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
   } catch (error: any) {
   console.error('Error updating employee:', error);
     const updatedError = new error('Something went wrong while updating the employee!');
-    (updatedError as any).Notification = false;
     next(updatedError);
   }
 });

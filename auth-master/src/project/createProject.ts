@@ -10,6 +10,9 @@ router.post("/", async (req, res, next) => {
     try {
         const project = await prisma.project.create({
             data: { name: '', ...req.body },
+            include: {
+                client:true
+            }
         });
 
         res.json({ project });
