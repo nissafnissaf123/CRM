@@ -31,8 +31,9 @@ const TableHeader = (props: TableHeaderProps) => {
   const [fullname, setFullname] = useState('')
 
   const handleDepartmentChange = (event: SelectChangeEvent) => {
-    setDepartmentFilter(event.target.value);
-    handleDepartmentFilter(event.target.value);
+    const selectedDepartmentId = event.target.value;
+    setDepartmentFilter(selectedDepartmentId);
+    handleDepartmentFilter(selectedDepartmentId);
   };
 
   const handleFullnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,29 +41,46 @@ const TableHeader = (props: TableHeaderProps) => {
     handleFilter(event.target.value);
   };
 
+  //Get Departments
+  const [departments, setDepartments] = useState([]);
+  
+  
+  const fetchDepartments = () => {
+    fetch("http://localhost:4001/department")
+      .then(response => response.json())
+      .then(data => {
+        setDepartments(data.departments);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    fetchDepartments()
+  }, []);
+
 
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
       <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='department-select'>Select Department</InputLabel>
-                  <Select
-                    fullWidth
-                    value={departmentFilter}
-                    id='select-department'
-                    label='Select Department'
-                    labelId='department-select'
-                    onChange={handleDepartmentChange}
-                    inputProps={{ placeholder: 'Select Departement' }}
-                  >
-                    <MenuItem value=''>Select Department</MenuItem>
-                    <MenuItem value='admin'>Web Development</MenuItem>
-                    <MenuItem value='author'>Mobile Development</MenuItem>
-                    <MenuItem value='editor'>UI/UX Design</MenuItem>
-                    <MenuItem value='maintainer'>Digital Marketing</MenuItem>
-                    
-                  </Select>
-                </FormControl>
+      <FormControl fullWidth sx={{ mb: 6 }}>
+  <InputLabel id="departement-select">Select Department</InputLabel>
+  <Select
+    fullWidth
+    id="select-departement"
+    label="Select Department"
+    labelId="departement-select"
+    inputProps={{ placeholder: "Select Department" }}
+    onChange={handleDepartmentChange}
+   
+  >
+    <MenuItem value="">All Departments</MenuItem>
+    {departments.map((dep) => (
+      <MenuItem key={dep.id} value={dep.id}>{dep.name}</MenuItem> // Use dep.id as the value
+    ))}
+  </Select>
+</FormControl>
               </Grid>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField

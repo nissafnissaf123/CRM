@@ -2,7 +2,14 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+<<<<<<< HEAD
+
+import bcrypt from 'bcryptjs';
+
+
+=======
 const bcrypt = require('bcryptjs');
+>>>>>>> c8195efdb6d50f42f7b7f4607093e687fa15b83a
 const prisma = new PrismaClient();
 const router = express.Router();
 

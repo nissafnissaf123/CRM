@@ -1,6 +1,10 @@
 // ** React Imports
 import { useState, ElementType, ChangeEvent, useEffect } from 'react'
 
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup';
+
+
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
@@ -83,6 +87,14 @@ const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htm
   }
 }))
 
+const schema = yup.object().shape({
+  password: yup
+    .string()
+    .required('Password is required')
+    .min(8, 'Password must be at least 8 characters long')
+    .matches(/^(?=.*[\d\s!@#$%^&*])[\w\d\s!@#$%^&*]+$/, 'Password must contain at least one number, symbol, or whitespace character'),
+});
+
 const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
   marginLeft: theme.spacing(4),
   [theme.breakpoints.down('sm')]: {
@@ -107,7 +119,7 @@ const TabAccount = ({ id }: Props) => {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm({ defaultValues: { checkbox: false } })
+  } = useForm({   resolver: yupResolver(schema),})
 
   const handleClose = () => setOpen(false)
 
@@ -191,7 +203,7 @@ const TabAccount = ({ id }: Props) => {
     github:"",
     gitlab:"",
     avatar:"",
-    
+    password:""
   });
 
   useEffect(() => {
@@ -220,10 +232,13 @@ const TabAccount = ({ id }: Props) => {
     fetchEmployeeById();
   }, [id]);
 
-  const handleUpdateEmployee = async () => {
+  const handleUpdateEmployee = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
     try {
       const userData = JSON.parse(localStorage.getItem('userData'));
       const employeeId = userData.id;
+
+     
   
       const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
         method: 'PATCH',
@@ -255,7 +270,57 @@ const TabAccount = ({ id }: Props) => {
   };
 
   const [confirmPassword, setConfirmPassword] = useState('');
+
+
+  //Update Password
+  const [newPassword, setNewPassword] = useState('');
+  const [isValidPassword, setIsValidPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+
+  const validatePassword = (password) => {
+    // Vérifiez ici si le mot de passe respecte les exigences
+    // Par exemple, en utilisant des expressions régulières
+    
+    // Exemple : Au moins 8 caractères, au moins un chiffre et un caractère spécial
+    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/;
+    
+    return passwordRegex.test(password);
+  };
+ 
+  const handleUpdatePaswword = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      const employeeId = userData.id;
   
+      // Vérifiez si le nouveau mot de passe est valide en utilisant la fonction de validation
+      const isValid = validatePassword(newPassword);
+  
+      if (isValid && newPassword === confirmPassword) {
+        const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...employee, password: newPassword }), // Inclure le nouveau mot de passe dans les données envoyées
+        });
+  
+        const updatedEmployee = await response.json();
+        console.log(updatedEmployee);
+  
+        toast.success('Password updated successfully!');
+        // Gérez les données de l'employé mis à jour si nécessaire
+      } else if (!isValid) {
+        toast.error('Invalid password. Please check the password requirements.');
+      } else {
+        toast.error("Passwords don't match. Please confirm your new password.");
+      }
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      toast.error('Error updating employee');
+      // Gérez les erreurs de mise à jour si nécessaire
+    }
+  };
 
   
 
@@ -382,6 +447,16 @@ const TabAccount = ({ id }: Props) => {
                 <TextField
                     fullWidth
                     type='Lien'
+                    label='Lien  LinkedIn'
+                    placeholder='Lien LinkedIn'
+                   
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+
+                <TextField
+                    fullWidth
+                    type='Lien'
                     label='Lien Slack'
                     placeholder='Lien slack'
                     value={employee.slack}
@@ -408,6 +483,7 @@ const TabAccount = ({ id }: Props) => {
                     onChange={(e) => handleInputChange('gitlab', e.target.value)}
                   />
                 </Grid>
+                
 
                 <Grid item xs={12}>
                   <Button variant='contained' sx={{ mr: 3 }} onClick={handleUpdateEmployee}>
@@ -426,58 +502,56 @@ const TabAccount = ({ id }: Props) => {
        <Card>
       <CardHeader title='Change Password' />
       <CardContent>
-        <form >
+        <form onSubmit={handleUpdatePaswword}>
           <Grid container spacing={6}>
             
           </Grid>
           <Grid container spacing={6} sx={{ mt: 0 }}>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor='input-new-password' >
-                  New Password
-                </InputLabel>
-    
-                    <OutlinedInput
-                    
-                      label='New Password'
-                     
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      id='input-new-password'
-                     type='password'
-                      
-                    />
-                
-              
-           
-              </FormControl>
+            <FormControl fullWidth>
+  <InputLabel htmlFor='input-new-password'>New Password</InputLabel>
+  <OutlinedInput
+    label='New Password'
+    onChange={(e) => setNewPassword(e.target.value)} // Mettre à jour l'état newPassword
+    id='input-new-password'
+    type={showPassword ? 'text' : 'password'}
+    endAdornment={
+      <InputAdornment position='end'>
+        <IconButton
+          edge='end'
+          onMouseDown={e => e.preventDefault()}
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          <Icon icon={showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} fontSize={20} />
+        </IconButton>
+      </InputAdornment>
+    }
+  />
+ 
+</FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor='input-confirm-new-password' >
-                  Confirm New Password
-                </InputLabel>
-              
-                <OutlinedInput
-  label='Confirm New Password'
-  id='input-confirm-new-password'
-  value={confirmPassword}
-  onChange={(e) => setConfirmPassword(e.target.value)}
-  endAdornment={
-    <InputAdornment position='end'>
-      <IconButton
-        edge='end'
-        onMouseDown={e => e.preventDefault()}
-      >
-        <Icon icon='mdi:eye-off-outline' />
-      </IconButton>
-    </InputAdornment>
-  }
-/>
-                
-              
-                  <FormHelperText sx={{ color: 'error.main' }}></FormHelperText>
-              
-              </FormControl>
+            <FormControl fullWidth>
+      <InputLabel htmlFor='input-confirm-new-password'>Confirm New Password</InputLabel>
+      <OutlinedInput
+        label='Confirm New Password'
+        id='input-confirm-new-password'
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        type={showPassword ? 'text' : 'password'}
+        endAdornment={
+          <InputAdornment position='end'>
+            <IconButton
+              edge='end'
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <Icon icon={showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} fontSize={20} />
+            </IconButton>
+          </InputAdornment>
+        }
+      />
+    </FormControl>
             </Grid>
             <Grid item xs={12}>
               <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>Password Requirements:</Typography>
@@ -488,7 +562,7 @@ const TabAccount = ({ id }: Props) => {
               </Box>
             </Grid>
             <Grid item xs={12}>
-              <Button variant='contained' type='submit' onClick={handleUpdateEmployee} sx={{ mr: 3 }}>
+              <Button variant='contained' type='submit'  sx={{ mr: 3 }}>
                 Save Changes
               </Button>
            

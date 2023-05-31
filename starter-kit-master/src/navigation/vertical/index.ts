@@ -10,51 +10,94 @@ import { useRouter } from 'next/router'
 
 const navigation = (): HorizontalNavItemsType => {
   let items = [
+    
     {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
       path: '/dashboards/crm',
-      type:'employee'
+      type:'client'
 
     },
      {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
-      path: '/dashboards/crm',
+      path: '/admin',
       type:'admin'
 
     },
     {
       sectionTitle: 'Apps & Pages',
+      type:'admin'
+    },
+    {
+      sectionTitle: 'Apps & Pages',
       type:'employee'
+    },
+    {
+      title: 'Dashboard',
+      icon: 'mdi:home-outline',
+      path: '/employee',
+      type:'employee'
+
     },
 
     {
       title: 'Employees',
       icon: 'mdi:face-agent',
-      path: '/employee/projects',
+      path: '/admin/employees/list',
       type:'admin'
     },
     {
       title: 'Customers',
       icon: 'mdi:account-group',
-      path: '/employee/tickets',
+      path: '/admin/clients/list',
       type:'admin'
     },
     {
       title: 'Trainees',
       icon: 'mdi:account-group-outline',
-      path: ''
-
+      path: '/admin/trainnes/list',
+      type:'admin'
     },
     {
       title: 'Projects',
       icon:  'mdi:view-dashboard-outline',
-      path: '/apps/projects/list',
+      path: '/admin/projects', 
+      type:'admin'
+      
+    },
+    {
+      title: 'Invoice',
+      icon: 'mdi:file-document-outline',
+      path: '/admin/invoice',
+      type:'admin'
+    },
+    {
+      title: 'Tickets',
+      icon:  'mdi:ticket-outline',
+      path: '/admin/tickets',
+      type:'admin'
+      
+    },
+    {
+      title: 'Departments',
+      icon: 'mdi:office-building',
+      path: '/admin/departments',
+      type:'admin'
+     
+    },
+   
+    
+    {
+      title: 'Projects',
+      icon:  'mdi:view-dashboard-outline',
+      path: '/employee/projects',
       type:'employee'
 
 
     },
+   
+   
 
     {
       title: 'Invoice',
@@ -64,31 +107,55 @@ const navigation = (): HorizontalNavItemsType => {
     {
       title: 'Tickets',
       icon:  'mdi:ticket-outline',
-      path: '/apps/tickets/list',
+      path: '/employee/tickets',
       type:'employee'
 
     },
+    
     {
-      title: 'Departments',
-      icon: 'mdi:office-building',
-      path: '/apps/department/list'
-
+      title: 'Employees',
+      icon: 'mdi:account-group',
+      path: '/employee/employees',
+      type:'employee'
     },
+    
 
 
+    
+     
+      {
+        sectionTitle: 'User Interface',
+         type:'admin'
+      },
+      {
+        sectionTitle: 'User Interface',
+         type:'employee'
+      },
+    
     {
-      sectionTitle: 'User Interface'
+      title: 'User Profile',
+      icon: 'mdi:account-circle',
+      path: '/admin/profile',
+         type:'admin'
     },
     {
       title: 'User Profile',
       icon: 'mdi:account-circle',
-      path: '/pages/user-profile/profile',
+      path: '/employee/profile',
          type:'employee'
     },
     {
       title: 'Account Settings',
-      path: '/pages/account-settings/account',
-      icon: 'mdi:cog'
+      path: '/admin/account',
+      icon: 'mdi:cog',
+      type:'admin'
+
+    },
+    {
+      title: 'Account Settings',
+      path: '/employee/profile/TabAccount',
+      icon: 'mdi:cog',
+      type:'employee'
 
     },
   ]

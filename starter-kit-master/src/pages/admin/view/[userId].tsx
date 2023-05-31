@@ -1,6 +1,8 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import IconButton from '@mui/material/IconButton'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -10,8 +12,11 @@ import Button from '@mui/material/Button'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import Dialog from '@mui/material/Dialog'
 import Select from '@mui/material/Select'
+import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch'
 import Divider from '@mui/material/Divider'
+import AvatarGroup from '@mui/material/AvatarGroup'
+import Avatar from '@mui/material/Avatar'
 import MenuItem from '@mui/material/MenuItem'
 import CardHeader from '@mui/material/CardHeader'
 import { styled } from '@mui/material/styles'
@@ -53,6 +58,10 @@ import { ProjectListDataType } from 'src/types/apps/userTypes'
 
 interface CellType {
   row: ProjectListDataType
+}
+
+interface Props {
+  userId: string;
 }
 
 const data: UsersType = {
@@ -108,55 +117,195 @@ const Img = styled('img')(({ theme }) => ({
     marginRight: theme.spacing(3)
   }))
 
-const columns: GridColDef[] = [
-    {
-      flex: 0.3,
-      minWidth: 230,
-      field: 'projectTitle',
-      headerName: 'Project',
-      renderCell: ({ row }: CellType) => (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Img src={row.img} alt={`project-${row.projectTitle}`} />
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>{row.projectTitle}</Typography>
-            <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-              {row.projectType}
-            </Typography>
-          </Box>
-        </Box>
-      )
-    },
+  const LinkStyled = styled(Link)(({ theme }) => ({
+    fontWeight: 600,
+    fontSize: '1rem',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    color: theme.palette.text.secondary,
+    '&:hover': {
+      color: theme.palette.primary.main
+    }
+  }))
+
+  
+  const getIconSrc = (framework) => {
+    if (framework === null) {
+      // Return a default icon source path if the framework is null
+      return '/images/icons/project-icons/default.png';
+    }
+  
+    const lowercasedFramework = framework.toLowerCase();
+  
+    if (lowercasedFramework.includes('react')) {
+      return '/images/icons/project-icons/react.png';
+    } else if (lowercasedFramework.includes('vue')) {
+      return '/images/icons/project-icons/vue.png';
+    } else if (lowercasedFramework.includes('angular')) {
+      return '/images/icons/project-icons/angular.png';
+    }
+  
+    // Return a default icon source path if no matching keywords are found
+    return '/images/icons/project-icons/default.png';
+  };
+
+  const columns: GridColDef[] = [
     {
       flex: 0.15,
-      minWidth: 100,
-      field: 'totalTask',
-      headerName: 'Total Tasks',
-      renderCell: ({ row }: CellType) => <Typography variant='body2'>{row.totalTask}</Typography>
+      minWidth: 230,
+      field: 'name',
+      headerName: 'Project',
+      
+      renderCell: ({ row }: CellType) => {
+        
+  
+     return(
+      <>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+           {getIconSrc(row.framework) && (
+            <Img src={getIconSrc(row.framework)} alt="Project Icon" style={{ marginLeft: '10px' }} />
+          )}
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <LinkStyled href='' sx={{ fontWeight: 500, fontSize: '0.875rem' }} >{row.name}</LinkStyled >
+            <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+             {row.framework}
+            </Typography>
+          </Box> 
+        </Box>
+  
+        
+      </>
+      )}
+    },
+    {
+      flex: 0.12,
+      field: 'team',
+      minWidth: 120,
+      headerName: 'Team',
+      renderCell: ({ row }: CellType) => {
+        const [tasks, setTasks] = useState([]);
+  
+        useEffect(() => {
+          const fetchTasksByProjectId = async () => {
+            try {
+              const response = await fetch(`http://localhost:4001/project/${row.id}/tasks`);
+              const data = await response.json();
+              setTasks(data.tasks);
+            } catch (error) {
+              console.log(error);
+            }
+          };
+          fetchTasksByProjectId();
+        }, [row.id]);
+  
+        
+        const [displayedEmployees, setDisplayedEmployees] = useState([]);
+  
+        useEffect(() => {
+          const displayedEmployeeIds = new Set();
+        
+          setDisplayedEmployees(
+            tasks.reduce((employees, task) => {
+              if (task.employee && !displayedEmployeeIds.has(task.employee.id)) {
+                displayedEmployeeIds.add(task.employee.id);
+                employees.push(task.employee);
+              }
+              return employees;
+            }, [])
+          );
+        }, [tasks]);
+  
+        return(
+          <AvatarGroup className='pull-up' sx={{ '& .MuiAvatar-root': { width: '25px',fontSize: '15px', height: '25px' } }} >
+           {displayedEmployees.map((employee) => (
+         <Tooltip title={employee.fullname} key={employee.id}>
+         <Avatar
+           style={{ width: '25px', height: '25px' }}
+           alt={employee.fullname}
+           src={employee.avatar}
+         />
+       </Tooltip>
+      ))}
+        </AvatarGroup>
+      )}
     },
     {
       flex: 0.15,
       minWidth: 200,
       headerName: 'Progress',
-      field: 'progressValue',
-      renderCell: ({ row }: CellType) => (
+      field: 'Progress',
+      renderCell: ({ row }: CellType) => {
+  
+        const [project, setProject] = useState
+    ({
+      id: "",
+      progress: "",
+     
+     
+     });
+  
+        useEffect(() => {
+          const fetchProjectById = async () => {
+            try {
+              const response = await fetch(`http://localhost:4001/project/${row.id}`);
+              const data = await response.json();
+              setProject(data.project);
+            } catch (error) {
+              console.log(error);
+            }
+          };
+          fetchProjectById();
+        }, [row.id]);
+  
+        const getColorByProgress = (progress) => {
+          if (progress >= 80) {
+            return 'success';
+          } else if (progress >= 30) {
+            return 'warning';
+          } else {
+            return 'error';
+          }
+        };
+  
+        return(
         <Box sx={{ width: '100%' }}>
-          <Typography variant='body2'>{row.progressValue}%</Typography>
+          <Typography variant='body2'>{project.progress}%</Typography>
           <LinearProgress
             variant='determinate'
-            value={row.progressValue}
-            color={row.progressColor}
+            value={project.progress}
+            color={getColorByProgress(project.progress)}
             sx={{ height: 6, mt: 1, borderRadius: '5px' }}
           />
         </Box>
-      )
+        )
+        }
     },
     {
-      flex: 0.15,
+      flex: 0.1,
       minWidth: 100,
-      field: 'hours',
-      headerName: 'Hours',
-      renderCell: ({ row }: CellType) => <Typography variant='body2'>{row.hours}</Typography>
-    }
+      field: 'endDate',
+      headerName: 'Deadline',
+      renderCell: ({ row }: CellType) => {
+  
+      
+        
+        const date = new Date(row.endDate);
+        const day = date.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zeros if necessary
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get the month (+1 because it's zero-based) and pad with leading zeros if necessary
+        const year = date.getFullYear(); // Get the year
+    
+        const dateString = `${day}-${month}-${year}`;
+    
+        return (
+          <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+           {dateString}
+          </Typography>
+        );
+      }
+    },
+  
+    
+    
   ]
 
 const UserViewLeft = () => {
@@ -178,7 +327,71 @@ const UserViewLeft = () => {
    const [value, setValue] = useState<string>('')
    const [data, setData] = useState<ProjectListDataType[]>([])
    const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 7 })
- 
+
+   const router = useRouter();
+   const { userId } = router.query;
+   
+   const [employee, setEmployee] = useState({
+    fullname:"",
+    user:{email:"", username:""},
+    phone:"",
+    department:{name:""},
+    departmentRole:"",
+    adresse:"",
+
+  });
+   
+
+   useEffect(() => {
+     fetch(`http://localhost:4001/employee/${userId}`)
+       .then((response) => response.json())
+       .then((data) => {
+         setEmployee(data.employee);
+         console.log(data.employee);
+         console.log(userId)
+       })
+       .catch((error) => {
+         console.error(error);
+       });
+   }, [ ]);
+
+
+  const [projects, setProjects] = useState([]);
+
+useEffect(() => {
+  fetchProjects();
+}, []);
+
+   const fetchProjects = async () => {
+    try {
+      const response = await fetch('http://localhost:4001/project'); 
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data) 
+        
+  
+         // Filtrage des projets pour ne récupérer que ceux correspondant à l'ID de l'employé
+         const employeeProjects = data.projects.filter((project) => {
+          console.log(project.tasks); // Ajout du console.log ici pour vérifier les tâches de chaque projet
+          return project.tasks.some((task) => task.employeeId === userId);
+        });
+      
+  
+        setProjects(employeeProjects);
+        console.log(employeeProjects)
+      } else {
+        console.error('Error fetching projects:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+   const getRandomColor = () => {
+    const colors = ['primary', 'secondary',  'warning', 'info', 'success'];
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  };
+
    
 
   if (data) {
@@ -191,7 +404,7 @@ const UserViewLeft = () => {
                 <CustomAvatar
                   skin='light'
                   variant='rounded'
-                  
+                  src={employee.avatar}
                   sx={{ width: 120, height: 120, fontWeight: 600, mb: 4, fontSize: '3rem' }}
                 >
                   
@@ -203,8 +416,8 @@ const UserViewLeft = () => {
               <CustomChip
                 skin='light'
                 size='small'
-                label= 'employee'
-               
+                label= {employee.fullname}
+                color={getRandomColor()} 
                 sx={{
                   height: 20,
                   fontWeight: 600,
@@ -216,32 +429,7 @@ const UserViewLeft = () => {
               />
             </CardContent>
 
-            <CardContent sx={{ my: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Box sx={{ mr: 8, display: 'flex', alignItems: 'center' }}>
-                  <CustomAvatar skin='light' variant='rounded' sx={{ mr: 3 }}>
-                    <Icon icon='mdi:check' />
-                  </CustomAvatar>
-                  <div>
-                    <Typography variant='h6' sx={{ lineHeight: 1.3 }}>
-                      1.23k
-                    </Typography>
-                    <Typography variant='body2'>Task Done</Typography>
-                  </div>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CustomAvatar skin='light' variant='rounded' sx={{ mr: 3 }}>
-                    <Icon icon='mdi:briefcase-variant-outline' />
-                  </CustomAvatar>
-                  <div>
-                    <Typography variant='h6' sx={{ lineHeight: 1.3 }}>
-                      568
-                    </Typography>
-                    <Typography variant='body2'>Project Done</Typography>
-                  </div>
-                </Box>
-              </Box>
-            </CardContent>
+         
 
             <CardContent>
               <Typography variant='h6'>Details</Typography>
@@ -249,25 +437,25 @@ const UserViewLeft = () => {
               <Box sx={{ pt: 2, pb: 1 }}>
                 <Box sx={{ display: 'flex', mb: 2.7 }}>
                   <Typography variant='subtitle2' sx={{ mr: 2, color: 'text.primary' }}>
-                    Username:
+                    Username: 
                   </Typography>
-                  <Typography variant='body2'>@</Typography>
+                  <Typography variant='body2'>@{employee.user?.username}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2.7 }}>
                   <Typography variant='subtitle2' sx={{ mr: 2, color: 'text.primary' }}>
-                    Billing Email:
+                    Email:
                   </Typography>
-                  <Typography variant='body2'></Typography>
+                  <Typography variant='body2'>{employee.user?.email}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2.7 }}>
                   <Typography variant='subtitle2' sx={{ mr: 2, color: 'text.primary' }}>
-                    Status:
+                    Department: 
                   </Typography>
                   <CustomChip
                     skin='light'
                     size='small'
-                   
-              
+                   color={getRandomColor()} 
+              label={employee.department?.name}
                     sx={{
                       height: 20,
                       fontWeight: 500,
@@ -280,35 +468,80 @@ const UserViewLeft = () => {
                 <Box sx={{ display: 'flex', mb: 2.7 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Role:</Typography>
                   <Typography variant='body2' sx={{ textTransform: 'capitalize' }}>
-                
+              {employee.departmentRole}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2.7 }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Tax ID:</Typography>
-                  <Typography variant='body2'>Tax-8894</Typography>
+                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Phone:</Typography>
+                  <Typography variant='body2'>{employee.phone}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2.7 }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Contact:</Typography>
-                  <Typography variant='body2'>+1</Typography>
+                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>adresse:</Typography>
+                  <Typography variant='body2'>{employee.adresse}</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', mb: 2.7 }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Language:</Typography>
-                  <Typography variant='body2'>English</Typography>
-                </Box>
-                <Box sx={{ display: 'flex' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Country:</Typography>
-                  <Typography variant='body2'></Typography>
-                </Box>
+                
+                
               </Box>
             </CardContent>
 
             <CardActions sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Button variant='contained' sx={{ mr: 2 }} onClick={handleEditClickOpen}>
-                Edit
-              </Button>
-              <Button color='error' variant='outlined' onClick={() => setSuspendDialogOpen(true)}>
-                Suspend
-              </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Tooltip title={employee.facebook}>
+                <IconButton
+                  href='/'
+                  component={Link}
+                  sx={{ color: '#497ce2' }}
+              
+                >
+                  <Icon icon='mdi:facebook' />
+                </IconButton></Tooltip>
+                <Tooltip title={employee.instagram}>
+                <IconButton
+                  href='/'
+                  component={Link}
+                  sx={{ color: '#1da1f2' }}
+                  
+                >
+                  <img  height='20' src= '/images/pages/instagram.png' />
+                </IconButton></Tooltip>
+                <Tooltip title={employee.github}>
+                <IconButton
+                  href='/'
+                  component={Link}
+                 
+                  sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300') }}
+                >
+                   <img  height='20' src= '/images/pages/github.png' />
+                </IconButton></Tooltip>
+                <Tooltip title={employee.instagram}>
+                <IconButton
+                  href='/'
+                  component={Link}
+                  sx={{ color: '#db4437' }}
+                
+                >
+                  <img  height='20' src= '/images/pages/in5.png' />
+                </IconButton></Tooltip>
+                <Tooltip title={employee.slack}>
+                <IconButton
+                  href='/'
+                  component={Link}
+                  sx={{ color: '#db4437' }}
+                
+                >
+                  <img  height='20' src= '/images/pages/slack.png' />
+                </IconButton></Tooltip>
+                <Tooltip title={employee.gitlab}>
+
+                <IconButton
+                  href='/'
+                  component={Link}
+                  sx={{ color: '#db4437' }}
+                
+                >
+                  <img  height='20' src= '/images/pages/gitlab2.png' />
+                </IconButton></Tooltip>
+              </Box>
             </CardActions>
 
             <Dialog
@@ -442,18 +675,15 @@ const UserViewLeft = () => {
         <Grid item spacing={6} xs={12} md={8}>
         <Grid item xs={12} >
         <Card>
-      <CardHeader title="User's Projects List" />
+      <CardHeader title="Employee Projects List" />
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <Typography variant='body2' sx={{ mr: 2 }}>
-            Search:
-          </Typography>
-          <TextField size='small' placeholder='Search Project' />
+          
         </Box>
       </CardContent>
       <DataGrid
         autoHeight
-        rows={data}
+        rows={projects}
         columns={columns}
         disableRowSelectionOnClick
         pageSizeOptions={[7, 10, 25, 50]}
@@ -464,206 +694,7 @@ const UserViewLeft = () => {
         </Grid>
 
          {/* Social Accounts Cards */}
-      <Grid item xs={12}  style={{ marginTop: '20px' }}  >
-        <Card>
-      <CardHeader title='Social Accounts' 
-    
-       titleTypographyProps={{ sx: { color: 'text.primary' } }} />
-          <CardContent>
-            <Typography sx={{ mb: 4, color: 'text.secondary' }}>
-              
-            </Typography>
-
-            
-           
-                <Box
-                 
-                  sx={{
-                    gap: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    '&:not(:last-of-type)': { mb: 4 }
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/facebook.png' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>Facebook</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                          @http:facebook/nissafdhahri2
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
-                </Box>
-                <Box
-                 style={{marginTop:"25px"}}
-                  sx={{
-                    gap: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    '&:not(:last-of-type)': { mb: 4 }
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/instagram.png' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>Instagram</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                          @http:facebook/nissafdhahri2
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
-                </Box>
-
-                <Box
-                 style={{marginTop:"25px"}}
-                  sx={{
-                    gap: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    '&:not(:last-of-type)': { mb: 4 }
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/slack.png' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>Slack</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                          @http:slack/nissafdhahri123
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
-                </Box>
-
-                <Box
-                 style={{marginTop:"25px"}}
-                  sx={{
-                    gap: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    '&:not(:last-of-type)': { mb: 4 }
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/github.png' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>GitHub</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                          @http:github/nissafdhahri2
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
-                </Box>
-                <Box
-                 style={{marginTop:"25px", marginBottom:'15px'}}
-                  sx={{
-                    gap: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    '&:not(:last-of-type)': { mb: 4 }
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/git.jpg' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>GitLab</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                          @http:whatsapp/nissafdhahri2
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
-                </Box>
-           
-              
-       
-          </CardContent>
-        </Card>
-      </Grid>
+     
       </Grid>
       </Grid>
     )

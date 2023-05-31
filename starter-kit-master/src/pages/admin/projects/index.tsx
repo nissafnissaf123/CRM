@@ -66,6 +66,8 @@ interface Props {
   id: string;
 }
 
+
+
 const Img = styled('img')(({ theme }) => ({
   width: 32,
   height: 32,
@@ -403,7 +405,7 @@ useEffect(() => {
       }, [tasks]);
 
       return(
-        <AvatarGroup className='pull-up'>
+        <AvatarGroup className='pull-up' sx={{ '& .MuiAvatar-root': { width: '25px',fontSize: '15px', height: '25px' } }} >
          {displayedEmployees.map((employee) => (
      <Tooltip title={employee.fullname} key={employee.id}>
      <Avatar
@@ -413,6 +415,7 @@ useEffect(() => {
      />
    </Tooltip>
     ))}
+   
       </AvatarGroup>
     )}
   },

@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
+import { useRouter } from 'next/router';
 
 // ** React Imports
 import { useState, forwardRef, Ref, useEffect, MouseEvent, useCallback, ReactElement } from 'react'
@@ -65,7 +66,7 @@ interface UserRoleType {
   }
   
   interface Props {
-    id: string;
+    userId: string;
   }
   
   const userStatusObj: UserStatusType = {
@@ -113,7 +114,7 @@ interface UserRoleType {
 
 
 
-const RowOptions = ({ id }: Props) => {
+const RowOptions = ({ userId }: Props) => {
 
 
     // ** State
@@ -136,15 +137,26 @@ const RowOptions = ({ id }: Props) => {
     const [phone, setPhone] = useState("");
     const [department, setDepartment] = useState("");
     const [departments, setDepartments] = useState([]);
-    
+    const [departmentId, setDepartmentId] = useState('');
     const [employee, setEmployee] = useState({
       id: "",
       fullname: "",
-      user: { email: "", username: "" },
+      user: { email: "" , username:""},
       phone: "",
-      department: { name: "" },
+      department:{ id:"" , name:""}
     });
     
+    //Get employee by userid
+    useEffect(() => {
+      fetch(`http://localhost:4001/employee/${userId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setEmployee(data.employee);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }, [userId]);
    
   
   
@@ -165,72 +177,63 @@ const RowOptions = ({ id }: Props) => {
       fetchDepartments()
     }, []);
   
+    const router = useRouter();
+    const handleKanbanClick = () => {
+      router.push(`/admin/view/${userId}`);
+    };
   
    
-    useEffect(() => {
-      const fetchEmployeeById = async () => {
-        try {
-
-         // Retrieve the employee data from local storage or from an API
-        const response = await fetch(`http://localhost:4001/employee/${id}`);
-        const data = await response.json();
-  
-        // Set the employee state with the retrieved data
-        setEmployee(data.employee);
-        console.log(data.employee);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      
-      fetchEmployeeById();
-    }, [id]);
-  
     
-    
-  
-  
     const handleEdit = useCallback(() => {
       setShow(true);
-      setFullname(fullname);
+      setFullname(employee.fullname);
       setEmail(employee.user?.email);
       setPhone(employee.phone);
-      setDepartment(employee.department?.name); 
+      setDepartmentId(employee.department?.id);
       handleRowOptionsClose();
     }, [setShow, handleRowOptionsClose, employee]);
-  
-  
-     //Edit Employee by Id
-     const handleUpdate = async () => {
+    
+
+    const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+
+      
       try {
-        const response = await fetch(`http://localhost:4001/employee/${id}`, {
+        const response = await fetch(`http://localhost:4001/employee/${userId}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            fullname: fullname,
+           fullname: fullname,
             email: email,
-            phone: phone,
-            department: { name: "" }
+            phone:phone,
+            departmentId: departmentId,
+
           }),
         });
         const data = await response.json();
         console.log(data.employee);
+        console.log(employee)
+       
         
         // Alert si la modification a réussi
         if (response.ok) {
-          toast("La modification a été effectuée avec succès !");
+          setShow(false); // Close the dialog
+          toast.success('Ticket updated successfully');
         } else {
-          toast("La modification a échoué.");
+          toast.error('An error occurred');
         }
         
       } catch (error) {
         console.log(error);
         // Alert en cas d'erreur
-        alert("Une erreur s'est produite. Veuillez réessayer plus tard.");
+       toast.error("Une erreur s'est produite. Veuillez réessayer plus tard.");
       }
     };
+  
+  
+  
    
   
     return (
@@ -257,12 +260,12 @@ const RowOptions = ({ id }: Props) => {
             component={Link}
             sx={{ '& svg': { mr: 2 } }}
             onClick={handleRowOptionsClose}
-            href={`/apps/employees/view/overview/`}
+            href={`/admin/view/${userId}`}
           >
-            <Icon icon='mdi:eye-outline' fontSize={20} />
+            <Icon icon='mdi:eye-outline'    fontSize={20} />
             View
           </MenuItem>
-          <MenuItem onClick={handleEdit}  sx={{ '& svg': { mr: 2 } }}>
+          <MenuItem  onClick={handleEdit}  sx={{ '& svg': { mr: 2 } }}>
             <Icon icon='mdi:pencil-outline' fontSize={20} />
             Edit
           </MenuItem>
@@ -277,7 +280,7 @@ const RowOptions = ({ id }: Props) => {
           onClose={() => setShow(false)}
           TransitionComponent={Transition}
           onBackdropClick={() => setShow(false)}
-        >
+        ><form onSubmit={handleUpdate}>
           <DialogContent
              sx={{
               position: 'relative',
@@ -331,11 +334,11 @@ const RowOptions = ({ id }: Props) => {
       label="Select Department"
       labelId="departement-select"
       inputProps={{ placeholder: "Select Department" }}
-      value={department} // Use the department property of the employee state
-      onChange={(e) => setDepartment(e.target.value)}
+      value={departmentId} // Use the department property of the employee state
+      onChange={(e) => setDepartmentId(e.target.value)}
     >
       {departments.map((dep) => (
-        <MenuItem key={dep.id} value={dep.name}>{dep.name}</MenuItem> // Use dep.id as the value
+        <MenuItem key={dep.id} value={dep.id}>{dep.name}</MenuItem> // Use dep.id as the value
       ))}
     </Select>
   </FormControl> </Grid>
@@ -353,13 +356,14 @@ const RowOptions = ({ id }: Props) => {
               pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
             }}
           >
-            <Button variant='contained' sx={{ mr: 2 }} onClick={handleUpdate}>
+            <Button variant='contained' sx={{ mr: 2 }} type='submit' >
               Submit
             </Button>
             <Button variant='outlined' color='secondary' onClick={() => setShow(false)}>
               Discard
             </Button>
           </DialogActions>
+          </form>
         </Dialog>
       </>
     )
@@ -372,13 +376,32 @@ const RowOptions = ({ id }: Props) => {
       field: 'fullName',
       headerName: 'FullName',
       renderCell: ({ row }: CellType) => {
+
+        const [employee, setEmployee] = useState(null);
+        const userId = row.userId;
+
+        useEffect(() => {
+          fetch(`http://localhost:4001/employee/${userId}`)
+            .then((response) => response.json())
+            .then((data) => {
+              setEmployee(data.employee);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }, [userId]);
+        
         const {user } = row
-      
+        
+        const router = useRouter();
+        const handleKanbanClick = () => {
+          router.push(`/admin/view/${row.userId}`);
+        };
         return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {renderClient(row)}
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <LinkStyled href='/apps/employees/view/overview/'>{row.fullname}</LinkStyled>
+              <LinkStyled href={`/admin/view/${row.userId}`} onClick={handleKanbanClick}>{row.fullname}</LinkStyled>
               <Typography noWrap variant='caption'>
                 {`@${user.username}`}
               </Typography>
@@ -437,7 +460,7 @@ const RowOptions = ({ id }: Props) => {
       sortable: false,
       field: 'actions',
       headerName: 'Actions',
-      renderCell: ({ row }: CellType) => <RowOptions   id={row.id} />
+      renderCell: ({ row }: CellType) => <RowOptions   userId={row.userId} />
     }
   ]
 
@@ -490,26 +513,26 @@ const ListEmployee = () => {
   const [name, setName] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [departmentFilter, setDepartmentFilter] = useState('');
-  const [employee, setEmployee] = useState({ email:'', fullname:'', phone:''})
+  const [employee, setEmployee] = useState({ email:'', fullname:'', phone:'', department: {name:" "}, avatar:''})
 
 
   // Get employees
 
   const fetchEmployees = () => {
     fetch("http://localhost:4001/employee")
-      .then(response => response.json())
-      .then(data => {
-        setEmployees(data.employee);
-        setFilteredEmployees(data.employee);
-
+      .then((response) => response.json())
+      .then((data) => {
+        setEmployees(data.employees);
+        setFilteredEmployees(data.employees);
+        console.log(data.employees);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
-  }
+  };
 
   useEffect(() => {
-    fetchEmployees()
+    fetchEmployees();
   }, []);
 
   //Get departments
@@ -572,16 +595,16 @@ const ListEmployee = () => {
 
 
 
-  const handleDepartmentFilter = (value: string) => {
-    const trimmedValue = value.trim();
-    setDepartmentFilter(trimmedValue);
-    if (trimmedValue === '') {
-      setFilteredEmployees(employees);
-    } else {
-      const filtered = employees.filter((employee: EmployeesType) => employee.department.trim() === trimmedValue);
-      setFilteredEmployees(filtered);
-    }
-  };
+
+const handleDepartmentFilter = (value: string) => {
+  const trimmedValue = value.trim();
+  if (trimmedValue === '') {
+    setFilteredEmployees(employees);
+  } else {
+    const filtered = employees.filter((employee: EmployeeType) => employee.department?.id === trimmedValue);
+    setFilteredEmployees(filtered);
+  }
+};
 
   const handleFilter = (value: string) => {
     // Filter the employees list based on the input value
@@ -612,10 +635,10 @@ const ListEmployee = () => {
           </CardContent>
           <Divider />
 
-          <TableHeader value={value} handleFilter={handleFilter} handleDepartmentFilter={handleDepartmentFilter} toggle={toggleAddUserDrawer} />
-          <DataGrid
+          <TableHeader value={value} handleFilter={handleFilter} handleDepartmentFilter={handleDepartmentFilter} toggle={toggleAddUserDrawer} filteredEmployees={filteredEmployees} setFilteredEmployees={setFilteredEmployees} />
+           <DataGrid
             autoHeight
-            rows={filteredEmployees}
+            rows={filteredEmployees} 
             columns={columns}
             disableRowSelectionOnClick
             pageSizeOptions={[10, 25, 50]}
