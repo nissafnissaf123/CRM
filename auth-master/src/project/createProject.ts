@@ -8,13 +8,17 @@ router.use(express.urlencoded({ extended: true }));
 
 router.post("/", async (req, res, next) => {
     try {
+        const { name, category, framework, description,  endDate } = req.body;
+
         const project = await prisma.project.create({
-            data: { name: '', ...req.body },
+            data: { name, category, framework, description,  endDate },
         });
 
         res.json({ project });
-    } catch (error: any) {
-        next(new Error(error.message));
+    } catch (error) {
+        console.error(error);
+        next(new Error('Failed to create project'));
     }
 });
+
 export default router;

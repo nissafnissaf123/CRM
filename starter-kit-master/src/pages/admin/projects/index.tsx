@@ -670,22 +670,21 @@ const ProjectListTable = ({ id }: Props) => {
   const [clients, setClients] = useState({ clientId: '' });
 
   const handleSubmit = async () => {
-   
     if (name === '') {
       toast.error('Please enter a project name');
       return;
     }
-
+  
     if (framework === '') {
       toast.error('Please select a framework');
       return;
     }
-    
+  
     if (category === '') {
       toast.error('Please select a category');
       return;
     }
-
+  
     const formattedEndDate = new Date(endDate).toISOString();
     try {
       const response = await fetch('http://localhost:4001/project', {
@@ -693,16 +692,23 @@ const ProjectListTable = ({ id }: Props) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, category, framework, description, clientId: clients.clientId, endDate: formattedEndDate, }),
+        body: JSON.stringify({
+          name: name,
+          category: category,
+          framework: framework,
+          description: description,
+          clientId: clients.clientId,
+          endDate: formattedEndDate,
+        }),
       });
-      
+  
       const data = await response.json();
       console.log(data); // Affiche la réponse du serveur
       handleClose();
       toast.success('Project added successfully');
     } catch (error) {
       console.error(error);
-      toast.error('Failed to add employee'); // Display error toast notification
+      toast.error('Failed to add project'); // Affiche une notification d'erreur
     }
   };
   

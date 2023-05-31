@@ -1,3 +1,4 @@
+import { Notification } from './../node_modules/.prisma/client/index.d';
 import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth';
@@ -23,6 +24,8 @@ import createTask from './task/createTask';
 import taskDetails from './task/detailTask';
 import updateTask from './task/updateTask';
 import deleteTask from './task/deleteTask';
+
+import notificationDetails from './notification/detailNotification';
 
 import createLabel from './label/CreateLabel';
 
@@ -70,6 +73,7 @@ app.use('/client', createClient, deleteClient, clientUpdate, clientDetails);
 app.use('/department', createDepartment, departmentDetails);
 app.use('/invoice', createInvoice, invoiceDetails, updateInvoice);
 app.use('/task', createTask, taskDetails, deleteTask, updateTask);
+app.use('/notification',  notificationDetails);
 app.use('/category', createCategory, categoryDetails);
 app.use('/ticket', createTicket, deleteTicket, ticketDetails, updateTicket);
 app.use('/employee', createEmployee, updateEmployee, employeeDetails);

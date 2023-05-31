@@ -170,8 +170,12 @@ function CardInfo(props: CardInfoProps) {
   
 //Update employee
 const [employee, setEmployee] = useState("");
+const createNotification = async (name, adminId, employeeId, clientId) => {
+  // Your code to create a notification
+};
 
-const updateEmployee = (employeeId: string) => {
+
+const updateEmployee = (employeeId) => {
   setEmployee(employeeId); // Mettre à jour la valeur sélectionnée de l'employé
 
   const updatedEmployee = employees.find((dep) => dep.userId === employeeId);
@@ -188,15 +192,24 @@ const updateEmployee = (employeeId: string) => {
       .then(response => response.json())
       .then(data => {
         console.log("Employee updated:", data);
-       
+        // Mettre à jour la tâche avec les nouvelles informations sur l'employé
+        const updatedTask = { ...cardValues, employeeId };
+        setCardValues(updatedTask);
+
+        // Afficher la notification dans le frontend
+        if (data.notification) {
+          console.log("Notification:", data.notification);
+          // Effectuer une action pour afficher la notification à l'utilisateur
+        }
       })
       .catch(error => {
         console.error(error);
       });
   }
+};
 
  
-};
+
 
 const [task, setTask]=useState({
   employee: { avatar: "" , fullname:""}
