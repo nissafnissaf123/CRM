@@ -1,12 +1,10 @@
 // ** React Imports
 import { useState, SyntheticEvent, Fragment, ReactNode, useEffect } from 'react'
 import moment from 'moment';
-import { mdiBellOutline } from '@mdi/js';
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Badge from '@mui/material/Badge'
-import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { styled, Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -26,7 +24,6 @@ import { Settings } from 'src/@core/context/settingsContext'
 import { CustomAvatarProps } from 'src/@core/components/mui/avatar/types'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 
 // ** Util Import
@@ -138,10 +135,12 @@ const NotificationDropdown = (props: Props) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  
+
+
   const handleDropdownClose = () => {
     setIsOpen(false);
     setAnchorEl(null);
+
   };
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
@@ -149,7 +148,7 @@ const NotificationDropdown = (props: Props) => {
     setAnchorEl(event.currentTarget);
   };
 
- 
+
 
   const RenderAvatar = ({ notification }: { notification: NotificationsType }) => {
     const { avatarAlt, avatarImg, avatarIcon, avatarText, avatarColor } = notification
@@ -176,33 +175,34 @@ const NotificationDropdown = (props: Props) => {
   const [employeeId, setEmployeeId] = useState<string | null>(null); // Nouvel état pour stocker l'ID de l'employé
   const [notification, setNotification] = useState([]);
   const [completedNotifications, setCompletedNotifications] = useState([]);
+const [deletedNotifications, setDeletedNotifications] = useState(0);
 
 
   useEffect(() => {
     // Récupérer les données d'utilisateur depuis localStorage
     const userData = JSON.parse(localStorage.getItem('userData'));
-  
+
     if (userData) {
       // Extraire l'ID de l'employé à partir des données d'utilisateur
       const employeeId = userData.id;
       setEmployeeId(employeeId);
-  
+
       // Appeler l'API pour récupérer les notifications filtrées par l'ID de l'employé
       fetch(`http://localhost:4001/notification`)
         .then(response => response.json())
         .then(data => {
           // Filtrer les notifications pour obtenir celles avec l'employeeId correspondant
           const filteredNotifications = data.filter(notification => notification.employeeId === employeeId);
-  
+
           // Filtrer les notifications pour obtenir celles qui sont encore actives
           const activeNotifications = filteredNotifications.filter(notification => !notification.completed);
-  
+
           // Filtrer les notifications pour obtenir celles qui sont complétées
           const completedNotifications = filteredNotifications.filter(notification => notification.completed);
-  
+
           setNotification(activeNotifications);
           setCompletedNotifications(completedNotifications);
-  
+
           // Calculer le nombre de nouvelles notifications non lues
           const newNotificationsCount = activeNotifications.filter(notification => !notification.read).length;
           setUnreadNotifications(newNotificationsCount);
@@ -218,22 +218,22 @@ const NotificationDropdown = (props: Props) => {
   const formatDate = (createdAt) => {
     const currentDate = moment();
     const notificationDate = moment(createdAt);
-    
+
     // Vérifier si la date est aujourd'hui
     if (notificationDate.isSame(currentDate, 'day')) {
       return 'Today';
     }
-    
+
     // Vérifier si la date est hier
     if (notificationDate.isSame(currentDate.clone().subtract(1, 'day'), 'day')) {
       return 'Yesterday';
     }
-    
+
     // Formater la date au format "jour mois" (par exemple, "11 Aug")
     return notificationDate.format('DD MMM');
   };
 
-  
+
 
   return (
     <Fragment>
@@ -275,25 +275,39 @@ const NotificationDropdown = (props: Props) => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <Typography sx={{ cursor: 'text', fontWeight: 600 }}>Notifications</Typography>
-         
+
           </Box>
         </MenuItem>
-        <ScrollWrapper hidden={hidden}>
-          {notification.map((notification: NotificationsType, index: number) => (
-            <MenuItem key={index} onClick={handleDropdownClose}>
-              <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-             
-                <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                  <MenuItemTitle>{notification.name}</MenuItemTitle>
-                  <MenuItemSubtitle variant='body2'>{notification.subtitle}</MenuItemSubtitle>
-                </Box>
-                <Typography variant='caption' sx={{ color: 'text' }}>
-                {formatDate(notification.createdAt)}
-</Typography>
-              </Box>
-            </MenuItem>
-          ))}
-        </ScrollWrapper>
+       <ScrollWrapper hidden={hidden}>
+  {notification
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort notifications by createdAt date in descending order
+    .map((notification: NotificationsType, index: number) => {
+      const createdAtDate = new Date(notification.createdAt);
+      const today = new Date(); // Get today's date
+
+      // Check if the createdAt date is today
+      const isToday = (
+        createdAtDate.getDate() === today.getDate() &&
+        createdAtDate.getMonth() === today.getMonth() &&
+        createdAtDate.getFullYear() === today.getFullYear()
+      );
+
+      return (
+        <MenuItem key={index} onClick={handleDropdownClose}>
+          <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
+              <MenuItemTitle>{notification.name}</MenuItemTitle>
+              <MenuItemSubtitle variant='body2'>{notification.subtitle}</MenuItemSubtitle>
+            </Box>
+            <Typography variant='caption' sx={{ color: 'text' }}>
+              {formatDate(notification.createdAt)}
+            </Typography>
+          </Box>
+        </MenuItem>
+      );
+    })
+  }
+</ScrollWrapper>
         <MenuItem
           disableRipple
           disableTouchRipple
@@ -306,7 +320,7 @@ const NotificationDropdown = (props: Props) => {
             borderTop: theme => `1px solid ${theme.palette.divider}`
           }}
         >
-         
+
         </MenuItem>
       </Menu>
     </Fragment>
