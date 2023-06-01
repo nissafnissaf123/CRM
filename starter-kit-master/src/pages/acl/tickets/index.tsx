@@ -478,6 +478,7 @@ const TicketList = () => {
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const [isVideoUploaded, setIsVideoUploaded] = useState(false);
 
 
   const handleFilter = useCallback((val: string) => {
@@ -628,6 +629,7 @@ const TicketList = () => {
         reader.onload = () => {
           const base64Video = reader.result as string;
           setVideo(base64Video);
+          setIsVideoUploaded(true); // Définir le statut de la vidéo téléchargée à true
         };
         reader.readAsDataURL(file);
       }
@@ -838,8 +840,19 @@ onChange={(e) => setStatus(e.target.value)}
       onChange={handleInputImageChange}
     />
     <label htmlFor='video-upload-input'>
-      <Button variant='outlined' component='span' color='secondary' style={{height:"52px" , width:'245px'}}>
-        Upload Video
+      <Button variant='outlined' component='span' color='secondary'  style={{
+    height: '52px',
+    width: '245px',
+    backgroundColor: isVideoUploaded ? 'LimeGreen' : 'default-color',
+    color: isVideoUploaded ? 'white' : 'default-color',
+  }}>
+      {isVideoUploaded ? (
+      <>
+        <Icon icon='mdi:check' /> Video Uploaded
+      </>
+    ) : (
+      'Upload Video'
+    )}
       </Button>
     </label>
   </FormControl>
