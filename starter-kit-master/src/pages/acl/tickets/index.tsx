@@ -59,6 +59,7 @@ import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/t
 
 // ** Custom Table Components Imports
 import TableHeader from 'src/views/pages/tickets/list/TableHeader copy'
+import Avatar from 'src/@core/components/mui/avatar'
 
 
 interface UserRoleType {
@@ -133,7 +134,7 @@ const renderClient = (row: TicketsType) => {
         color={row.avatarColor || 'primary'}
         sx={{ mr: 3, width: 34, height: 34, fontSize: '1rem' }}
       >
-        {getInitials(row.client?.fullname ? row.client?.fullname : 'John Doe')}
+        {getInitials(row.employee?.fullname ? row.employee?.fullname : '')}
       </CustomAvatar>
     )
   }
@@ -145,7 +146,7 @@ const renderClient = (row: TicketsType) => {
 const columns: GridColDef[] = [
   
   {
-    flex: 0.1,
+    flex: 0.12,
     field: 'name',
     minWidth: 150,
     headerName: 'ticket Name',
@@ -212,22 +213,25 @@ const columns: GridColDef[] = [
   },
 
   {
-    flex: 0.15,
+    flex: 0.1,
     minWidth: 230,
     field: 'fullName',
     headerName: 'Employee',
     renderCell: ({ row }: CellType) => {
-      const { username } = row.client.user;
+   
+
+
       return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href='/apps/employees/view/overview/'></LinkStyled>
-            <Typography noWrap variant='caption'>
-             
-            </Typography>
-          </Box>
-      </Box>
+        
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+  {row.employee?.avatar && (
+    <CustomChip
+      avatar={<Avatar src={row.employee.avatar} sx={{ width: 25, height: 25 }} />}
+      label={row.employee.fullname}
+    />
+  )}
+</Box>
+     
      
          
       )
@@ -244,7 +248,11 @@ const columns: GridColDef[] = [
       const [showDialog, setShowDialog] = useState<boolean>(false);
       const [status, setStatus] = useState("");
       const [employee, setEmployee] = useState("");
+      const [name, setName] = useState('');
+      const [description, setDescrition] = useState('');
       const [employeeId, setEmployeeId] = useState('');
+      const [projectId, setProjectId] = useState('');
+      const [project, setProject] = useState('');
       const [ticket, setTicket] = useState
   ({
     id: "",
@@ -252,8 +260,9 @@ const columns: GridColDef[] = [
     emergencyLevel: "",
     status: "",
     client: { fullname: "" },
-    employee: {fullname:"" , userId:""}
-    
+    employee: {fullname:"" , userId:""},
+    description:"",
+    project:{name:"", id:""}
    });
  
 
@@ -274,8 +283,12 @@ const columns: GridColDef[] = [
   const handleEdit = useCallback(() => {
     setShowDialog(true);
     setStatus(ticket.status);
+    setName(ticket.name);
+    setDescrition(ticket.description);
     setEmployee(ticket.employee?.fullname)
     setEmployeeId(ticket.employee?.userId);
+    setProject(ticket.project?.name)
+    setProjectId(ticket.project?.id);
   }, [setShowDialog, ticket]);
 
   
@@ -293,9 +306,9 @@ const columns: GridColDef[] = [
           },
           body: JSON.stringify({
             status: status,
-            employeeId: employeeId,
-     
-          
+            description: description,
+          name: name,
+          projectId: projectId
           
           }),
         });
@@ -342,6 +355,38 @@ const columns: GridColDef[] = [
     fetchEmployees()
   }, []);
 
+  //get project
+  const [projects, setProjects] = useState([]);
+
+
+
+  //Get Project of client
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+  
+  const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:4001/project');
+        if (response.ok) {
+          const data = await response.json();
+    
+          // Récupération de l'ID du client à partir du localStorage
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          const clientId = userData.id;
+    
+          // Filtrage des projets pour ne récupérer que ceux correspondant à l'ID du client
+          const clientProjects = data.projects.filter((project) => project.clientId === clientId);
+    
+          setProjects(clientProjects);
+        } else {
+          console.error('Error fetching projects:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
       return (
       <>
       <IconButton onClick={handleEdit}>
@@ -379,53 +424,30 @@ const columns: GridColDef[] = [
           </Box>
           
           <Grid container spacing={6}>
-            <Grid item sm={6} xs={12}>
-              <TextField fullWidth  label='Customer' name="fullname"    value={ticket.client?.fullname}   placeholder='John' />
-            </Grid>
-            <Grid item sm={6} xs={12}>
-              <TextField fullWidth  label='Project Name' placeholder='Doe' />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField fullWidth  label='Ticket Name' name="name"    value={ticket.name} placeholder='johnDoe' />
-            </Grid>
-            
-            <Grid item  xs={12}>
-              <TextField
-                fullWidth
-                label='Ticket Description'
-                rows={4}
-                multiline
-                InputProps={{
-                  style: {
-                    height: 'auto'
-                  }
-                }}
-              />
-            </Grid>
-            <Grid item sm={8} xs={12}>
+          
+          <Grid item sm={6} xs={12}>
               <FormControl fullWidth>
-                <InputLabel id='status-select'>Select Employee</InputLabel>
+                <InputLabel  id='status-select'>Project </InputLabel>
                 <Select
-                 inputProps={{ placeholder: 'Select Employee' }} 
-                 fullWidth 
-                 labelId='employee-select' 
-                 value={employeeId}
-                 name='employees'
-                 onChange={(e) => setEmployeeId(e.target.value)}
-                 label='Select Employee'>
+  inputProps={{ placeholder: 'Project' }} 
+  fullWidth 
+  labelId='project' 
+  label='Project'
+  value={projectId} // Ajoutez cette ligne
+  name='projectId'
+  onChange={(e) => setProjectId(e.target.value)}
+ 
 
-{employees.map((dep) => ( 
-<MenuItem key={dep.id} value={dep.userId}>
-<Box sx={{ display: 'flex', alignItems: 'center' }}>
-    <CustomAvatar src={dep.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
-    <Typography>{dep.fullname}</Typography>
-  </Box>
-  </MenuItem> // Use dep.id as the value
+>
+{projects.map((project) => (
+        <MenuItem key={project.id} value={project.id}>
+          {project.name}
+        </MenuItem>
       ))}
-                </Select>
+</Select>
               </FormControl>
             </Grid>
-            <Grid item sm={4} xs={12}>
+            <Grid item sm={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel  id='status-select'>Select Status</InputLabel>
                 <Select
@@ -442,6 +464,27 @@ const columns: GridColDef[] = [
 </Select>
               </FormControl>
             </Grid>
+            <Grid item xs={12}>
+              <TextField fullWidth  label='Ticket Name' name="name"    value={name}  onChange={(e) => setName(e.target.value)}  />
+            </Grid>
+            
+            <Grid item  xs={12}>
+              <TextField
+                fullWidth
+                label='Ticket Description'
+                rows={4}
+                multiline
+                value={description}
+                onChange={(e) => setDescrition(e.target.value)} 
+                InputProps={{
+                  style: {
+                    height: 'auto'
+                  }
+                }}
+              />
+            </Grid>
+           
+          
             
            
           </Grid>
