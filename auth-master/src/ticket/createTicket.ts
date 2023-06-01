@@ -80,7 +80,7 @@ router.post("/",videoUpload.single('video'), async (req, res, next) => {
     const clientName = ticket.client?.fullname;
     const notification = await prisma.notification.create({
       data: {
-        name: `Ticket created by '${clientName}'`,
+        name: `Ticket created by ${clientName}`,
         adminId: adminId,
       },
     });

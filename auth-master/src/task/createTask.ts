@@ -22,9 +22,16 @@ router.post("/", async (req, res, next) => {
                 project:true
             }
         });
+        const tasks = await prisma.task.findUnique({
+            where: {
+                id: task.id,
+            },
+        });
+
+    const taskName = tasks?.name;
   const notification = await prisma.notification.create({
       data: {
-        name: "Task created",
+        name: `New task ${taskName} created`,
         employeeId: task.employeeId,
     },
     });
