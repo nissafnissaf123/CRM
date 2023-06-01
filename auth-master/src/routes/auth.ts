@@ -17,24 +17,17 @@ router.get('/me',async  (req, res) => {
   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Invalid token format' });
   }
-
   const token = authorizationHeader.substring(7).trim();
-
   try {
     // Verify the access token against the secret key
     const decodedToken = jwt.verify(token, jwtConfig.JWT_SECRET) as { userId: string };
     const userId = decodedToken.userId;
-
     // Retrieve the user data from the database using the user ID
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },
     });
-    // Logic to retrieve the user data based on the user ID
-    // ...
-
-    // Return  userData: { role: user.roles, id: user.id, email: user.email } the response
     res.json({ userData: { role: user?.roles, id: user?.id, email: user?.email }});
   } catch (error) {
     // Handle token verification errors
@@ -45,7 +38,7 @@ router.get('/me',async  (req, res) => {
 //accessToken n refreshToken
 const generateAccessToken = (user: { id: String }) => {
   return jwt.sign({ userId: user.id }, 'your-access-token-secret', {
-    expiresIn: '10m',
+    expiresIn: '30m',
   });
 };
 const generateRefreshToken = (user: { id: String })  => {
@@ -104,9 +97,6 @@ router.post('/register', async (req: Request, res: Response) => {
  res.send({user,admin })
  
 });
- 
-
-
 router.post('/token/refresh', async (req, res) => {
   const {  refresh } = req.body;
  
@@ -132,4 +122,4 @@ router.post('/token/refresh', async (req, res) => {
   }
 });
 
-export default router; // Ajouter cette ligne à la fin du fichier
+export default router; 
