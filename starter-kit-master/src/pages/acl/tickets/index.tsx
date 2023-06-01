@@ -137,13 +137,13 @@ const renderClient = (row: TicketsType) => {
       </CustomAvatar>
     )
   }
-} 
+}
 
 
 
 
 const columns: GridColDef[] = [
-  
+
   {
     flex: 0.1,
     field: 'name',
@@ -152,7 +152,7 @@ const columns: GridColDef[] = [
 
   },
 
-  
+
   {
     flex: 0.1,
     field: 'emergencyLevel',
@@ -169,9 +169,7 @@ const columns: GridColDef[] = [
       )
     }
   },
-  
- 
- 
+
   {
     flex: 0.1,
     minWidth: 110,
@@ -200,9 +198,9 @@ const columns: GridColDef[] = [
       const day = date.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zeros if necessary
       const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get the month (+1 because it's zero-based) and pad with leading zeros if necessary
       const year = date.getFullYear(); // Get the year
-  
+
       const dateString = `${day}-${month}-${year}`;
-  
+
       return (
         <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
           {dateString}
@@ -217,23 +215,23 @@ const columns: GridColDef[] = [
     field: 'fullName',
     headerName: 'Employee',
     renderCell: ({ row }: CellType) => {
-      const { username } = row.client.user;
+
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      
+
         <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <LinkStyled href='/apps/employees/view/overview/'></LinkStyled>
             <Typography noWrap variant='caption'>
-             
+
             </Typography>
           </Box>
       </Box>
-     
-         
+
+
       )
     }
   },
-  
+
   {
     flex: 0.1,
     minWidth: 90,
@@ -253,13 +251,13 @@ const columns: GridColDef[] = [
     status: "",
     client: { fullname: "" },
     employee: {fullname:"" , userId:""}
-    
+
    });
- 
+
 
    useEffect(() => {
     const fetchTicketById = async () => {
-      
+
       try {
         const response = await fetch(`http://localhost:4001/ticket/${row.id}`);
         const data = await response.json();
@@ -278,13 +276,13 @@ const columns: GridColDef[] = [
     setEmployeeId(ticket.employee?.userId);
   }, [setShowDialog, ticket]);
 
-  
 
- 
+
+
     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
 
-      
+
       try {
         const response = await fetch(`http://localhost:4001/ticket/${row.id}`, {
           method: "PATCH",
@@ -294,16 +292,16 @@ const columns: GridColDef[] = [
           body: JSON.stringify({
             status: status,
             employeeId: employeeId,
-     
-          
-          
+
+
+
           }),
         });
         const data = await response.json();
         console.log(data.ticket);
         console.log(employee)
-       
-        
+
+
         // Alert si la modification a réussi
         if (response.ok) {
           setShowDialog(false); // Close the dialog
@@ -311,7 +309,7 @@ const columns: GridColDef[] = [
         } else {
           toast.error('An error occurred');
         }
-        
+
       } catch (error) {
         console.log(error);
         // Alert en cas d'erreur
@@ -319,10 +317,10 @@ const columns: GridColDef[] = [
       }
     };
 
-    
 
 
-   
+
+
      // Get employees
   const [employees, setEmployees] = useState([]);
 
@@ -347,7 +345,7 @@ const columns: GridColDef[] = [
       <IconButton onClick={handleEdit}>
         <Icon icon='mdi:eye-outline' />
       </IconButton>
-      
+
         <Dialog
         open={showDialog}
         maxWidth='md'
@@ -377,7 +375,7 @@ const columns: GridColDef[] = [
             </Typography>
             <Typography variant='body2'></Typography>
           </Box>
-          
+
           <Grid container spacing={6}>
             <Grid item sm={6} xs={12}>
               <TextField fullWidth  label='Customer' name="fullname"    value={ticket.client?.fullname}   placeholder='John' />
@@ -388,7 +386,7 @@ const columns: GridColDef[] = [
             <Grid item xs={12}>
               <TextField fullWidth  label='Ticket Name' name="name"    value={ticket.name} placeholder='johnDoe' />
             </Grid>
-            
+
             <Grid item  xs={12}>
               <TextField
                 fullWidth
@@ -406,15 +404,15 @@ const columns: GridColDef[] = [
               <FormControl fullWidth>
                 <InputLabel id='status-select'>Select Employee</InputLabel>
                 <Select
-                 inputProps={{ placeholder: 'Select Employee' }} 
-                 fullWidth 
-                 labelId='employee-select' 
+                 inputProps={{ placeholder: 'Select Employee' }}
+                 fullWidth
+                 labelId='employee-select'
                  value={employeeId}
                  name='employees'
                  onChange={(e) => setEmployeeId(e.target.value)}
                  label='Select Employee'>
 
-{employees.map((dep) => ( 
+{employees.map((dep) => (
 <MenuItem key={dep.id} value={dep.userId}>
 <Box sx={{ display: 'flex', alignItems: 'center' }}>
     <CustomAvatar src={dep.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
@@ -429,9 +427,9 @@ const columns: GridColDef[] = [
               <FormControl fullWidth>
                 <InputLabel  id='status-select'>Select Status</InputLabel>
                 <Select
-  inputProps={{ placeholder: 'Select Status' }} 
-  fullWidth 
-  labelId='status-select' 
+  inputProps={{ placeholder: 'Select Status' }}
+  fullWidth
+  labelId='status-select'
   label='Select Status'
   value={status}
   name='status'
@@ -442,8 +440,8 @@ const columns: GridColDef[] = [
 </Select>
               </FormControl>
             </Grid>
-            
-           
+
+
           </Grid>
         </DialogContent>
         <DialogActions
@@ -462,7 +460,7 @@ const columns: GridColDef[] = [
         </DialogActions>
        </form>
       </Dialog>
-     
+
     </>
       )}
   }
@@ -474,7 +472,7 @@ const TicketList = () => {
   const [plan, setPlan] = useState<string>('')
   const [value, setValue] = useState<string>('')
   const [status, setStatus] = useState<string>('')
-  
+
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
@@ -500,7 +498,7 @@ const TicketList = () => {
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
   //Get Tickets
- 
+
 
   const [tickets, setTickets] = useState([]);
 
@@ -509,14 +507,14 @@ const TicketList = () => {
       const response = await fetch('http://localhost:4001/ticket');
       if (response.ok) {
         const data = await response.json();
-  
+
         // Récupération de l'ID du client à partir du localStorage
         const userData = JSON.parse(localStorage.getItem('userData'));
         const clientId = userData.id;
-  
+
         // Filtrage des tickets pour ne récupérer que ceux correspondant à l'ID du client
         const clientTickets = data.tickets.filter((ticket) => ticket.clientId === clientId);
-  
+
         setTickets(clientTickets);
       } else {
         console.error('Error fetching tickets:', response.status);
@@ -525,7 +523,7 @@ const TicketList = () => {
       console.error('Error fetching tickets:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -539,20 +537,20 @@ const TicketList = () => {
   useEffect(() => {
     fetchProjects();
   }, []);
-  
+
   const fetchProjects = async () => {
       try {
         const response = await fetch('http://localhost:4001/project');
         if (response.ok) {
           const data = await response.json();
-    
+
           // Récupération de l'ID du client à partir du localStorage
           const userData = JSON.parse(localStorage.getItem('userData'));
           const clientId = userData.id;
-    
+
           // Filtrage des projets pour ne récupérer que ceux correspondant à l'ID du client
           const clientProjects = data.projects.filter((project) => project.clientId === clientId);
-    
+
           setProjects(clientProjects);
         } else {
           console.error('Error fetching projects:', response.status);
@@ -562,8 +560,8 @@ const TicketList = () => {
       }
     };
 
- 
-    //Add ticket 
+
+    //Add ticket
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [emergencyLevel, setEmergencyLevel] = useState('');
@@ -572,22 +570,22 @@ const TicketList = () => {
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
       e.preventDefault();
-    
+
       try {
         const fileInput = e.target.elements.video;
         if (fileInput.files && fileInput.files.length > 0) {
           const file = fileInput.files[0];
           const reader = new FileReader();
-    
+
           reader.onload = async () => {
             const base64Video = reader.result as string;
             setVideo(base64Video);
-    
+
             try {
               // Convert the base64 video to a Blob object
               const base64Response = await fetch(base64Video);
               const videoBlob = await base64Response.blob();
-    
+
               const formData = new FormData();
               formData.append('name', name);
               formData.append('description', description);
@@ -595,15 +593,15 @@ const TicketList = () => {
               formData.append('status', status);
               formData.append('projectId', projectId);
               formData.append('video', videoBlob);
-    
+
               const response = await fetch('http://localhost:4001/ticket', {
                 method: 'POST',
                 body: formData,
               });
-    
+
               const addTicket = await response.json();
               console.log(addTicket);
-    
+
               setShowDialog(false);
               toast.success('Ticket added successfully!');
             } catch (error) {
@@ -612,7 +610,7 @@ const TicketList = () => {
               // Handle add ticket errors as needed
             }
           };
-    
+
           reader.readAsDataURL(file);
         }
       } catch (error) {
@@ -621,7 +619,7 @@ const TicketList = () => {
         // Handle form submission errors as needed
       }
     };
-    
+
     const handleInputImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -635,12 +633,12 @@ const TicketList = () => {
       }
     };
 
-   
-      
+
+
 
   return (
- 
-     
+
+
      <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
@@ -653,16 +651,16 @@ const TicketList = () => {
 
                     <Select
                       fullWidth
-                   
+
                       sx={{ mr: 4, mb: 2 }}
                       label=' Ticket EmergencyLevel'
-                      
+
                       labelId='Ticket-EmergencyLevel-select'
                     >
                       <MenuItem value=''>Hight</MenuItem>
                       <MenuItem value='downloaded'>Meduim</MenuItem>
                       <MenuItem value='draft'>Low</MenuItem>
-                      
+
                     </Select>
                   </FormControl>
                 </Grid>
@@ -672,10 +670,10 @@ const TicketList = () => {
 
                     <Select
                       fullWidth
-                   
+
                       sx={{ mr: 4, mb: 2 }}
                       label='Invoice Status'
-                      
+
                       labelId='invoice-status-select'
                     >
                       <MenuItem value=''>Resolved</MenuItem>
@@ -684,7 +682,7 @@ const TicketList = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                
+
               </Grid>
             </CardContent>
           </Card>
@@ -692,21 +690,21 @@ const TicketList = () => {
         <Grid item xs={12}>
           <Card>
           <CardContent>
-      
+
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-      
+
         <TextField sx={{ mr: 6, mb: 2 }} size='small' placeholder='Search Ticket Name' value={value} onChange={e => setValue(e.target.value)} />
         <Button sx={{ mb: 2 }}  variant='contained'onClick={() => setShowDialog(true)}>
         Add Ticket
       </Button>
        </Box>
-     
+
     </CardContent>
           <DataGrid
             autoHeight
             rows={tickets}
             columns={columns}
-           
+
             disableRowSelectionOnClick
             pageSizeOptions={[10, 25, 50]}
             paginationModel={paginationModel}
@@ -745,7 +743,7 @@ const TicketList = () => {
             </Typography>
             <Typography variant='body2'></Typography>
           </Box>
-          
+
           <Grid container spacing={6}>
             <Grid item sm={6} xs={12}>
               <TextField fullWidth  label='Ticket Name' name="name"  value={name} onChange={(e) => setName(e.target.value)}      placeholder='John' />
@@ -754,12 +752,12 @@ const TicketList = () => {
             <FormControl fullWidth>
                 <InputLabel  id='status-select'>Select Project</InputLabel>
                 <Select
-  inputProps={{ placeholder: 'Select Project' }} 
-  fullWidth 
-  labelId='project-select' 
+  inputProps={{ placeholder: 'Select Project' }}
+  fullWidth
+  labelId='project-select'
   label='Select Project'
   value={projectId}
-  onChange={(e) => setProjectId(e.target.value)}   
+  onChange={(e) => setProjectId(e.target.value)}
   name='project'
 
 >
@@ -768,18 +766,18 @@ const TicketList = () => {
           {project.name}
         </MenuItem>
       ))}
- 
+
 </Select>
               </FormControl>
             </Grid>
-           
-            
+
+
             <Grid item  xs={12}>
               <TextField
                 fullWidth
                 label='Ticket Description'
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}     
+                onChange={(e) => setDescription(e.target.value)}
                 rows={4}
                 multiline
                 InputProps={{
@@ -794,37 +792,37 @@ const TicketList = () => {
                 <InputLabel id='status-select'>Select  EmergencyLevel
 </InputLabel>
                 <Select
-                 inputProps={{ placeholder: 'Select EmergencyLevel' }} 
-                 fullWidth 
-                 labelId='emergencyLevel-select' 
+                 inputProps={{ placeholder: 'Select EmergencyLevel' }}
+                 fullWidth
+                 labelId='emergencyLevel-select'
               value={emergencyLevel}
-              onChange={(e) => setEmergencyLevel(e.target.value)}   
-              
+              onChange={(e) => setEmergencyLevel(e.target.value)}
+
                  label='Select EmergencyLevel'>
 
 <MenuItem value='Low'>Low</MenuItem>
   <MenuItem value='Medium'>Medium</MenuItem>
   <MenuItem value='High'>High</MenuItem>
                 </Select>
-                
+
               </FormControl>
             </Grid>
             <Grid item sm={4} xs={12}>
               <FormControl fullWidth>
                 <InputLabel  id='status-select'>Select Status</InputLabel>
                 <Select
-  inputProps={{ placeholder: 'Select Status' }} 
-  fullWidth 
-  labelId='status-select' 
+  inputProps={{ placeholder: 'Select Status' }}
+  fullWidth
+  labelId='status-select'
   label='Select Status'
 value={status}
-onChange={(e) => setStatus(e.target.value)}   
+onChange={(e) => setStatus(e.target.value)}
   name='status'
 
 >
 <MenuItem value='pending'>pending</MenuItem>
   <MenuItem value='resolved'>resolved</MenuItem>
- 
+
 </Select>
               </FormControl>
             </Grid>
@@ -835,7 +833,7 @@ onChange={(e) => setStatus(e.target.value)}
       type='file'
       accept='video/mp4'
       id='video-upload-input'
-      name='video' 
+      name='video'
       style={{ display: 'none' }}
       onChange={handleInputImageChange}
     />
@@ -857,8 +855,8 @@ onChange={(e) => setStatus(e.target.value)}
     </label>
   </FormControl>
             </Grid>
-            
-           
+
+
           </Grid>
         </DialogContent>
         <DialogActions
@@ -878,7 +876,7 @@ onChange={(e) => setStatus(e.target.value)}
        </form>
       </Dialog>
 
-      
+
     </Grid>
   )
 }
