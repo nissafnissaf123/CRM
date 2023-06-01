@@ -14,9 +14,9 @@ cloudinary.config({
   api_key: '743974992731346',
   api_secret: 'hRFjFTyFXF87wIH3AxOtt7MZ_dc'
 });
-
+/*
 // Configure multer and Cloudinary storage for images
-/*const imageStorage = new CloudinaryStorage({
+const imageStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'screenshots',
@@ -28,15 +28,11 @@ cloudinary.config({
       if (file.mimetype === 'image/png') {
         return 'png';
       }
-      // Default to JPEG format if the file is neither JPG nor PNG
       return 'jpg';
     },
     public_id: () => 'screenshots_' + Date.now()
   }
-});
-
-const imageUpload = multer({ storage: imageStorage });*/
- 
+});*/
 // Configure multer and Cloudinary storage for videos
 const videoStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -47,6 +43,7 @@ const videoStorage = new CloudinaryStorage({
     public_id: () => 'video_' + Date.now()
   }
 });
+//const imageUpload = multer({ storage: imageStorage });
 const videoUpload = multer({ storage: videoStorage });
 router.post("/",videoUpload.single('video'), async (req, res, next) => {
     try {
@@ -61,7 +58,7 @@ router.post("/",videoUpload.single('video'), async (req, res, next) => {
         emergencyLevel: req.body.emergencyLevel,
         projectId: req.body.projectId,
         status: req.body.status,
-        //screenshots: req.file?.path,
+        screenshots: req.file?.path,
         clientId: clientId,
         video: req.file?.path,
       },
@@ -70,7 +67,6 @@ router.post("/",videoUpload.single('video'), async (req, res, next) => {
         client: true
       }
     });
-
     const admin = await prisma.admin.findFirst();
     const adminId = admin?.userId;
     if (!adminId) {

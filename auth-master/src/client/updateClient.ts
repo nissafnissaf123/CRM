@@ -21,8 +21,17 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'avatar', // The folder in your Cloudinary account where the avatars will be stored
-    format: async () => 'jpg', // The desired image format
-    public_id: () => 'avatar_' + Date.now() // The public ID of the image
+format: async (file: { mimetype: string; }) => {
+      // Determine the file format based on the original file's mimetype
+      if (file.mimetype === 'image/jpeg') {
+        return 'jpg';
+      }
+      if (file.mimetype === 'image/png') {
+        return 'png';
+      }
+      
+    },   
+  public_id: () => 'avatar_' + Date.now() // The public ID of the image
   }
 });
 const upload = multer({ storage: storage });
