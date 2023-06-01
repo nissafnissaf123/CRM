@@ -11,13 +11,7 @@ import { useRouter } from 'next/router'
 const navigation = (): HorizontalNavItemsType => {
   let items = [
     
-    {
-      title: 'Dashboard',
-      icon: 'mdi:home-outline',
-      path: '/dashboards/crm',
-      type:'client'
-
-    },
+    
      {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
@@ -34,10 +28,21 @@ const navigation = (): HorizontalNavItemsType => {
       type:'employee'
     },
     {
+      sectionTitle: 'Apps & Pages',
+      type:'client'
+    },
+    {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
       path: '/employee',
       type:'employee'
+
+    },
+    {
+      title: 'Dashboard',
+      icon: 'mdi:home-outline',
+      path: '/acl',
+      type:'client'
 
     },
 
@@ -96,20 +101,37 @@ const navigation = (): HorizontalNavItemsType => {
 
 
     },
+    {
+      title: 'Projects',
+      icon:  'mdi:view-dashboard-outline',
+      path: '/acl/projects',
+      type:'client'
+
+
+    },
    
    
 
-    {
-      title: 'Invoice',
-      icon: 'mdi:file-document-outline',
-      path: '/apps/invoice/list'
-    },
+   
     {
       title: 'Tickets',
       icon:  'mdi:ticket-outline',
       path: '/employee/tickets',
       type:'employee'
 
+    },
+    {
+      title: 'Tickets',
+      icon:  'mdi:ticket-outline',
+      path: '/acl/tickets',
+      type:'client'
+
+    },
+    {
+      title: 'Invoice',
+      icon: 'mdi:file-document-outline',
+      path: '/acl/invoice',
+      type:"client"
     },
     
     {
@@ -131,6 +153,10 @@ const navigation = (): HorizontalNavItemsType => {
         sectionTitle: 'User Interface',
          type:'employee'
       },
+      {
+        sectionTitle: 'User Interface',
+         type:'client'
+      },
     
     {
       title: 'User Profile',
@@ -145,6 +171,12 @@ const navigation = (): HorizontalNavItemsType => {
          type:'employee'
     },
     {
+      title: 'User Profile',
+      icon: 'mdi:account-circle',
+      path: '/acl/profile',
+         type:'client'
+    },
+    {
       title: 'Account Settings',
       path: '/admin/account',
       icon: 'mdi:cog',
@@ -156,6 +188,13 @@ const navigation = (): HorizontalNavItemsType => {
       path: '/employee/profile/TabAccount',
       icon: 'mdi:cog',
       type:'employee'
+
+    },
+    {
+      title: 'Account Settings',
+      path: '/acl/profile/TabAccount',
+      icon: 'mdi:cog',
+      type:'client'
 
     },
   ]
