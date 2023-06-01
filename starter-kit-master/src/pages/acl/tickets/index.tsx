@@ -152,28 +152,7 @@ const columns: GridColDef[] = [
 
   },
 
-  {
-    flex: 0.15,
-    minWidth: 230,
-    field: 'fullName',
-    headerName: 'Customer',
-    renderCell: ({ row }: CellType) => {
-      const { username } = row.client.user;
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href='/apps/employees/view/overview/'></LinkStyled>
-            <Typography noWrap variant='caption'>
-             
-            </Typography>
-          </Box>
-      </Box>
-     
-         
-      )
-    }
-  },
+  
   {
     flex: 0.1,
     field: 'emergencyLevel',
@@ -229,6 +208,29 @@ const columns: GridColDef[] = [
           {dateString}
         </Typography>
       );
+    }
+  },
+
+  {
+    flex: 0.15,
+    minWidth: 230,
+    field: 'fullName',
+    headerName: 'Employee',
+    renderCell: ({ row }: CellType) => {
+      const { username } = row.client.user;
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+            <LinkStyled href='/apps/employees/view/overview/'></LinkStyled>
+            <Typography noWrap variant='caption'>
+             
+            </Typography>
+          </Box>
+      </Box>
+     
+         
+      )
     }
   },
   
@@ -571,9 +573,11 @@ const TicketList = () => {
       e.preventDefault();
     
       try {
-        const reader = new FileReader();
-        const { files } = e.target.elements.video;
-        if (files && files.length !== 0) {
+        const fileInput = e.target.elements.video;
+        if (fileInput.files && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const reader = new FileReader();
+    
           reader.onload = async () => {
             const base64Video = reader.result as string;
             setVideo(base64Video);
@@ -607,7 +611,8 @@ const TicketList = () => {
               // Handle add ticket errors as needed
             }
           };
-          reader.readAsDataURL(files[0]);
+    
+          reader.readAsDataURL(file);
         }
       } catch (error) {
         console.error(error);
@@ -615,7 +620,7 @@ const TicketList = () => {
         // Handle form submission errors as needed
       }
     };
-
+    
     const handleInputImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
