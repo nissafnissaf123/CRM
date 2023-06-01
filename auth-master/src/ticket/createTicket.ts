@@ -47,10 +47,15 @@ const videoStorage = new CloudinaryStorage({
 const videoUpload = multer({ storage: videoStorage });
 router.post("/",videoUpload.single('video'), async (req, res, next) => {
     try {
-       
-    const client = await prisma.client.findFirst({});
-    const clientId = client?.userId;
+    const projectId = req.body.projectId;
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
 
+      const clientId = project?.clientId;
+      console.log(clientId)
     const ticket = await prisma.ticket.create({
       data: {
         name: req.body.name,

@@ -52,7 +52,7 @@ router.patch("/:id", async (req, res, next) => {
         const adminId = admin?.userId;
         notification = await createNotification( `The ${taskName} Task status updates by the employee ${employeeName}`, adminId, undefined, undefined);
     } else {
-         const employee = await prisma.employee.findFirst();
+        const employee = await prisma.employee.findFirst();
         const employeeId = employee?.userId;
         notification = await createNotification(`The  ${taskName} Task updated by the admin`, undefined, employeeId, undefined);
     }

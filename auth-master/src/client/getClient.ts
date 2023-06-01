@@ -17,16 +17,14 @@ router.get("/", async (req, res, next) => {
 });
 // get a client by id
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:userId", async (req, res, next) => {
     try {
         const client = await prisma.client.findUnique({
             where: {
-                id: String(req.params.id),
+                userId: String(req.params.userId),
             },
             include: {  user:true },
-          
         });
-
         res.json({ client });
     } catch (error: any) {
         next(error.message);
