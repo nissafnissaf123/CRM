@@ -38,7 +38,7 @@ router.get('/me',async  (req, res) => {
 //accessToken n refreshToken
 const generateAccessToken = (user: { id: String }) => {
   return jwt.sign({ userId: user.id }, 'your-access-token-secret', {
-    expiresIn: '30m',
+    expiresIn: '1h',
   });
 };
 const generateRefreshToken = (user: { id: String })  => {

@@ -137,13 +137,13 @@ const renderClient = (row: TicketsType) => {
       </CustomAvatar>
     )
   }
-} 
+}
 
 
 
 
 const columns: GridColDef[] = [
-  
+
   {
     flex: 0.1,
     field: 'name',
@@ -158,19 +158,19 @@ const columns: GridColDef[] = [
     field: 'fullName',
     headerName: 'Customer',
     renderCell: ({ row }: CellType) => {
-      const { username } = row.client.user;
+
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
         {renderClient(row)}
         <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <LinkStyled href='/apps/employees/view/overview/'>{row.client?.fullname}</LinkStyled>
             <Typography noWrap variant='caption'>
-              {`@${username}`}
+
             </Typography>
           </Box>
       </Box>
-     
-         
+
+
       )
     }
   },
@@ -190,9 +190,9 @@ const columns: GridColDef[] = [
       )
     }
   },
-  
- 
- 
+
+
+
   {
     flex: 0.1,
     minWidth: 110,
@@ -221,9 +221,9 @@ const columns: GridColDef[] = [
       const day = date.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zeros if necessary
       const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get the month (+1 because it's zero-based) and pad with leading zeros if necessary
       const year = date.getFullYear(); // Get the year
-  
+
       const dateString = `${day}-${month}-${year}`;
-  
+
       return (
         <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
           {dateString}
@@ -231,7 +231,7 @@ const columns: GridColDef[] = [
       );
     }
   },
-  
+
   {
     flex: 0.1,
     minWidth: 90,
@@ -251,13 +251,13 @@ const columns: GridColDef[] = [
     status: "",
     client: { fullname: "" },
     employee: {fullname:"" , userId:""}
-    
+
    });
- 
+
 
    useEffect(() => {
     const fetchTicketById = async () => {
-      
+
       try {
         const response = await fetch(`http://localhost:4001/ticket/${row.id}`);
         const data = await response.json();
@@ -276,13 +276,13 @@ const columns: GridColDef[] = [
     setEmployeeId(ticket.employee?.userId);
   }, [setShowDialog, ticket]);
 
-  
 
- 
+
+
     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
 
-      
+
       try {
         const response = await fetch(`http://localhost:4001/ticket/${row.id}`, {
           method: "PATCH",
@@ -292,16 +292,16 @@ const columns: GridColDef[] = [
           body: JSON.stringify({
             status: status,
             employeeId: employeeId,
-     
-          
-          
+
+
+
           }),
         });
         const data = await response.json();
         console.log(data.ticket);
         console.log(employee)
-       
-        
+
+
         // Alert si la modification a réussi
         if (response.ok) {
           setShowDialog(false); // Close the dialog
@@ -309,7 +309,7 @@ const columns: GridColDef[] = [
         } else {
           toast.error('An error occurred');
         }
-        
+
       } catch (error) {
         console.log(error);
         // Alert en cas d'erreur
@@ -317,10 +317,10 @@ const columns: GridColDef[] = [
       }
     };
 
-    
 
 
-   
+
+
      // Get employees
   const [employees, setEmployees] = useState([]);
 
@@ -345,7 +345,7 @@ const columns: GridColDef[] = [
       <IconButton onClick={handleEdit}>
         <Icon icon='mdi:eye-outline' />
       </IconButton>
-      
+
         <Dialog
         open={showDialog}
         maxWidth='md'
@@ -375,7 +375,7 @@ const columns: GridColDef[] = [
             </Typography>
             <Typography variant='body2'></Typography>
           </Box>
-          
+
           <Grid container spacing={6}>
             <Grid item sm={6} xs={12}>
               <TextField fullWidth  label='Customer' name="fullname"    value={ticket.client?.fullname}   placeholder='John' />
@@ -386,7 +386,7 @@ const columns: GridColDef[] = [
             <Grid item xs={12}>
               <TextField fullWidth  label='Ticket Name' name="name"    value={ticket.name} placeholder='johnDoe' />
             </Grid>
-            
+
             <Grid item  xs={12}>
               <TextField
                 fullWidth
@@ -404,15 +404,15 @@ const columns: GridColDef[] = [
               <FormControl fullWidth>
                 <InputLabel id='status-select'>Select Employee</InputLabel>
                 <Select
-                 inputProps={{ placeholder: 'Select Employee' }} 
-                 fullWidth 
-                 labelId='employee-select' 
+                 inputProps={{ placeholder: 'Select Employee' }}
+                 fullWidth
+                 labelId='employee-select'
                  value={employeeId}
                  name='employees'
                  onChange={(e) => setEmployeeId(e.target.value)}
                  label='Select Employee'>
 
-{employees.map((dep) => ( 
+{employees.map((dep) => (
 <MenuItem key={dep.id} value={dep.userId}>
 <Box sx={{ display: 'flex', alignItems: 'center' }}>
     <CustomAvatar src={dep.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
@@ -427,9 +427,9 @@ const columns: GridColDef[] = [
               <FormControl fullWidth>
                 <InputLabel  id='status-select'>Select Status</InputLabel>
                 <Select
-  inputProps={{ placeholder: 'Select Status' }} 
-  fullWidth 
-  labelId='status-select' 
+  inputProps={{ placeholder: 'Select Status' }}
+  fullWidth
+  labelId='status-select'
   label='Select Status'
   value={status}
   name='status'
@@ -440,8 +440,8 @@ const columns: GridColDef[] = [
 </Select>
               </FormControl>
             </Grid>
-            
-           
+
+
           </Grid>
         </DialogContent>
         <DialogActions
@@ -460,7 +460,7 @@ const columns: GridColDef[] = [
         </DialogActions>
        </form>
       </Dialog>
-     
+
     </>
       )}
   }
@@ -472,7 +472,7 @@ const TicketList = () => {
   const [plan, setPlan] = useState<string>('')
   const [value, setValue] = useState<string>('')
   const [status, setStatus] = useState<string>('')
-  
+
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
@@ -497,7 +497,7 @@ const TicketList = () => {
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
   //Get Tickets
- 
+
 
   const [tickets, setTickets] = useState([]);
 
@@ -511,11 +511,11 @@ const TicketList = () => {
         console.error(error);
       });
   }, []);
-  
+
 
   return (
- 
-     
+
+
      <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
@@ -528,16 +528,16 @@ const TicketList = () => {
 
                     <Select
                       fullWidth
-                   
+
                       sx={{ mr: 4, mb: 2 }}
                       label=' Ticket EmergencyLevel'
-                      
+
                       labelId='Ticket-EmergencyLevel-select'
                     >
                       <MenuItem value=''>Hight</MenuItem>
                       <MenuItem value='downloaded'>Meduim</MenuItem>
                       <MenuItem value='draft'>Low</MenuItem>
-                      
+
                     </Select>
                   </FormControl>
                 </Grid>
@@ -547,10 +547,10 @@ const TicketList = () => {
 
                     <Select
                       fullWidth
-                   
+
                       sx={{ mr: 4, mb: 2 }}
                       label='Invoice Status'
-                      
+
                       labelId='invoice-status-select'
                     >
                       <MenuItem value=''>Resolved</MenuItem>
@@ -559,7 +559,7 @@ const TicketList = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                
+
               </Grid>
             </CardContent>
           </Card>
@@ -571,7 +571,7 @@ const TicketList = () => {
             autoHeight
             rows={tickets}
             columns={columns}
-           
+
             disableRowSelectionOnClick
             pageSizeOptions={[10, 25, 50]}
             paginationModel={paginationModel}
@@ -581,7 +581,7 @@ const TicketList = () => {
         </Card>
       </Grid>
 
-      
+
     </Grid>
   )
 }
