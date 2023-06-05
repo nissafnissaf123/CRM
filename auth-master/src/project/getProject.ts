@@ -82,7 +82,8 @@ router.get("/:id", async (req, res) => {
        notification =  await prisma.notification.create({
         data: {
           name:  `Project '${projectName}' completed`,
-          adminId: adminId,
+           adminId: adminId,
+          read: false
         },
       });
         console.log(notification)

@@ -10,13 +10,14 @@ const { v2: cloudinary } = require('cloudinary');
 router.use(express.urlencoded({ extended: true }));
 
 // Create a notification
-const createNotification = async (name: string, adminId: string | undefined, employeeId: string | undefined, clientId: string | undefined) => {
+const createNotification = async (name: string, adminId: string | undefined, employeeId: string | undefined, clientId: string | undefined,read:boolean) => {
   return prisma.notification.create({
     data: {
       name: name,
       adminId: adminId,
       employeeId: employeeId,
       clientId: clientId,
+      read: false
     },
   });
 };
@@ -71,24 +72,24 @@ router.patch("/:id",videoUpload.single('video'), async (req, res, next) => {
     const ticketName = tickets?.name;
     const employeeName = updatedTicket.employee?.fullname ?? "";
     const clientName = updatedTicket.client?.fullname ?? "";
+  
     if (req.body.employeeId) {
       // If an admin updates the ticket (assign an employee), send notification to the employee
       const employeeId = updatedTicket.employee?.userId;
-        notification = await createNotification(`The ${ticketName} Ticket assigned to you`, undefined, employeeId, undefined);
-      
+        notification = await createNotification(`The ${ticketName} Ticket assigned to you`, undefined, employeeId, undefined,true);
     } else if (req.body.status === 'resolved') {
       // If an employee updates the ticket (updates the status to resolved), send notification to the admin and client
         const admin = await prisma.admin.findFirst();
         const adminId = admin?.userId;
         const clientId = updatedTicket.client?.userId;
-      notification = await createNotification(`The ${ticketName} Ticket Resolved by the employee ${employeeName}`, adminId, undefined, clientId);
+      notification = await createNotification(`The ${ticketName} Ticket Resolved by the employee ${employeeName}`, adminId, undefined, clientId,true);
       
     }
     else {
       const admin = await prisma.admin.findFirst();
       const adminId = admin?.userId;
       const employeeId = updatedTicket.employee?.userId;
-      notification = await createNotification(`The ${ticketName} Ticket updated by the customer ${clientName}`, adminId, employeeId, undefined);
+      notification = await createNotification(`The ${ticketName} Ticket updated by the customer ${clientName}`, adminId, employeeId, undefined,true);
     }
     res.json({ updatedTicket, notification });
   } catch (error: any) {

@@ -14,25 +14,7 @@ cloudinary.config({
   api_key: '743974992731346',
   api_secret: 'hRFjFTyFXF87wIH3AxOtt7MZ_dc'
 });
-/*
-// Configure multer and Cloudinary storage for images
-const imageStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'screenshots',
-    format: async (file: { mimetype: string; }) => {
-      // Determine the file format based on the original file's mimetype
-      if (file.mimetype === 'image/jpeg') {
-        return 'jpg';
-      }
-      if (file.mimetype === 'image/png') {
-        return 'png';
-      }
-      return 'jpg';
-    },
-    public_id: () => 'screenshots_' + Date.now()
-  }
-});*/
+
 // Configure multer and Cloudinary storage for videos
 const videoStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -83,6 +65,7 @@ router.post("/",videoUpload.single('video'), async (req, res, next) => {
       data: {
         name: `Ticket created by ${clientName}`,
         adminId: adminId,
+        read: false
       },
     });
 
