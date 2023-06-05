@@ -7,14 +7,14 @@ const prisma = new PrismaClient();
 router.use(express.urlencoded({ extended: true }));
 
 // Create a notification
-const createNotification = async (name: string, adminId: string | undefined, employeeId: string | undefined, clientId: string | undefined) => {
+const createNotification = async (name: string, adminId: string | undefined, employeeId: string | undefined, clientId: string | undefined, read : boolean) => {
   return prisma.notification.create({
     data: {
       name: name,
       adminId: adminId,
       employeeId: employeeId,
-      clientId: clientId,
-    },
+     clientId: clientId
+      },
   });
 };
 
@@ -50,10 +50,10 @@ router.patch("/:id", async (req, res, next) => {
       // If an employee updates the task status, send notification to the admin
         const admin = await prisma.admin.findFirst();
         const adminId = admin?.userId;
-        notification = await createNotification( `The Task "${taskName}" status updates by the employee ${employeeName}`, adminId, undefined, undefined);
+        notification = await createNotification( `The Task '${taskName}' status updates by the employee ${employeeName}`, adminId, undefined, undefined,true);
     } else {
         const employeeId = task.employee?.userId;
-        notification = await createNotification(`The Task "${taskName}" updated by the Manager`, undefined, employeeId, undefined);
+        notification = await createNotification(`The Task '${taskName}' updated by the Manager`, undefined, employeeId, undefined,true);
     }
         
         res.json({ task, notification });

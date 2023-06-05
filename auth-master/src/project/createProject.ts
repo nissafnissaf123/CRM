@@ -8,8 +8,6 @@ router.use(express.urlencoded({ extended: true }));
 
 router.post("/", async (req, res, next) => {
     try {
-        const { name, category, framework, description,  endDate } = req.body;
-
         const project = await prisma.project.create({
             data: {...req.body },
             include: {

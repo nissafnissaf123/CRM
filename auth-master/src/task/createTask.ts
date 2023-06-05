@@ -22,22 +22,27 @@ router.post("/", async (req, res, next) => {
                 project:true
             }
         });
-        const tasks = await prisma.task.findUnique({
-            where: {
-                id: task.id,
-            },
-        });
-
-    const taskName = tasks?.name;
-  const notification = await prisma.notification.create({
-      data: {
-        name: `New task ${taskName} created`,
-        employeeId: task.employeeId,
-    },
-    });
-        res.json({ task, notification });
+ 
+        res.json({ task });
     } catch (error: any) {
         next(new Error(error.message));
     }
 });
 export default router;
+/*       const tasks = await prisma.task.findUnique({
+            where: {
+                id: task.id,
+            },
+        });
+        const taskName = tasks?.name;
+        const admin = await prisma.admin.findFirst();
+  const adminId = admin?.userId ?? "";
+
+    const notification = await prisma.notification.create({
+      data: {
+        name: `New task ${taskName} created`,
+        employeeId: task.employeeId,
+        read: false, 
+        adminId:adminId
+    },
+    });*/
