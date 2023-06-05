@@ -60,7 +60,7 @@ router.get("/:id", async (req, res) => {
       if (totalTaskCount === 0) {
         progress = 0;
       } else {
-        progress = Math.round((doingTaskCount+doneTaskCount / totalTaskCount) * 100);
+        progress = Math.round((((doingTaskCount+doneTaskCount)/2) / totalTaskCount) * 100);
       }
   
       project.progress = progress;
