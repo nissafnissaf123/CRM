@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
+import { useRouter } from 'next/router'
 
 // ** React Imports
 import { useState, forwardRef, Ref, useEffect, MouseEvent, useCallback, ReactElement } from 'react'
@@ -66,13 +67,21 @@ interface UserRoleType {
     maintainer: { icon: 'mdi:chart-donut', color: 'success.main' },
     subscriber: { icon: 'mdi:account-outline', color: 'primary.main' }
   }
+
+  const Header = styled(Box)<BoxProps>(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(3, 4),
+    justifyContent: 'space-between',
+    backgroundColor: theme.palette.background.default
+  }))
   
   interface CellType {
     row: UsersType
   }
   
   interface Props {
-    id: string;
+    userId : string;
   }
   const userStatusObj: UserStatusType = {
     active: 'success',
@@ -117,7 +126,7 @@ interface UserRoleType {
 
 
 
-  const RowOptions = ({ id }: Props) => {
+  const RowOptions = ({ userId }: Props) => {
 
 
     // ** State
@@ -133,43 +142,37 @@ interface UserRoleType {
     }
   
     //Get employee by id
-  
     const [show, setShow] = useState<boolean>(false)
-    const [fullname, setFullname] = useState("");
     const [email, setEmail] = useState("");
+    const [fullname, setFullname] = useState("");
     const [phone, setPhone] = useState("");
     const [companyName, setCompanyName] = useState("");
-    
-    const [client, setClient] = useState
-    ({
+    const [client, setClient] = useState({
       id: "",
       fullname: "",
       user: { email: "" , username:""},
       phone: "",
-      companyName: "",
-     
-     });
-  
+      companyName:"",
+    });
     
+    //Get client by userid
     useEffect(() => {
-      const fetchEmployeeById = async () => {
-        try {
-          const response = await fetch(`http://localhost:4001/client/${id}`);
-          const data = await response.json();
+      fetch(`http://localhost:4001/client/${userId}`)
+        .then((response) => response.json())
+        .then((data) => {
           setClient(data.client);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      fetchEmployeeById();
-    }, [id]);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }, [userId]);
     
   
   
     const handleEdit = useCallback(() => {
       setShow(true);
       setFullname(client.fullname);
-      setEmail(client.user.email);
+      setEmail(client.user?.email);
       setPhone(client.phone);
       setCompanyName(client.companyName);
       handleRowOptionsClose();
@@ -177,34 +180,41 @@ interface UserRoleType {
   
   
      //Edit Employee by Id
-     const handleUpdate = async () => {
+     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+
+      
       try {
-        const response = await fetch(`http://localhost:4001/client/${id}`, {
+        const response = await fetch(`http://localhost:4001/client/${userId}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            fullname: fullname,
+           fullname: fullname,
             email: email,
-            phone: phone,
+            phone:phone,
             companyName: companyName,
+
           }),
         });
         const data = await response.json();
         console.log(data.client);
+        console.log(client)
+       
         
         // Alert si la modification a réussi
         if (response.ok) {
-          alert("La modification a été effectuée avec succès !");
+          setShow(false); // Close the dialog
+          toast.success('Customer updated successfully');
         } else {
-          alert("La modification a échoué.");
+          toast.error('An error occurred');
         }
         
       } catch (error) {
         console.log(error);
         // Alert en cas d'erreur
-        alert("Une erreur s'est produite. Veuillez réessayer plus tard.");
+       toast.error("Une erreur s'est produite. Veuillez réessayer plus tard.");
       }
     };
    
@@ -233,9 +243,9 @@ interface UserRoleType {
             component={Link}
             sx={{ '& svg': { mr: 2 } }}
             onClick={handleRowOptionsClose}
-            href={`/apps/user/view/overview/`}
+            href={`/admin/viewClient/${userId}`}
           >
-            <Icon icon='mdi:eye-outline' fontSize={20} />
+            <Icon  icon='mdi:eye-outline' fontSize={20} />
             View
           </MenuItem>
           <MenuItem onClick={handleEdit}  sx={{ '& svg': { mr: 2 } }}>
@@ -336,11 +346,29 @@ interface UserRoleType {
       renderCell: ({ row }: CellType) => {
         const {user } = row
         const username = user?.email?.split('@')[0];
+
+        const [employee, setEmployee] = useState(null);
+        const userId = row.userId;
+
+        useEffect(() => {
+          fetch(`http://localhost:4001/client/${userId}`)
+            .then((response) => response.json())
+            .then((data) => {
+              setEmployee(data.client);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }, [userId]);
+        
+
+        const router = useRouter();
+
         return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {renderClient(row)}
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <LinkStyled href='/apps/employees/view/overview/'>{row.fullname}</LinkStyled>
+              <LinkStyled href={`/admin/viewClient/${row.userId}`}>{row.fullname}</LinkStyled>
               <Typography noWrap variant='caption'>
                 {`@${username}`}
               </Typography>
@@ -397,7 +425,7 @@ interface UserRoleType {
       sortable: false,
       field: 'actions',
       headerName: 'Actions',
-      renderCell: ({ row }: CellType) => <RowOptions id={row.id} />
+      renderCell: ({ row }: CellType) => <RowOptions userId ={row.userId } />
     }
   ]
 
@@ -464,20 +492,61 @@ const ListClient = () => {
     setValue(value);
   };
 
+
+  const handleClose = () => {
+    setAddUserOpen(false);
+  }
+
+  //Post client 
+
+  const [client, setClient] = useState({companyName:'', email:'', fullname:'', phone:''})
+  
+  const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+  
+    const { companyName, email, fullname, phone } = client;
+    if ( phone && companyName && email && fullname  ) {
+      fetch("http://localhost:4001/client", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(client),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+         handleClose();
+         toast.success('Customer added successfully');
+         fetchClients()
+          
+        })
+        .catch((error) => {
+         handleClose();
+         console.error(error);
+         toast.error('Failed to add customer'); // Display error toast notification
+        });
+    } else {
+     handleClose();
+     toast.error("Please fill out all the fields"); // Display error toast notification
+    }
+  };
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
+    const {name, value} = e.target
+    setClient({
+        ...client,
+        [name]: value
+    })
+ }
+
   return (
     <Grid container spacing={6}>
       
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='Customers List' sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }} />
-          <CardContent>
-            <Grid container spacing={6}>
-              
-              
-              
-            </Grid>
-          </CardContent>
-          <Divider />
+       
+          
+          
          
           <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
           <DataGrid
@@ -493,7 +562,92 @@ const ListClient = () => {
         </Card>
       </Grid>
 
-      <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
+      <Drawer
+      open={addUserOpen}
+      anchor='right'
+      variant='temporary'
+      onClose={handleClose}
+      ModalProps={{ keepMounted: true }}
+      sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
+    >
+      <Header>
+        <Typography variant='h6'>Add Customer</Typography>
+        <IconButton size='small' onClick={handleClose} sx={{ color: 'text.primary' }}>
+          <Icon icon='mdi:close' fontSize={20} />
+        </IconButton>
+      </Header>
+      <Box sx={{ p: 5 }}>
+        <form onSubmit={handleSubmit} >
+         
+          <FormControl fullWidth sx={{ mb: 6 }}>
+           
+          <TextField
+                 onChange={handleChange}
+                  label='FullName'
+                  value={client.fullname}
+                  placeholder='John Doe'
+                  
+                  name='fullname'
+                />
+             
+            
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 6 }}>
+           
+          <TextField
+                  type='email'
+                  value={client.email}
+                  label='Email'
+                  name='email'
+             onChange={handleChange}
+                  placeholder='johndoe@email.com'
+                
+                />
+             
+            
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 6 }}>
+           
+          <TextField
+                  type='number'
+                  value={client.phone}
+                  label='Phone'
+                  name='phone'
+                  onChange={handleChange}
+                  placeholder='(397) 294-5153'
+                
+                />
+             
+            
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 6 }}>
+           
+                <TextField
+                name='companyName'
+                  value={client.companyName}
+                  label='Company'
+                  onChange={handleChange}
+                  placeholder='Company ' 
+                />
+             
+            
+          </FormControl>
+         
+         
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Button size='large' type='submit'   variant='contained' sx={{ mr: 3 }}>
+              Submit
+            </Button>
+            <Button size='large' variant='outlined' color='secondary' onClick={handleClose}>
+              Cancel
+            </Button>
+          </Box>
+        </form>
+      </Box>
+    </Drawer>
+
     </Grid>
   )
 }

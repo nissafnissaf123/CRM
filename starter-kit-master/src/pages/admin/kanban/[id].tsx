@@ -313,15 +313,7 @@ const onDragEnter = (boardId: number, cardId: string) => {
             />
           ))}
           <div style={{marginTop:'-12px'}} className="app-boards-last">
-            <CustomInput
-              displayClass="app-boards-add-board"
-              editClass="app-boards-add-board-edit"
-              placeholder="Enter Board Name"
-              text="Add Board"
-              buttonText="Add Board"
-              onSubmit={addboardHandler}
-              
-            />
+           
           </div>
         </div>
       </div>

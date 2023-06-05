@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import Box from '@mui/material/Box'
 import Menu from '@mui/material/Menu'
 import Badge from '@mui/material/Badge'
-import Avatar from '@mui/material/Avatar'
+import Avatar, { avatarClasses } from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
@@ -85,6 +85,27 @@ const UserDropdown = (props: Props) => {
 
   //Get Employee 
   //Get Employee
+  const [client, setClient] = useState({
+    id: "",
+    fullname: "",
+    phone: "",
+    user: { email: "", username: "" },
+    department: { name: "" },
+    departmentRole:"",
+    adresse:"",
+    facebook:"",
+    instagram:"",
+    slack:"",
+    github:"",
+    gitlab:"", 
+    createdAt:"",
+    avatar:""
+  });
+
+  const [avatar, setAvatar] = useState('')
+  const [fullname, setFullname] = useState('')
+  const [departmentRole, setDepartmentRole] = useState('')
+  const [companyName, setCompanyName] = useState('')
 
   const [employee, setEmployee] = useState({
     id: "",
@@ -103,26 +124,56 @@ const UserDropdown = (props: Props) => {
     avatar:""
   });
 
+
+
   useEffect(() => {
     const fetchEmployeeById = async () => {
       try {
         const userData = JSON.parse(localStorage.getItem('userData'));
-        console.log(userData)
-        const employeeId = userData.id;
-        console.log(employeeId)
-        
-       // Retrieve the employee data from local storage or from an API
-      const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
-      const data = await response.json();
+        console.log(userData);
+  
+        if (userData.role === 'client') {
+          const clientId = userData.id;
+          console.log(clientId);
+          const response = await fetch(`http://localhost:4001/client/${clientId}`);
+          const data = await response.json();
+          
+          setClient(data.client);
+          console.log(data.client);
 
-      // Set the employee state with the retrieved data
-      setEmployee(data.employee);
-      console.log(data.employee);
+          // Extraire l'avatar du client si disponible
+  const clientAvatar = data.client.avatar;
+  setAvatar(clientAvatar);
+
+  const clientFullname = data.client.fullname;
+  setFullname(clientFullname);
+
+  const clientCompany = data.client.companyName;
+  setCompanyName(clientCompany);
+        } else if (userData.role === 'Employee') {
+          const employeeId = userData.id;
+          console.log(employeeId);
+          const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
+          const data = await response.json();
+          setEmployee(data.employee);
+          console.log(data.employee);
+
+           // Extraire l'avatar de l'employé si disponible
+  const employeeAvatar = data.employee.avatar;
+  setAvatar(employeeAvatar);
+  console.log(employeeAvatar)
+
+  const employeeFullname = data.employee.fullname;
+  setFullname(employeeFullname);
+
+  const employeeRole= data.employee.departmentRole;
+  setDepartmentRole(employeeRole);
+        }
       } catch (error) {
         console.log(error);
       }
     };
-    
+  
     fetchEmployeeById();
   }, []);
 
@@ -138,12 +189,13 @@ const UserDropdown = (props: Props) => {
           horizontal: 'right'
         }}
       >
+       
         <Avatar
-          alt='John Doe'
+          src={avatar}
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
-          
         />
+    
       </Badge>
       <Menu
         anchorEl={anchorEl}
@@ -163,12 +215,12 @@ const UserDropdown = (props: Props) => {
                 horizontal: 'right'
               }}
             >
-              <Avatar alt='John Doe'  sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt='John Doe' src={avatar}  sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}></Typography>
+              <Typography sx={{ fontWeight: 600 }}>{fullname}</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-              
+            {departmentRole}{companyName}
               </Typography>
             </Box>
           </Box>

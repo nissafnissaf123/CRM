@@ -1,6 +1,5 @@
 // ** React Imports
 import { useState, useEffect, MouseEvent, useCallback, forwardRef, Ref, ReactElement } from 'react'
-
 import ReactPlayer from 'react-player';
 
 // ** Next Imports
@@ -60,6 +59,7 @@ import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/t
 
 // ** Custom Table Components Imports
 import TableHeader from 'src/views/pages/tickets/list/TableHeader copy'
+import Avatar from 'src/@core/components/mui/avatar'
 
 
 interface UserRoleType {
@@ -125,56 +125,39 @@ const Transition = forwardRef(function Transition(
 
 // ** renders client column
 const renderClient = (row: TicketsType) => {
-  if (row.avatar) {
-    return <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
-  } else {
-    return (
-      <CustomAvatar
-        skin='light'
-        color={row.avatarColor || 'primary'}
-        sx={{ mr: 3, width: 34, height: 34, fontSize: '1rem' }}
-      >
-        {getInitials(row.client?.fullname ? row.client?.fullname : 'John Doe')}
-      </CustomAvatar>
-    )
-  }
-} 
+    if (row.employee) {
+      if (row.employee.avatar) {
+        return <CustomAvatar src={row.employee.avatar} sx={{ mr: 3, width: 34, height: 34 }} />;
+      } else {
+        return (
+          <CustomAvatar
+            skin="light"
+            color={row.avatarColor || 'primary'}
+            sx={{ mr: 3, width: 34, height: 34, fontSize: '1rem' }}
+          >
+            {getInitials(row.employee.fullname ? row.employee.fullname : '')}
+          </CustomAvatar>
+        );
+      }
+    } else {
+      return null;
+    }
+  };
 
 
 
 
 const columns: GridColDef[] = [
-  
+
   {
-    flex: 0.1,
+    flex: 0.12,
     field: 'name',
     minWidth: 150,
     headerName: 'ticket Name',
 
   },
 
-  {
-    flex: 0.15,
-    minWidth: 230,
-    field: 'fullName',
-    headerName: 'Customer',
-    renderCell: ({ row }: CellType) => {
-      const { username } = row.client.user;
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {renderClient(row)}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href='/employee/view/'>{row.client?.fullname}</LinkStyled>
-            <Typography noWrap variant='caption'>
-              {`@${username}`}
-            </Typography>
-          </Box>
-      </Box>
-     
-         
-      )
-    }
-  },
+
   {
     flex: 0.1,
     field: 'emergencyLevel',
@@ -191,9 +174,7 @@ const columns: GridColDef[] = [
       )
     }
   },
-  
- 
- 
+
   {
     flex: 0.1,
     minWidth: 110,
@@ -222,9 +203,9 @@ const columns: GridColDef[] = [
       const day = date.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zeros if necessary
       const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get the month (+1 because it's zero-based) and pad with leading zeros if necessary
       const year = date.getFullYear(); // Get the year
-  
+
       const dateString = `${day}-${month}-${year}`;
-  
+
       return (
         <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
           {dateString}
@@ -232,7 +213,37 @@ const columns: GridColDef[] = [
       );
     }
   },
+
+  {
+    flex: 0.1,
+    minWidth: 230,
+    field: 'fullName',
+    headerName: 'Employee',
+    renderCell: ({ row }: CellType) => {
+
+   
+
+
+      return (
+        
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {renderClient(row)}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+            <LinkStyled href='/apps/employees/view/overview/'>{row.employee?.fullname}</LinkStyled>
+            <Typography noWrap variant='caption'>
+
+            </Typography>
+          </Box>
+      </Box>
+     
+         
+
   
+
+      )
+    }
+  },
+
   {
     flex: 0.1,
     minWidth: 90,
@@ -243,6 +254,12 @@ const columns: GridColDef[] = [
       const [showDialog, setShowDialog] = useState<boolean>(false);
       const [status, setStatus] = useState("");
       const [employee, setEmployee] = useState("");
+      const [name, setName] = useState('');
+      const [video, setVideo] = useState('');
+      const [description, setDescrition] = useState('');
+      const [employeeId, setEmployeeId] = useState('');
+      const [projectId, setProjectId] = useState('');
+      const [project, setProject] = useState('');
       const [ticket, setTicket] = useState
   ({
     id: "",
@@ -250,17 +267,19 @@ const columns: GridColDef[] = [
     emergencyLevel: "",
     status: "",
     client: { fullname: "" },
-    employee: {fullname:""},
-    project:{name:""},
-    video:"",
-    description:""
-    
+    employee: {fullname:"" , userId:""},
+    description:"",
+    project:{name:"", id:""},
+    video:""
+   
+
+
    });
- 
+
 
    useEffect(() => {
     const fetchTicketById = async () => {
-      
+
       try {
         const response = await fetch(`http://localhost:4001/ticket/${row.id}`);
         const data = await response.json();
@@ -276,16 +295,22 @@ const columns: GridColDef[] = [
   const handleEdit = useCallback(() => {
     setShowDialog(true);
     setStatus(ticket.status);
-  
+    setName(ticket.name);
+    setVideo(ticket.video);
+    setDescrition(ticket.description);
+    setEmployee(ticket.employee?.fullname)
+    setEmployeeId(ticket.employee?.userId);
+    setProject(ticket.project?.name)
+    setProjectId(ticket.projectId);
   }, [setShowDialog, ticket]);
 
-  
 
- 
+
+
     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
 
-      
+
       try {
         const response = await fetch(`http://localhost:4001/ticket/${row.id}`, {
           method: "PATCH",
@@ -294,17 +319,19 @@ const columns: GridColDef[] = [
           },
           body: JSON.stringify({
             status: status,
-           
-     
+      
+            description: description,
+          name: name,
+          projectId: projectId
           
-          
+
           }),
         });
         const data = await response.json();
         console.log(data.ticket);
         console.log(employee)
-       
-        
+
+
         // Alert si la modification a réussi
         if (response.ok) {
           setShowDialog(false); // Close the dialog
@@ -312,7 +339,7 @@ const columns: GridColDef[] = [
         } else {
           toast.error('An error occurred');
         }
-        
+
       } catch (error) {
         console.log(error);
         // Alert en cas d'erreur
@@ -320,19 +347,68 @@ const columns: GridColDef[] = [
       }
     };
 
-    
 
 
-   
+
+
+     // Get employees
+  const [employees, setEmployees] = useState([]);
+
+  const fetchEmployees = () => {
+    fetch("http://localhost:4001/employee")
+      .then(response => response.json())
+      .then(data => {
+        setEmployees(data.employees);
+
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  useEffect(() => {
+    fetchEmployees()
+  }, []);
+
+  //get project
+  const [projects, setProjects] = useState([]);
+
+
+
+  //Get Project of client
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+  
+  const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:4001/project');
+        if (response.ok) {
+          const data = await response.json();
     
+          // Récupération de l'ID du client à partir du localStorage
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          const clientId = userData.id;
+    
+          // Filtrage des projets pour ne récupérer que ceux correspondant à l'ID du client
+          const clientProjects = data.projects.filter((project) => project.clientId === clientId);
+    
+          setProjects(clientProjects);
+        } else {
+          console.error('Error fetching projects:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
 
       return (
       <>
       <IconButton onClick={handleEdit}>
         <Icon icon='mdi:eye-outline' />
       </IconButton>
-      
-        <Dialog
+
+      <Dialog
         open={showDialog}
         maxWidth='md'
         scroll='body'
@@ -361,27 +437,44 @@ const columns: GridColDef[] = [
             </Typography>
             <Typography variant='body2'></Typography>
           </Box>
-          
+
           <Grid container spacing={6}>
-            <Grid item sm={6} xs={12}>
-              <TextField fullWidth  label='Customer' name="fullname"    value={ticket.client?.fullname}   placeholder='John' />
-            </Grid>
-          
-            <Grid item sm={6} xs={12}>
-              <TextField fullWidth  label='Project Name' placeholder='Doe' name="name" value={ticket.project?.name} />
-            </Grid>
+
             
-            <Grid item sm={6} xs={12}>
+           
+            <Grid item xs={12}>
               <TextField fullWidth  label='Ticket Name' name="name"    value={ticket.name} placeholder='johnDoe' />
             </Grid>
-            
+
+            <Grid item sm={6} xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id='status-select'>Select Project</InputLabel>
+                <Select
+                 inputProps={{ placeholder: 'Select Employee' }}
+                 fullWidth
+                 labelId='project-select'
+                 value={projectId}
+                 name='employees'
+                 onChange={(e) => setProjectId(e.target.value)}
+                 label='Select Project'>
+
+{projects.map((dep) => (
+<MenuItem key={dep.id} value={dep.id}>
+<Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Typography>{dep.name}</Typography>
+  </Box>
+  </MenuItem> // Use dep.id as the value
+      ))}
+                </Select>
+              </FormControl>
+            </Grid>
             <Grid item sm={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel  id='status-select'>Select Status</InputLabel>
                 <Select
-  inputProps={{ placeholder: 'Select Status' }} 
-  fullWidth 
-  labelId='status-select' 
+  inputProps={{ placeholder: 'Select Status' }}
+  fullWidth
+  labelId='status-select'
   label='Select Status'
   value={status}
   name='status'
@@ -392,12 +485,11 @@ const columns: GridColDef[] = [
 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item  xs={12}>
               <TextField
                 fullWidth
                 label='Ticket Description'
-                value={ticket.descriprion}
                 rows={4}
                 multiline
                 InputProps={{
@@ -407,7 +499,6 @@ const columns: GridColDef[] = [
                 }}
               />
             </Grid>
-           
             <Grid item sm={6} xs={12} >
   {ticket.video ? (
     <ReactPlayer url={ticket.video} controls style={{marginLeft:"75px"}} />
@@ -415,8 +506,8 @@ const columns: GridColDef[] = [
     <p>No video available !!</p>
   )}
 </Grid>
-            
-           
+
+
           </Grid>
         </DialogContent>
         <DialogActions
@@ -435,7 +526,6 @@ const columns: GridColDef[] = [
         </DialogActions>
        </form>
       </Dialog>
-     
     </>
       )}
   }
@@ -447,10 +537,11 @@ const TicketList = () => {
   const [plan, setPlan] = useState<string>('')
   const [value, setValue] = useState<string>('')
   const [status, setStatus] = useState<string>('')
-  
+
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const [isVideoUploaded, setIsVideoUploaded] = useState(false);
 
 
   const handleFilter = useCallback((val: string) => {
@@ -472,33 +563,24 @@ const TicketList = () => {
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
   //Get Tickets
- 
+
 
   const [tickets, setTickets] = useState([]);
 
-useEffect(() => {
-  fetchTickets();
-}, []);
-
-const fetchTickets = async () => {
+  const fetchTickets = async () => {
     try {
       const response = await fetch('http://localhost:4001/ticket');
       if (response.ok) {
         const data = await response.json();
-  
-        // Récupération de l'ID de l'employé à partir du localStorage
+
+        // Récupération de l'ID du client à partir du localStorage
         const userData = JSON.parse(localStorage.getItem('userData'));
-        const employeeId = userData.id;
-  
-        console.log('Data:', data);
-        console.log('Employee ID:', employeeId);
-  
-        // Filtrage des tickets pour ne récupérer que ceux correspondant à l'ID de l'employé
-        const employeeTickets = data.tickets.filter(ticket => ticket.employeeId === userData.id);
-  
-        console.log('Employee Tickets:', employeeTickets);
-  
-        setTickets(employeeTickets);
+        const clientId = userData.id;
+
+        // Filtrage des tickets pour ne récupérer que ceux correspondant à l'ID du client
+        const clientTickets = data.tickets.filter((ticket) => ticket.clientId === clientId);
+
+        setTickets(clientTickets);
       } else {
         console.error('Error fetching tickets:', response.status);
       }
@@ -507,9 +589,122 @@ const fetchTickets = async () => {
     }
   };
 
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [projects, setProjects] = useState([]);
+
+
+
+  //Get Project of client
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:4001/project');
+        if (response.ok) {
+          const data = await response.json();
+
+          // Récupération de l'ID du client à partir du localStorage
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          const clientId = userData.id;
+
+          // Filtrage des projets pour ne récupérer que ceux correspondant à l'ID du client
+          const clientProjects = data.projects.filter((project) => project.clientId === clientId);
+
+          setProjects(clientProjects);
+        } else {
+          console.error('Error fetching projects:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+
+    //Add ticket
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [emergencyLevel, setEmergencyLevel] = useState('');
+    const [video, setVideo] = useState('');
+    const [projectId, setProjectId] = useState('');
+
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      try {
+        const fileInput = e.target.elements.video;
+        if (fileInput.files && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const reader = new FileReader();
+
+          reader.onload = async () => {
+            const base64Video = reader.result as string;
+            setVideo(base64Video);
+
+            try {
+              // Convert the base64 video to a Blob object
+              const base64Response = await fetch(base64Video);
+              const videoBlob = await base64Response.blob();
+
+              const formData = new FormData();
+              formData.append('name', name);
+              formData.append('description', description);
+              formData.append('emergencyLevel', emergencyLevel);
+              formData.append('status', status);
+              formData.append('projectId', projectId);
+              formData.append('video', videoBlob);
+
+              const response = await fetch('http://localhost:4001/ticket', {
+                method: 'POST',
+                body: formData,
+              });
+
+              const addTicket = await response.json();
+              console.log(addTicket);
+
+              setShowDialog(false);
+              toast.success('Ticket added successfully!');
+              fetchTickets();
+            } catch (error) {
+              console.error('Error adding ticket:', error);
+              toast.error('Error adding ticket');
+              // Handle add ticket errors as needed
+            }
+          };
+
+          reader.readAsDataURL(file);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to add ticket');
+        // Handle form submission errors as needed
+      }
+    };
+
+    const handleInputImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64Video = reader.result as string;
+          setVideo(base64Video);
+          setIsVideoUploaded(true); // Définir le statut de la vidéo téléchargée à true
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+
+
+
   return (
- 
-     
+
+
      <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
@@ -522,16 +717,16 @@ const fetchTickets = async () => {
 
                     <Select
                       fullWidth
-                   
+
                       sx={{ mr: 4, mb: 2 }}
                       label=' Ticket EmergencyLevel'
-                      
+
                       labelId='Ticket-EmergencyLevel-select'
                     >
                       <MenuItem value=''>Hight</MenuItem>
                       <MenuItem value='downloaded'>Meduim</MenuItem>
                       <MenuItem value='draft'>Low</MenuItem>
-                      
+
                     </Select>
                   </FormControl>
                 </Grid>
@@ -541,10 +736,10 @@ const fetchTickets = async () => {
 
                     <Select
                       fullWidth
-                   
+
                       sx={{ mr: 4, mb: 2 }}
                       label='Invoice Status'
-                      
+
                       labelId='invoice-status-select'
                     >
                       <MenuItem value=''>Resolved</MenuItem>
@@ -553,19 +748,28 @@ const fetchTickets = async () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                
+
               </Grid>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12}>
           <Card>
-       
+          <CardContent>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+
+     <Button sx={{ mb: 2, width:"155px" }}  variant='contained'onClick={() => setShowDialog(true)}>
+        Add Ticket
+      </Button>
+       </Box>
+
+    </CardContent>
           <DataGrid
             autoHeight
             rows={tickets}
             columns={columns}
-           
+
             disableRowSelectionOnClick
             pageSizeOptions={[10, 25, 50]}
             paginationModel={paginationModel}
@@ -575,7 +779,169 @@ const fetchTickets = async () => {
         </Card>
       </Grid>
 
-      
+      <Dialog
+        open={showDialog}
+        maxWidth='md'
+        scroll='body'
+        onClose={() => setShowDialog(false)}
+        TransitionComponent={Transition}
+        onBackdropClick={() => setShowDialog(false)}
+      ><form onSubmit={handleSubmit} >
+        <DialogContent
+          sx={{
+            position: 'relative',
+            pb: theme => `${theme.spacing(8)} !important`,
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+          }}
+        >
+          <IconButton
+            size='small'
+            onClick={() => setShowDialog(false)}
+            sx={{ position: 'absolute', right: '1rem', top: '1rem' }}
+          >
+            <Icon icon='mdi:close' />
+          </IconButton>
+          <Box sx={{ mb: 8, textAlign: 'center' }}>
+            <Typography variant='h5' sx={{ mb: 3, lineHeight: '2rem' }}>
+              Add Ticket Information
+            </Typography>
+            <Typography variant='body2'></Typography>
+          </Box>
+
+          <Grid container spacing={6}>
+            <Grid item sm={6} xs={12}>
+              <TextField fullWidth  label='Ticket Name' name="name"  value={name} onChange={(e) => setName(e.target.value)}      placeholder='John' />
+            </Grid>
+            <Grid item sm={6} xs={12}>
+            <FormControl fullWidth>
+                <InputLabel  id='status-select'>Select Project</InputLabel>
+                <Select
+  inputProps={{ placeholder: 'Select Project' }}
+  fullWidth
+  labelId='project-select'
+  label='Select Project'
+  value={projectId}
+  onChange={(e) => setProjectId(e.target.value)}
+  name='project'
+
+>
+{projects.map(project => (
+        <MenuItem key={project.id} value={project.id}>
+          {project.name}
+        </MenuItem>
+      ))}
+
+</Select>
+              </FormControl>
+            </Grid>
+
+
+            <Grid item  xs={12}>
+              <TextField
+                fullWidth
+                label='Ticket Description'
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                multiline
+                InputProps={{
+                  style: {
+                    height: 'auto'
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item sm={4} xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id='status-select'>Select  EmergencyLevel
+</InputLabel>
+                <Select
+                 inputProps={{ placeholder: 'Select EmergencyLevel' }}
+                 fullWidth
+                 labelId='emergencyLevel-select'
+              value={emergencyLevel}
+              onChange={(e) => setEmergencyLevel(e.target.value)}
+
+                 label='Select EmergencyLevel'>
+
+<MenuItem value='Low'>Low</MenuItem>
+  <MenuItem value='Medium'>Medium</MenuItem>
+  <MenuItem value='High'>High</MenuItem>
+                </Select>
+
+              </FormControl>
+            </Grid>
+            <Grid item sm={4} xs={12}>
+              <FormControl fullWidth>
+                <InputLabel  id='status-select'>Select Status</InputLabel>
+                <Select
+  inputProps={{ placeholder: 'Select Status' }}
+  fullWidth
+  labelId='status-select'
+  label='Select Status'
+value={status}
+onChange={(e) => setStatus(e.target.value)}
+  name='status'
+
+>
+<MenuItem value='pending'>pending</MenuItem>
+  <MenuItem value='resolved'>resolved</MenuItem>
+
+</Select>
+              </FormControl>
+            </Grid>
+            <Grid item sm={4} xs={12}>
+            <FormControl fullWidth>
+    <InputLabel id='video-upload-label'></InputLabel>
+    <input
+      type='file'
+      accept='video/mp4'
+      id='video-upload-input'
+      name='video'
+      style={{ display: 'none' }}
+      onChange={handleInputImageChange}
+    />
+    <label htmlFor='video-upload-input'>
+      <Button variant='outlined' component='span' color='secondary'  style={{
+    height: '52px',
+    width: '245px',
+    backgroundColor: isVideoUploaded ? 'LimeGreen' : 'default-color',
+    color: isVideoUploaded ? 'white' : 'default-color',
+  }}>
+      {isVideoUploaded ? (
+      <>
+        <Icon icon='mdi:check' /> Video Uploaded
+      </>
+    ) : (
+      'Upload Video'
+    )}
+      </Button>
+    </label>
+  </FormControl>
+            </Grid>
+
+
+          </Grid>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: 'center',
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+          }}
+        >
+          <Button variant='contained' sx={{ mr: 2 }} type='submit'  >
+            Submit
+          </Button>
+          <Button variant='outlined' color='secondary' onClick={() => setShowDialog(false)}>
+            Discard
+          </Button>
+        </DialogActions>
+       </form>
+      </Dialog>
+
+
     </Grid>
   )
 }

@@ -572,6 +572,8 @@ const ListEmployee = () => {
         .then(() => {
           handleClose();
           toast.success('Employee added successfully');
+            // Fetch the updated employee list
+        fetchEmployees();
         })
         .catch((error) => {
           handleClose();

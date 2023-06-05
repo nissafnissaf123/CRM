@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Board from "src/pages/components/Board/BoardEmployee";
+import Board from "src/pages/components/Board/Board";
 import CustomInput from "src/pages/components/CustomInput/CustomInput";
 import { ICard, IBoard } from "src/pages/components/Interfaces/Kanban";
 import { fetchBoardList, updateLocalStorageBoards } from "src/pages/components//Helper/APILayers";
@@ -37,33 +37,25 @@ function Dashboard() {
           try {
             const response = await fetch(`http://localhost:4001/project/${id}`);
             const data = await response.json();
-
             setProject(data.project);
             setProjectId(data.project.id);
             const tempBoardsList = [...boards];
 
-            
-      //Get Id
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      const employeeId = userData.id;
-
-      // Filtrer les tâches du projet où l'ID de l'employé correspond à l'ID récupéré
-      const filteredTasks = data.project.tasks.filter(
-        (task: ICard) => task.projectId === id && task.employeeId === employeeId
-      );
-
-      // Parcourir les tâches filtrées
-      filteredTasks.forEach((task: ICard) => {
-        // Trouver le tableau correspondant en fonction du statut de la carte
-        const boardIndex = tempBoardsList.findIndex(
-          (item: IBoard) => item.title === task.status
-        );
-
-        // Si le tableau existe, ajouter la carte à ce tableau
-        if (boardIndex !== -1) {
-          tempBoardsList[boardIndex].cards.push(task);
-        }
-      });
+            // Parcourez les cartes du projet de manière asynchrone
+            await Promise.all(
+              data.project.tasks.map(async (task: ICard) => {
+                // Trouvez le tableau correspondant en fonction du statut de la carte
+                const boardIndex = tempBoardsList.findIndex(
+                  (item: IBoard) => item.title === task.status
+                );
+        
+                // Si le tableau existe, ajoutez la carte à ce tableau
+                if (boardIndex !== -1) {
+                  tempBoardsList[boardIndex].cards.push(task);
+                }
+              })
+            );
+        
             setBoards(tempBoardsList);
           } catch (error) {
             console.log(error);
@@ -217,7 +209,7 @@ const updateCard = async (boardId: number, cardId: string, updatedCard: ICard) =
     }
   } catch (error) {
     console.log(error);
-    // Afficher un message d'erreur ou effectuer un traitement supplémentaire ici
+    // Handle PUT request errors here
   }
 };
 
@@ -239,7 +231,6 @@ const [targetCard, setTargetCard] = useState({
   boardId: 0,
   cardId: "", // Updated type to string
 });
-
 
 
 
@@ -322,15 +313,7 @@ const onDragEnter = (boardId: number, cardId: string) => {
             />
           ))}
           <div style={{marginTop:'-12px'}} className="app-boards-last">
-            <CustomInput
-              displayClass="app-boards-add-board"
-              editClass="app-boards-add-board-edit"
-              placeholder="Enter Board Name"
-              text="Add Board"
-              buttonText="Add Board"
-              onSubmit={addboardHandler}
-              
-            />
+          
           </div>
         </div>
       </div>

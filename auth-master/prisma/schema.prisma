@@ -133,11 +133,13 @@ model Client {
   facebook      String?
   id            String         @id @default(cuid())
   instagram     String?
+  linkedin     String?
   avatar        String?
   invoices      Invoice[]
   projects      Project[]
   taxId         String?
   fullname      String
+  adresse       String?
   phone         String?
   tickets       Ticket[]
   updatedAt     DateTime       @updatedAt

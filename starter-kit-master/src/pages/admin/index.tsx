@@ -135,6 +135,8 @@ const ACLPage = () => {
    // ** Hook
    const theme = useTheme()
 
+   //get projects 
+
   return (
     <ApexChartWrapper>
       <KeenSliderWrapper>
@@ -194,9 +196,9 @@ const ACLPage = () => {
           <Grid item xs={12} md={4}>
           <Card>
       <CardHeader
-        title='Project Statistics'
-      
+        title='Project Statistics' 
       />
+      
       <CardContent>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography
@@ -231,9 +233,9 @@ const ACLPage = () => {
                 alignItems: 'center',
               }}
             >
-              <Avatar variant='rounded' sx={{ mr: 3, width: 50, height: 42, backgroundColor: 'background.default' }}>
-                <img alt='avatar'  />
-              </Avatar>
+              <CustomAvatar skin='light' color='success' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
+            <Icon icon='mdi:web' />
+            </CustomAvatar>
               <Box
                 sx={{
                   width: '100%',
@@ -243,6 +245,44 @@ const ACLPage = () => {
                   justifyContent: 'space-between'
                 }}
               >
+                <Typography sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>Web Application</Typography>
+        
+                <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>
+                  
+                  </Typography>
+                  <Typography variant='caption'></Typography>
+                </Box>
+                <CustomChip
+                  skin='light'
+                  size='small'
+                  color='primary'
+                 label=""
+                  sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
+                />
+              </Box>
+            </Box>
+            <Box
+              
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop:"20px" 
+              }}
+            >
+               <CustomAvatar skin='light' color='error' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
+            <Icon icon='mdi:store' />
+            </CustomAvatar>
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              ><Typography sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>Marketplace</Typography>
+        
                 <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>
                   
@@ -258,6 +298,81 @@ const ACLPage = () => {
                 />
               </Box>
             </Box>
+
+            <Box
+              
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop:"20px" 
+              }}
+            >
+               <CustomAvatar skin='light' color='info' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
+            <Icon icon='mdi:shopping' />
+            </CustomAvatar>
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >   <Typography sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>E-commerce Site</Typography>
+        
+                <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>
+                  
+                  </Typography>
+                  <Typography variant='caption'></Typography>
+                </Box>
+                <CustomChip
+                  skin='light'
+                  size='small'
+                  color='primary'
+                 
+                  sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
+                />
+              </Box>
+            </Box>
+            <Box
+              
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop:"20px" 
+              }}
+            >
+             <CustomAvatar skin='light' color='secondary' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
+             <Icon icon="mdi:star" /> {/* Replace 'heart' with the desired icon */}
+</CustomAvatar>
+
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              ><Typography sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>Another Category</Typography>
+        
+                <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>
+                  
+                  </Typography>
+                  <Typography variant='caption'></Typography>
+                </Box>
+                <CustomChip
+                  skin='light'
+                  size='small'
+                  color='primary'
+                 
+                  sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
+                />
+              </Box>
+            </Box>
+       
        
        
       </CardContent>

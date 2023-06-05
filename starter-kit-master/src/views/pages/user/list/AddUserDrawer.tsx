@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import React from 'react'
 import toast from 'react-hot-toast'
@@ -114,7 +114,24 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
 
  //Post Employee
  const [client, setClient] = useState({companyName:'', email:'', fullname:'', phone:''})
-  
+ const [clients, setClients] = useState([]);
+ const [filteredClients, setFilteredClients] = useState([]);
+
+ const fetchClients = () => {
+  fetch("http://localhost:4001/client")
+    .then(response => response.json())
+    .then(data => {
+      setClients(data.client);
+      setFilteredClients(data.client);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
+
+useEffect(() => {
+  fetchClients()
+}, []);
  const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
    e.preventDefault();
  
@@ -131,6 +148,7 @@ const SidebarAddUser = (props: SidebarAddUserType) => {
        .then((data) => {
         handleClose();
         toast.success('Employee added successfully');
+        
          
        })
        .catch((error) => {

@@ -8,6 +8,7 @@ import InputLabel from '@mui/material/InputLabel'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import React from 'react';
+import CardHeader from '@mui/material/CardHeader'
 
 // ** React Imports
 import { useState, useEffect, MouseEvent, useCallback } from 'react'
@@ -35,27 +36,9 @@ const TableHeader = (props: TableHeaderProps) => {
 
   return (
     <Box sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='Company-select'>Select Company</InputLabel>
-                  <Select
-                    fullWidth
-                    value={role}
-                    id='select-company'
-                    label='Select Company'
-                    labelId='company-select'
-        
-                    inputProps={{ placeholder: 'Select Company' }}
-                  >
-                    <MenuItem value=''>Select Role</MenuItem>
-                    <MenuItem value='admin'>Admin</MenuItem>
-                    <MenuItem value='author'>Author</MenuItem>
-                    <MenuItem value='editor'>Editor</MenuItem>
-                    <MenuItem value='maintainer'>Maintainer</MenuItem>
-                    <MenuItem value='subscriber'>Subscriber</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+     
+     <CardHeader title='Customers List' sx={{ pb: 2, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }} />
+     
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField
           size='small'

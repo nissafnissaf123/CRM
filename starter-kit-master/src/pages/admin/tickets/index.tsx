@@ -1,6 +1,6 @@
 // ** React Imports
 import { useState, useEffect, MouseEvent, useCallback, forwardRef, Ref, ReactElement } from 'react'
-
+import ReactPlayer from 'react-player';
 
 // ** Next Imports
 import Link from 'next/link'
@@ -145,7 +145,7 @@ const renderClient = (row: TicketsType) => {
 const columns: GridColDef[] = [
 
   {
-    flex: 0.1,
+    flex: 0.15,
     field: 'name',
     minWidth: 150,
     headerName: 'ticket Name',
@@ -250,8 +250,10 @@ const columns: GridColDef[] = [
     emergencyLevel: "",
     status: "",
     client: { fullname: "" },
-    employee: {fullname:"" , userId:""}
-
+    employee: {fullname:"" , userId:""},
+    project: { name: "" },
+    description:"",
+    video:""
    });
 
 
@@ -381,7 +383,7 @@ const columns: GridColDef[] = [
               <TextField fullWidth  label='Customer' name="fullname"    value={ticket.client?.fullname}   placeholder='John' />
             </Grid>
             <Grid item sm={6} xs={12}>
-              <TextField fullWidth  label='Project Name' placeholder='Doe' />
+              <TextField fullWidth  label='Project Name' placeholder='Doe' value={ticket.project?.name} />
             </Grid>
             <Grid item xs={12}>
               <TextField fullWidth  label='Ticket Name' name="name"    value={ticket.name} placeholder='johnDoe' />
@@ -392,6 +394,7 @@ const columns: GridColDef[] = [
                 fullWidth
                 label='Ticket Description'
                 rows={4}
+                value={ticket.description}
                 multiline
                 InputProps={{
                   style: {
@@ -441,6 +444,15 @@ const columns: GridColDef[] = [
               </FormControl>
             </Grid>
 
+            <Grid item sm={6} xs={12} >
+  {ticket.video ? (
+    <ReactPlayer url={ticket.video} controls style={{marginLeft:"75px"}} />
+  ) : (
+    <p>No video available !!</p>
+  )}
+</Grid>
+
+          
 
           </Grid>
         </DialogContent>
@@ -501,7 +513,7 @@ const TicketList = () => {
 
   const [tickets, setTickets] = useState([]);
 
-  useEffect(() => {
+  const fetchTickets = () => {
     fetch("http://localhost:4001/ticket")
       .then(response => response.json())
       .then(data => {
@@ -510,6 +522,10 @@ const TicketList = () => {
       .catch(error => {
         console.error(error);
       });
+  };
+  
+  useEffect(() => {
+    fetchTickets();
   }, []);
 
 
@@ -566,7 +582,7 @@ const TicketList = () => {
         </Grid>
         <Grid item xs={12}>
           <Card>
-          <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+       
           <DataGrid
             autoHeight
             rows={tickets}

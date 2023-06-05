@@ -136,7 +136,7 @@ const columns: GridColDef[] = [
       ({
         id: "",
         name:"",
-        client: { fullname: "", id:"" },
+        client: { fullname: "", userId:"" },
         category:"",
         framework:"", 
         description:"",
@@ -162,7 +162,6 @@ const columns: GridColDef[] = [
  const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
   e.preventDefault();
 
-  
   try {
     const formattedEndDate = new Date(endDate).toISOString(); // Format the endDate
     const response = await fetch(`http://localhost:4001/project/${row.id}`, {
@@ -180,11 +179,10 @@ const columns: GridColDef[] = [
       clientId: clientId,
       }),
     });
+    
     const data = await response.json();
     console.log(data.project);
-    
-   
-    
+
     // Alert si la modification a réussi
     if (response.ok) {
       setShowDialog(false); // Close the dialog
@@ -208,7 +206,7 @@ const handleEdit = useCallback(() => {
 setEndDate(project.endDate)
   setDescription(project.description);
   setClient(project.client?.fullname)
-  setClientId(project.client?.id); 
+  setClientId(project.client?.userId); 
 }, [setShowDialog, project]);
 
 
@@ -295,7 +293,7 @@ useEffect(() => {
                  label='Select Customer'>
 
 {clients.map((dep) => ( 
-<MenuItem key={dep.id} value={dep.id}>
+<MenuItem key={dep.id} value={dep.userId}>
 <Box sx={{ display: 'flex', alignItems: 'center' }}>
     <CustomAvatar src={dep.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
     <Typography>{dep.fullname}</Typography>
@@ -706,6 +704,7 @@ const ProjectListTable = ({ id }: Props) => {
       console.log(data); // Affiche la réponse du serveur
       handleClose();
       toast.success('Project added successfully');
+      fetchProjects()
     } catch (error) {
       console.error(error);
       toast.error('Failed to add project'); // Affiche une notification d'erreur
@@ -742,6 +741,8 @@ const ProjectListTable = ({ id }: Props) => {
   useEffect(() => {
     fetchClients()
   }, []);
+
+ 
   
 
   return (
@@ -910,7 +911,7 @@ const ProjectListTable = ({ id }: Props) => {
   >
    
    {client.map((cl) => (
-   <MenuItem key={cl.id} value={cl.id}>
+   <MenuItem key={cl.id} value={cl.userId}>
    <Box sx={{ display: 'flex', alignItems: 'center' }}>
        <CustomAvatar src={cl.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
        <Typography>{cl.fullname}</Typography>

@@ -33,7 +33,8 @@ router.get("/:id", async (req, res, next) => {
             },
             include: {
                 client: true,
-                employee:true
+                employee:true,
+                project:true 
             }
         });
 

@@ -11,7 +11,10 @@ import { useRouter } from 'next/router'
 const navigation = (): HorizontalNavItemsType => {
   let items = [
     
-    
+    {
+      sectionTitle: 'Apps & Pages',
+      type:'admin'
+    },
      {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
@@ -19,10 +22,7 @@ const navigation = (): HorizontalNavItemsType => {
       type:'admin'
 
     },
-    {
-      sectionTitle: 'Apps & Pages',
-      type:'admin'
-    },
+    
     {
       sectionTitle: 'Apps & Pages',
       type:'employee'
@@ -54,16 +54,11 @@ const navigation = (): HorizontalNavItemsType => {
     },
     {
       title: 'Customers',
-      icon: 'mdi:account-group',
+      icon: 'mdi:account-group-outline',
       path: '/admin/clients/list',
       type:'admin'
     },
-    {
-      title: 'Trainees',
-      icon: 'mdi:account-group-outline',
-      path: '/admin/trainnes/list',
-      type:'admin'
-    },
+   
     {
       title: 'Projects',
       icon:  'mdi:view-dashboard-outline',
@@ -123,7 +118,7 @@ const navigation = (): HorizontalNavItemsType => {
     {
       title: 'Tickets',
       icon:  'mdi:ticket-outline',
-      path: '/acl/tickets',
+      path: '/acl/ticket',
       type:'client'
 
     },

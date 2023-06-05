@@ -5,6 +5,7 @@ import { ThemeColor } from 'src/@core/layouts/types'
 
 export type UsersType = {
   id: string
+  userId: string
   role: string
   companyName:string
   firstName:string

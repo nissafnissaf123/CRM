@@ -73,19 +73,21 @@ const initialData: Data = {
   organization: 'Pixinvent'
 }
 
-const DefaultProfilePicture = styled('img')(({ theme }) => ({
-  width: 120,
-  height: 120,
-  marginRight: theme.spacing(5),
-  borderRadius: theme.shape.borderRadius,
+
   
-}));
+  const DefaultProfilePicture = styled('img')(({ theme }) => ({
+    width: 120,
+    height: 120,
+    marginRight: theme.spacing(5),
+    borderRadius: theme.shape.borderRadius,
+    
+  }));
 
-const ImgStyled = ({ src, alt }) => {
-  const defaultImage = '/images/pages/avatar3.png'; // Remplacez '/images/pages/avatar.png' par le chemin de votre image par défaut
-
-  return <DefaultProfilePicture src={src || defaultImage} alt={alt} />;
-};
+  const ImgStyled = ({ src, alt }) => {
+    const defaultImage = '/images/pages/avatar3.png'; // Remplacez '/images/pages/avatar.png' par le chemin de votre image par défaut
+  
+    return <DefaultProfilePicture src={src || defaultImage} alt={alt} />;
+  };
 
 const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
@@ -140,14 +142,15 @@ const TabAccount = ({ id }: Props) => {
     setSecondDialogOpen(true)
   }
 
-  const handleInputImageChange = (file: ChangeEvent<HTMLInputElement>) => {
+  const handleInputImageChange = async (file: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     const { files } = file.target;
+  
     if (files && files.length !== 0) {
       reader.onload = async () => {
         const base64Image = reader.result as string;
         setAvatar(base64Image);
-        
+  
         try {
           // Convert the base64 image to a Blob object
           const base64Response = await fetch(base64Image);
@@ -156,12 +159,12 @@ const TabAccount = ({ id }: Props) => {
           // Create a FormData object and append the blob image
           const formData = new FormData();
           formData.append('avatar', blob);
-
+  
           const userData = JSON.parse(localStorage.getItem('userData'));
-          const employeeId = userData.id;
+          const clientId = userData.id;
   
           // Send the FormData to the backend using fetch
-          const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
+          const response = await fetch(`http://localhost:4001/client/${clientId}`, {
             method: 'PATCH',
             headers: {
               // No need to set the 'Content-Type' header, it will be automatically set by fetch
@@ -169,14 +172,19 @@ const TabAccount = ({ id }: Props) => {
             body: formData,
           });
   
-          const updatedEmployee = await response.json();
-          console.log(updatedEmployee);
+          const updatedClient = await response.json();
+          console.log(updatedClient);
   
-          toast.success('Employee updated successfully!');
-          // Handle the updated employee data as needed
+          toast.success('Image updated successfully!');
+          // Update the client state with the updated avatar URL
+          setClient((prevClient) => ({
+            ...prevClient,
+            avatar: base64Image,
+          }));
+  
         } catch (error) {
-          console.error('Error updating employee:', error);
-          toast.error('Error updating employee');
+          console.error('Error updating image:', error);
+          toast.error('Error updating image');
           // Handle update errors as needed
         }
       };
@@ -196,38 +204,38 @@ const TabAccount = ({ id }: Props) => {
 
   
   const [avatar, setAvatar]= useState<string>('')
-  const [employee, setEmployee] = useState({
+  const [client, setClient] = useState({
     id: "",
     fullname: "",
     phone: "",
     user: { email: "", username: "", password:"" },
-    department: { name: "" },
-    departmentRole:"",
+    
+    companyName:"",
     adresse:"",
     facebook:"",
     instagram:"",
-    slack:"",
-    github:"",
-    gitlab:"",
+    whatsapp:"",
+    
     avatar:"",
     password:""
   });
 
   useEffect(() => {
-    const fetchEmployeeById = async () => {
+    const fetchClientById = async () => {
       try {
         const userData = JSON.parse(localStorage.getItem('userData'));
         console.log(userData)
-        const employeeId = userData.id;
-        console.log(employeeId)
+        const clientId = userData.id;
+        console.log(clientId)
         
        // Retrieve the employee data from local storage or from an API
-      const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
+      const response = await fetch(`http://localhost:4001/client/${clientId}`);
       const data = await response.json();
 
       // Set the employee state with the retrieved data
-      setEmployee(data.employee);
-      console.log(data.employee);
+      setClient(data.client);
+      console.log(data.client);
+      setAvatar(data.client.avatar);
 
    
  
@@ -236,42 +244,42 @@ const TabAccount = ({ id }: Props) => {
       }
     };
     
-    fetchEmployeeById();
+    fetchClientById();
   }, [id]);
 
-  const handleUpdateEmployee = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpdateClient = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     try {
       const userData = JSON.parse(localStorage.getItem('userData'));
-      const employeeId = userData.id;
+      const clientId = userData.id;
 
      
   
-      const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
+      const response = await fetch(`http://localhost:4001/client/${clientId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(employee),
+        body: JSON.stringify(client),
       });
   
-      const updatedEmployee = await response.json();
-      console.log(updatedEmployee);
+      const updatedClient = await response.json();
+      console.log(updatedClient);
   
-      toast.success('Employee updated successfully!');
-      // Handle the updated employee data as needed
+      toast.success('Customer updated successfully!');
+      // Handle the updated client data as needed
   
     } catch (error) {
-      console.error('Error updating employee:', error);
-      toast.error('Error updating employee');
+      console.error('Error updating customer:', error);
+      toast.error('Error updating customer');
       // Handle update errors as needed
     }
   };
 
 
   const handleInputChange = (field: string, value: string) => {
-    setEmployee((prevEmployee) => ({
-      ...prevEmployee,
+    setClient((prevClient) => ({
+      ...prevClient,
       [field]: value,
     }));
   };
@@ -298,22 +306,22 @@ const TabAccount = ({ id }: Props) => {
     e.preventDefault();
     try {
       const userData = JSON.parse(localStorage.getItem('userData'));
-      const employeeId = userData.id;
+      const clientId = userData.id;
   
       // Vérifiez si le nouveau mot de passe est valide en utilisant la fonction de validation
       const isValid = validatePassword(newPassword);
   
       if (isValid && newPassword === confirmPassword) {
-        const response = await fetch(`http://localhost:4001/employee/${employeeId}`, {
+        const response = await fetch(`http://localhost:4001/employee/${clientId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ ...employee, password: newPassword }), // Inclure le nouveau mot de passe dans les données envoyées
+          body: JSON.stringify({ ...client, password: newPassword }), // Inclure le nouveau mot de passe dans les données envoyées
         });
   
-        const updatedEmployee = await response.json();
-        console.log(updatedEmployee);
+        const updatedClient = await response.json();
+        console.log(updatedClient);
   
         toast.success('Password updated successfully!');
         // Gérez les données de l'employé mis à jour si nécessaire
@@ -340,7 +348,7 @@ const TabAccount = ({ id }: Props) => {
           <form>
             <CardContent sx={{ pt: 0 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ImgStyled src={employee.avatar} alt='Profile Pic' />
+                <ImgStyled src={client.avatar} alt='Profile Pic' />
                 <div>
                   <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                     Upload New Photo
@@ -368,7 +376,7 @@ const TabAccount = ({ id }: Props) => {
                     fullWidth
                     label='FullName'
                     placeholder='John'
-                    value={employee.fullname}
+                    value={client.fullname}
                     onChange={(e) => handleInputChange('fullname', e.target.value)}
                     
                   />
@@ -378,7 +386,7 @@ const TabAccount = ({ id }: Props) => {
                     fullWidth
                     label='UserName'
                     placeholder='Doe'
-                    value={employee.user?.username}
+                    value={client.user?.username}
                     
                   />
                 </Grid>
@@ -387,7 +395,7 @@ const TabAccount = ({ id }: Props) => {
                     fullWidth
                     label='Email'
                     placeholder='John'
-                    value={employee.user?.email}
+                    value={client.user?.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     
                   />
@@ -397,7 +405,7 @@ const TabAccount = ({ id }: Props) => {
                     fullWidth
                     type='number'
                     label='Phone Number'
-                    value={employee.phone}
+                    value={client.phone}
                     placeholder='202 555 0111'
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     />
@@ -406,27 +414,19 @@ const TabAccount = ({ id }: Props) => {
                   <TextField
                     fullWidth
                     type='text'
-                    label='Department'
-                    value={employee.department?.name}
-                    placeholder='Department'
+                    label='CompanyName'
+                    value={client.companyName}
+                    placeholder='CompanyName'
                    
                      />
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label='Role'
-                    placeholder='Role'
-                    value={employee.departmentRole}
-                    onChange={(e) => handleInputChange('departmentRole', e.target.value)}
-                  />
-                </Grid>
+                
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     label='Adresse'
                     placeholder='Adresse'
-                    value={employee.adresse}
+                    value={client.adresse}
                     onChange={(e) => handleInputChange('adresse', e.target.value)}
                   />
                 </Grid>
@@ -436,7 +436,7 @@ const TabAccount = ({ id }: Props) => {
                     type='Lien'
                     label='Lien Facebook'
                     placeholder='Lien Facebook'
-                    value={employee.facebook}
+                    value={client.facebook}
                     onChange={(e) => handleInputChange('facebook', e.target.value)}
                   />
                 </Grid>
@@ -446,7 +446,7 @@ const TabAccount = ({ id }: Props) => {
                     type='Lien'
                     label='Lien Instagram'
                     placeholder='Lien instagram'
-                    value={employee.instagram}
+                    value={client.instagram}
                     onChange={(e) => handleInputChange('instagram', e.target.value)}
                   />
                 </Grid>
@@ -454,46 +454,30 @@ const TabAccount = ({ id }: Props) => {
                 <TextField
                     fullWidth
                     type='Lien'
-                    label='Lien  LinkedIn'
+                    label='Lien LinkedIn'
                     placeholder='Lien LinkedIn'
-                   
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-
-                <TextField
-                    fullWidth
-                    type='Lien'
-                    label='Lien Slack'
-                    placeholder='Lien slack'
-                    value={employee.slack}
-                    onChange={(e) => handleInputChange('slack', e.target.value)}
+                    value={client.linkedin}
+                    onChange={(e) => handleInputChange('linkedin', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                 <TextField
                     fullWidth
-                    type='Lien'
-                    label='Lien GitHub'
-                    placeholder='Lien GitHub'
-                    value={employee.github}
-                    onChange={(e) => handleInputChange('github', e.target.value)}
+                    type='number'
+                    label='Whatsapp'
+                    placeholder='Number Whatsapp'
+                    value={client.whatsapp}
+                    onChange={(e) => handleInputChange('whatsapp', e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                <TextField
-                    fullWidth
-                    type='Lien'
-                    label='Lien GitLab'
-                    placeholder='Lien Gitlab'
-                    value={employee.gitlab}
-                    onChange={(e) => handleInputChange('gitlab', e.target.value)}
-                  />
-                </Grid>
+               
+               
+                
+             
                 
 
                 <Grid item xs={12}>
-                  <Button variant='contained' sx={{ mr: 3 }} onClick={handleUpdateEmployee}>
+                  <Button variant='contained' sx={{ mr: 3 }} onClick={handleUpdateClient}>
                     Save Changes
                   </Button>
               

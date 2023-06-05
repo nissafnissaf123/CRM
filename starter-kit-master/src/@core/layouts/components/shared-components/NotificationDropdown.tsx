@@ -1,7 +1,7 @@
 // ** React Imports
 import { useState, SyntheticEvent, Fragment, ReactNode, useEffect } from 'react'
 import moment from 'moment';
-
+import Tooltip  from '@mui/material/Tooltip'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Badge from '@mui/material/Badge'
@@ -133,8 +133,6 @@ const NotificationDropdown = (props: Props) => {
   // ** Vars
   const { direction } = settings
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
 
   const handleDropdownClose = () => {
@@ -174,45 +172,60 @@ const NotificationDropdown = (props: Props) => {
   //Get notification
   const [employeeId, setEmployeeId] = useState<string | null>(null); // Nouvel état pour stocker l'ID de l'employé
   const [notification, setNotification] = useState([]);
+  const [avatar, setAvatar] = useState([]);
   const [completedNotifications, setCompletedNotifications] = useState([]);
 const [deletedNotifications, setDeletedNotifications] = useState(0);
 
+const [isOpen, setIsOpen] = useState(false); // Nouvel état pour suivre si les notifications sont ouvertes ou fermées
+const [unreadNotifications, setUnreadNotifications] = useState(0); // Initialise le nombre de nouvelles notifications à 0
+const [lastNotificationCount, setLastNotificationCount] = useState(0); // Dernier nombre de notifications lues
 
-  useEffect(() => {
-    // Récupérer les données d'utilisateur depuis localStorage
-    const userData = JSON.parse(localStorage.getItem('userData'));
+// ...
 
-    if (userData) {
-      // Extraire l'ID de l'employé à partir des données d'utilisateur
-      const employeeId = userData.id;
-      setEmployeeId(employeeId);
+useEffect(() => {
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  if (userData) {
+    const userId = userData.id;
+    const userRole = userData.role;
 
-      // Appeler l'API pour récupérer les notifications filtrées par l'ID de l'employé
+    const fetchNotifications = (filterKey) => {
       fetch(`http://localhost:4001/notification`)
         .then(response => response.json())
         .then(data => {
-          // Filtrer les notifications pour obtenir celles avec l'employeeId correspondant
-          const filteredNotifications = data.filter(notification => notification.employeeId === employeeId);
-
-          // Filtrer les notifications pour obtenir celles qui sont encore actives
+          const filteredNotifications = data.filter(notification => notification[filterKey] === userId);
           const activeNotifications = filteredNotifications.filter(notification => !notification.completed);
-
-          // Filtrer les notifications pour obtenir celles qui sont complétées
           const completedNotifications = filteredNotifications.filter(notification => notification.completed);
-
           setNotification(activeNotifications);
           setCompletedNotifications(completedNotifications);
-
-          // Calculer le nombre de nouvelles notifications non lues
           const newNotificationsCount = activeNotifications.filter(notification => !notification.read).length;
-          setUnreadNotifications(newNotificationsCount);
+          if (isOpen) {
+            // Si les notifications sont ouvertes, réinitialiser le nombre de nouvelles notifications à 1
+            setUnreadNotifications(1);
+          } else {
+            // Sinon, mettre à jour le nombre de nouvelles notifications
+            setUnreadNotifications(newNotificationsCount);
+          }
           console.log(filteredNotifications);
         })
         .catch(error => {
           console.log(error);
         });
+    };
+
+    if (userRole === 'admin') {
+      fetchNotifications('adminId');
+      
+    } else if (userRole === 'client') {
+      fetchNotifications('clientId');
+      
+    } else if (userRole === 'Employee') {
+      setEmployeeId(userId); // Définir l'ID de l'employé
+      fetchNotifications('employeeId');
     }
-  }, []);
+  }
+}, [isOpen]); 
+  
+
 
 
   const formatDate = (createdAt) => {
@@ -239,25 +252,25 @@ const [deletedNotifications, setDeletedNotifications] = useState(0);
     <Fragment>
       <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
       <Badge
-     color='error'
-     variant='standard'
-     badgeContent={unreadNotifications}
-     sx={{
-       '& .MuiBadge-badge': {
-         top: 4,
-         right: 2,
-         fontSize: '0.75rem',
-         width: 16,
-         height: 16,
-         borderRadius: '50%',
-         display: 'flex',
-         alignItems: 'center',
-         justifyContent: 'center',
-         boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}`,
-         visibility: unreadNotifications > 0 && !isOpen ? 'visible' : 'hidden'
-       }
-     }}
-   >
+  color='error'
+  variant='standard'
+  badgeContent={unreadNotifications > 0 ? unreadNotifications : null}
+  sx={{
+    '& .MuiBadge-badge': {
+      top: 4,
+      right: 2,
+      fontSize: '0.75rem',
+      width: 16,
+      height: 16,
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}`,
+      visibility: unreadNotifications > 0 && !isOpen ? 'visible' : 'hidden'
+    }
+  }}
+>
   <Icon icon='mdi:bell-outline' />
 </Badge>
       </IconButton>
@@ -294,10 +307,10 @@ const [deletedNotifications, setDeletedNotifications] = useState(0);
 
       return (
         <MenuItem key={index} onClick={handleDropdownClose}>
-          <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
+             <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
             <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-              <MenuItemTitle>{notification.name}</MenuItemTitle>
-              <MenuItemSubtitle variant='body2'>{notification.subtitle}</MenuItemSubtitle>
+              <MenuItemTitle sx={{ whiteSpace: 'normal', wordWrap: 'break-word', fontSize: '0.8rem'  }}>{notification.name}</MenuItemTitle>
+              
             </Box>
             <Typography variant='caption' sx={{ color: 'text' }}>
               {formatDate(notification.createdAt)}

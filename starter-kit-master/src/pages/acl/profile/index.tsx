@@ -56,6 +56,8 @@ interface Props {
 
 
 
+
+
 import { ProfileTeamsType, ProfileTabCommonType } from 'src/@fake-db/types'
 import { Avatar, AvatarGroup } from '@mui/material'
 
@@ -103,27 +105,25 @@ const UserProfileHeader = ({ id }: Props) => {
      const router = useRouter();
       
         const handleClickAccountSettings = () => {
-          router.push('/employee/profile/TabAccount');
+          router.push('/acl/profile/TabAccount');
         };
 
 
         //Get Employee
 
-        const [employee, setEmployee] = useState({
+        const [client, setClient] = useState({
           id: "",
           fullname: "",
           phone: "",
           user: { email: "", username: "" },
-          department: { name: "" },
-          departmentRole:"",
+          companyName: "",
           adresse:"",
           facebook:"",
           instagram:"",
-          slack:"",
-          github:"",
-          gitlab:"", 
+          whatsapp:"", 
           createdAt:"",
-          avatar:""
+          avatar:"",
+          linkedin:""
         });
       
         useEffect(() => {
@@ -131,16 +131,16 @@ const UserProfileHeader = ({ id }: Props) => {
             try {
               const userData = JSON.parse(localStorage.getItem('userData'));
               console.log(userData)
-              const employeeId = userData.id;
-              console.log(employeeId)
+              const clientId = userData.id;
+              console.log(clientId)
               
              // Retrieve the employee data from local storage or from an API
-            const response = await fetch(`http://localhost:4001/employee/${employeeId}`);
+            const response = await fetch(`http://localhost:4001/client/${clientId}`);
             const data = await response.json();
       
             // Set the employee state with the retrieved data
-            setEmployee(data.employee);
-            console.log(data.employee);
+            setClient(data.client);
+            console.log(data.client);
             } catch (error) {
               console.log(error);
             }
@@ -149,26 +149,26 @@ const UserProfileHeader = ({ id }: Props) => {
           fetchEmployeeById();
         }, [id]);
    
-        const joinDate = new Date(employee.createdAt);
+        const joinDate = new Date(client.createdAt);
         const formattedJoinDate = joinDate.toLocaleString('default', { month: 'long', year: 'numeric' });
         const capitalizedMonth = formattedJoinDate.charAt(0).toUpperCase() + formattedJoinDate.slice(1);
 
+//Get Departments 
+const [departments, setDepartments] = useState([]);
 
+useEffect(() => {
+  fetch("http://localhost:4001/department")
+    .then((response) => response.json())
+    .then((data) => {
+      setDepartments(data.departments);
+    })
+   
+    .catch((error) => {
+      console.error(error);
+    });
+}, []);
 
-        //Get Departments 
-   const [departments, setDepartments] = useState([]);
-
-   useEffect(() => {
-     fetch("http://localhost:4001/department")
-       .then((response) => response.json())
-       .then((data) => {
-         setDepartments(data.departments);
-       })
       
-       .catch((error) => {
-         console.error(error);
-       });
-   }, []);
 
 return  (
     <>
@@ -191,7 +191,7 @@ return  (
           justifyContent: { xs: 'center', md: 'flex-start' }
         }}
       >
-        <ProfilePicture src={employee.avatar}  alt='profile-picture' />
+        <ProfilePicture src={client.avatar}  alt='profile-picture' />
         <Box
           sx={{
             width: '100%',
@@ -204,7 +204,7 @@ return  (
         >
           <Box sx={{ mb: [6, 0], display: 'flex', flexDirection: 'column', alignItems: ['center', 'flex-start'] }}>
             <Typography variant='h5' sx={{ mb: 4, fontSize: '1.375rem' }}>
-            {employee.fullname}
+            {client.fullname}
             </Typography>
             <Box
               sx={{
@@ -215,11 +215,11 @@ return  (
             >
               <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
               <Icon icon='mdi:home-outline' />
-                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>{employee.department?.name}</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>{client.companyName}</Typography>
               </Box>
               <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
                 <Icon icon='mdi:map-marker-outline' />
-                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>{employee.adresse}</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>{client.adresse}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
                 <Icon icon='mdi:calendar-blank-outline' />
@@ -259,7 +259,7 @@ return  (
             FullName: 
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-              {employee.fullname}
+              {client.fullname}
             </Typography>
           </Box>
         </Box>
@@ -281,7 +281,7 @@ return  (
             UserName :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-              {employee.user?.username}
+              {client.user?.username}
             </Typography>
           </Box>
         </Box>
@@ -296,15 +296,15 @@ return  (
           <Box sx={{ display: 'flex', mr: 2 }}>
           <Icon icon='mdi:briefcase-account-outline' />
           </Box>
-
           <Box sx={{ columnGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Role: 
+            CompanyName :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-            {employee.departmentRole}
+              {client.companyName}
             </Typography>
           </Box>
+         
         </Box>
       </Box>
 
@@ -332,7 +332,7 @@ return  (
             Phone :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-             {employee.phone}
+             {client.phone}
             </Typography>
           </Box>
 
@@ -354,7 +354,7 @@ return  (
             Email :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-            {employee.user?.email}
+            {client.user?.email}
             </Typography>
           </Box>
 
@@ -452,9 +452,9 @@ return  (
                           href='/'
                           component={Link}
                          
-                          sx={{ color: '.main', textDecoration: 'none' }}
+                          sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          {employee.facebook}
+                          {client.facebook}
                         </Typography>
                         
                      
@@ -490,7 +490,7 @@ return  (
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          {employee.intagram}
+                          {client.instagram}
                         </Typography>
                         
                      
@@ -526,7 +526,7 @@ return  (
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          {employee.intagram}
+                          {client.linkedin}
                         </Typography>
                         
                      
@@ -553,17 +553,17 @@ return  (
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/slack.png' />
+                      <img  height='30' src= '/images/pages/whatsapp.png' />
                     </Box>
                     <div>
-                    <Typography sx={{ fontWeight: 500 }}>Slack</Typography>
+                    <Typography sx={{ fontWeight: 500 }}>Whatssap</Typography>
                     <Typography
                           href='/'
                           component={Link}
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                           {employee.slack}
+                           {client.whatsapp}
                         </Typography>
                         
                      
@@ -578,6 +578,7 @@ return  (
                   </Button>
                 </Box>
 
+                
                 <Box
                  style={{marginTop:"25px"}}
                   sx={{
@@ -588,68 +589,10 @@ return  (
                     '&:not(:last-of-type)': { mb: 4 }
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/github.png' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>GitHub</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                           {employee.github}
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
+                  
+                  
                 </Box>
-                <Box
-                 style={{marginTop:"25px", marginBottom:'15px'}}
-                  sx={{
-                    gap: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    '&:not(:last-of-type)': { mb: 4 }
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 4, minWidth: 45, display: 'flex', justifyContent: 'center' }}>
-                      <img  height='30' src= '/images/pages/gitlab2.png' />
-                    </Box>
-                    <div>
-                    <Typography sx={{ fontWeight: 500 }}>GitLab</Typography>
-                    <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: 'primary.main', textDecoration: 'none' }}
-                        >
-                           {employee.gitlab}
-                        </Typography>
-                        
-                     
-                    </div>
-                  </Box>
-                  <Button
-                    variant='outlined'
-                    sx={{ p: 1.5, minWidth: 38 }}
-                    color={'secondary'}
-                  >
-                    <Icon icon={  'mdi:link-variant'} />
-                  </Button>
-                </Box>
+                
            
               
        

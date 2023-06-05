@@ -7,8 +7,15 @@ const prisma = new PrismaClient();
 
 router.get("/", async (req, res, next) => {
     try {
-      const notifications = await prisma.notification.findMany();
+      const notifications = await prisma.notification.findMany({
+        include: {
+          client: true,
+          employee:true,
+          admin:true
+      }
+      });
       res.json(notifications);
+      
     } catch (error) {
       next(error);
     }

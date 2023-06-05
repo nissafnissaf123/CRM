@@ -11,6 +11,7 @@ export type TicketsType = {
   client: any       
   clientId: string
   company: string
+  project: any
   fullname: string
   user: any
   avatar: string

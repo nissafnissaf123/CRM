@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 // ** Next Import
 import Link from 'next/link'
 
+
+import toast from 'react-hot-toast'
+
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
@@ -112,17 +115,20 @@ const RolesCards = () => {
   //Get Departments 
   const [departments, setDepartments] = useState([]);
 
-useEffect(() => {
-  fetch("http://localhost:4001/department")
-    .then((response) => response.json())
-    .then((data) => {
-      setDepartments(data.departments);
-    })
-   
-    .catch((error) => {
-      console.error(error);
-    });
-}, []);
+  const fetchDepartments = () => {
+    fetch("http://localhost:4001/department")
+      .then(response => response.json())
+      .then(data => {
+        setDepartments(data.departments);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    fetchDepartments()
+  }, []);
 
 
 //Post department 
@@ -143,7 +149,8 @@ const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
       .then((res) => res.json())
       .then(() => {
         handleClose();
-        
+        toast.success('Department added successfully');
+        fetchDepartments()
       })
   } else {
     alert("Invalid input");
