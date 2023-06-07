@@ -53,7 +53,7 @@ router.post("/", async (req, res, next) => {
                     <table bgcolor="#ffffff" width="600" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; border: 1px solid #cccccc;">
                         <tr>
                             <td style="padding: 40px 0 30px 0;" align="center">
-                                <img src="https://aftercode.tn/logo-after-code.png" alt="Your Company" width="200" height="200" style="display: block;" />
+                                <img src="https://aftercode.tn/logo-after-code.png" alt="Your Company" width="300" height="200" style="display: block;" />
                             </td>
                         </tr>
                         <tr>
@@ -106,7 +106,7 @@ router.post("/", async (req, res, next) => {
 
 // Function to generate a random password
 function generatePassword() {
-    const length = 10;
+    const length = 15;
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let password = "";
     for (let i = 0; i < length; i++) {

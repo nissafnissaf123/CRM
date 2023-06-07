@@ -17,37 +17,26 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/reset", async (req, res, next) => {
     try {
         const password = generatePassword(); 
         const email = req.body.email;
-        const username = email.split('@')[0]; // Génération du nom d'utilisateur à partir de l'adresse e-mail
+        const username = email.split('@')[0];
     
-        const user = await prisma.user.create({
-            
+        const user = await prisma.user.update({
+            where:{
+                email:email,
+            },
             data: {
-                email:req.body.email, username: username, roles: 'Employee', password,
+               password,
             },
         });
         console.log(user);
-        
-            const employee = await prisma.employee.create({
-                data: {
-                    avatar: req.body.avatar,
-                    fullname: req.body.fullname,
-                    phone:req.body.phone,departmentId:req.body.departmentId,
-                    userId: user.id
-                },
-        include:{
-            department: true
-        }
-            });
-        console.log(employee)
     
         const mailOptions = {
             from: "aftercode212@gmail.com",
             to: user.email,
-            subject: "Your new account credentials",
+            subject: "Your new password",
             html: `
             <table bgcolor="#ebebe0" width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
@@ -61,20 +50,17 @@ router.post("/", async (req, res, next) => {
                         <tr>
                             <td style="padding: 20px 30px 40px 30px;" align="left">
                                 <h1 style="font-size: 24px; margin: 0; font-family: Arial, sans-serif;color: #000000;">Welcome to After Code!</h1>
-                                <p style="font-size: 16px; line-height: 1.5; margin: 20px 0 30px 0; font-family: Arial, sans-serif; color: #000000;">Hi ${user.username},</p>
+                                <p style="font-size: 16px; line-height: 1.5; margin: 20px 0 30px 0; font-family: Arial, sans-serif; color: #000000;">Hi ${username},</p>
 
-                                <p style="font-size: 16px; line-height: 1.5; margin: 20px 0 30px 0; font-family: Arial, sans-serif; color: #000000;">Your account has been created. Here are your credentials:</p>
-                                <table style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
+                                <p style="font-size: 14px; line-height: 1.5; margin: 20px 0 30px 0; font-family: Arial, sans-serif; color: #000000;">Here is your new password:</p>
+                                <table style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
                                     <tr>
-                                        <td style="padding-right: 10px;">Email:</td>
-                                        <td>${user.email}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding-right: 10px;">Password:</td>
+                                        <td style="padding-right: 10px;"><strong>Password:</strong></td>
                                         <td>${password}</td>
                                     </tr>
                                 </table>
-                                <p style="font-size: 16px; line-height: 1.5; margin: 20px 0 30px 0; font-family: Arial, sans-serif;color: #000000;">Please visit our website to log in and change your password.</p>
+                                <p style="font-size: 14px; line-height: 1.5; margin: 20px 0 30px 0; font-family: Arial, sans-serif;color: #000000;">To ensure the security of your account, we recommend changing your password immediately.</p>
+                                <p style="font-family: Arial, sans-serif; color: #000000;">Please visit our website and change your password:</p>
                                 <p style="padding-right: 10px;color: #000000;"><strong>Website:</strong></p>
                                 <table style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; margin-top: 30px; margin: 0 auto;">
                                     <tr>
@@ -102,8 +88,8 @@ router.post("/", async (req, res, next) => {
 
         res.json({user });
     } catch (error: any) {
-            console.error("Error adding employee:", error);
-        next(new Error('Something went wrong to add an Employee!'));
+
+        next(new Error('Something went wrong to reset password!'));
     }
 });
 

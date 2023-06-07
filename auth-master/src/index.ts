@@ -2,7 +2,8 @@ import { Notification } from './../node_modules/.prisma/client/index.d';
 import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth';
-
+import resetPassword from './routes/resetPassword';
+import updateAdmin from './admin/updateAdmin';
 import createProject from './project/createProject';
 import projectDetails from './project/getProject';
 import updateProject from './project/updateProject';
@@ -66,7 +67,8 @@ app.use(function(req, res, next) {
 
 
 
-app.use('/auth', authRoutes);
+app.use('/auth', authRoutes, resetPassword);
+app.use('/admin', updateAdmin);
 app.use('/project', createProject, projectDetails, updateProject, deleteProject);
 app.use('/client', createClient, deleteClient, clientUpdate, clientDetails);
 app.use('/department', createDepartment, departmentDetails,updateDepartment);
