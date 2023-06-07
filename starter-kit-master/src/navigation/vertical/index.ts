@@ -173,7 +173,7 @@ const navigation = (): HorizontalNavItemsType => {
     },
     {
       title: 'Account Settings',
-      path: '/admin/account',
+      path: '/admin/profile/TabAccount',
       icon: 'mdi:cog',
       type:'admin'
 

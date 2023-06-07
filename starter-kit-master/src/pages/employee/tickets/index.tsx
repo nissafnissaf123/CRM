@@ -125,8 +125,8 @@ const Transition = forwardRef(function Transition(
 
 // ** renders client column
 const renderClient = (row: TicketsType) => {
-  if (row.avatar) {
-    return <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
+  if (row.client?.avatar) {
+    return <CustomAvatar src={row.client?.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
   } else {
     return (
       <CustomAvatar
@@ -166,7 +166,7 @@ const columns: GridColDef[] = [
         <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <LinkStyled href='/employee/view/'>{row.client?.fullname}</LinkStyled>
             <Typography noWrap variant='caption'>
-              {`@${username}`}
+              {row.client.user?.email}
             </Typography>
           </Box>
       </Box>

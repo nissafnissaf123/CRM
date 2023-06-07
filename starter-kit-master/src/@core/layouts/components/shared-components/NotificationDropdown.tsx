@@ -122,7 +122,7 @@ const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: bool
 
 const NotificationDropdown = (props: Props) => {
   // ** Props
-  const { settings, notifications } = props
+  const { settings } = props
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(null)
@@ -172,15 +172,17 @@ const NotificationDropdown = (props: Props) => {
   //Get notification
   const [employeeId, setEmployeeId] = useState<string | null>(null); // Nouvel état pour stocker l'ID de l'employé
   const [notification, setNotification] = useState([]);
-  const [avatar, setAvatar] = useState([]);
-  const [completedNotifications, setCompletedNotifications] = useState([]);
-const [deletedNotifications, setDeletedNotifications] = useState(0);
-
 const [isOpen, setIsOpen] = useState(false); // Nouvel état pour suivre si les notifications sont ouvertes ou fermées
 const [unreadNotifications, setUnreadNotifications] = useState(0); // Initialise le nombre de nouvelles notifications à 0
-const [lastNotificationCount, setLastNotificationCount] = useState(0); // Dernier nombre de notifications lues
 
 // ...
+
+const [notifications, setNotifications] = useState([]);
+const [employeeUnreadCount, setEmployeeUnreadNotificationCount] = useState(0);
+const [adminUnreadCount, setAdminUnreadNotificationCount] = useState(0);
+const [clientUnreadCount, setClientUnreadNotificationCount] = useState(0);
+const [userRole, setUserRole] = useState('');
+
 
 useEffect(() => {
   const userData = JSON.parse(localStorage.getItem('userData'));
@@ -188,42 +190,37 @@ useEffect(() => {
     const userId = userData.id;
     const userRole = userData.role;
 
-    const fetchNotifications = (filterKey) => {
-      fetch(`http://localhost:4001/notification`)
-        .then(response => response.json())
-        .then(data => {
-          const filteredNotifications = data.filter(notification => notification[filterKey] === userId);
-          const activeNotifications = filteredNotifications.filter(notification => !notification.completed);
-          const completedNotifications = filteredNotifications.filter(notification => notification.completed);
-          setNotification(activeNotifications);
-          setCompletedNotifications(completedNotifications);
-          const newNotificationsCount = activeNotifications.filter(notification => !notification.read).length;
-          if (isOpen) {
-            // Si les notifications sont ouvertes, réinitialiser le nombre de nouvelles notifications à 1
-            setUnreadNotifications(1);
-          } else {
-            // Sinon, mettre à jour le nombre de nouvelles notifications
-            setUnreadNotifications(newNotificationsCount);
-          }
-          console.log(filteredNotifications);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    const fetchNotifications = async (filterKey) => {
+      try {
+        const response = await fetch('http://localhost:4001/notification');
+        const data = await response.json();
+
+        // Récupérer les données de l'API
+        const notifications = data.notifications.filter(notification => notification[filterKey] === userId);
+        const employeeUnreadCount = data.employeeUnreadNotificationCount;
+        const adminUnreadCount = data.adminUnreadNotificationCount;
+        const clientUnreadCount = data.clientUnreadNotificationCount;
+
+        // Mettre à jour les états de l'interface utilisateur
+        setNotification(notifications);
+        setEmployeeUnreadNotificationCount(employeeUnreadCount);
+        setAdminUnreadNotificationCount(adminUnreadCount);
+        setClientUnreadNotificationCount(clientUnreadCount);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des notifications :', error);
+      }
     };
 
     if (userRole === 'admin') {
       fetchNotifications('adminId');
-      
     } else if (userRole === 'client') {
       fetchNotifications('clientId');
-      
     } else if (userRole === 'Employee') {
       setEmployeeId(userId); // Définir l'ID de l'employé
       fetchNotifications('employeeId');
     }
   }
-}, [isOpen]); 
+}, []);
   
 
 
@@ -253,22 +250,10 @@ useEffect(() => {
       <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
       <Badge
   color='error'
-  variant='standard'
-  badgeContent={unreadNotifications > 0 ? unreadNotifications : null}
+  variant='dot'
+  invisible={notification.length === 0}
   sx={{
-    '& .MuiBadge-badge': {
-      top: 4,
-      right: 2,
-      fontSize: '0.75rem',
-      width: 16,
-      height: 16,
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}`,
-      visibility: unreadNotifications > 0 && !isOpen ? 'visible' : 'hidden'
-    }
+    '& .MuiBadge-badge': { top: 4, right: 4, boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}` }
   }}
 >
   <Icon icon='mdi:bell-outline' />

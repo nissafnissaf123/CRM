@@ -91,7 +91,7 @@ const LinkStyled = styled(Link)(({ theme }) => ({
   const getIconSrc = (framework) => {
     if (framework === null) {
       // Return a default icon source path if the framework is null
-      return '/images/icons/project-icons/default.png';
+      return '/images/pages/télécharger.jpg';
     }
   
     const lowercasedFramework = framework.toLowerCase();
@@ -101,14 +101,19 @@ const LinkStyled = styled(Link)(({ theme }) => ({
     } else if (lowercasedFramework.includes('vue')) {
       return '/images/icons/project-icons/vue.png';
     } else if (lowercasedFramework.includes('angular')) {
-      return '/images/icons/project-icons/angular.png';
+      return '/images/pages/angular.png';
+    } else if (lowercasedFramework.includes('next')) {
+      return '/images/pages/next.png';
+    } else if (lowercasedFramework.includes('flutter')) {
+      return '/images/pages/flutter.jpg';
+    
+    } else if (lowercasedFramework.includes('laraval')) {
+      return '/images/pages/laraval2.jpg';
+    } else {
+      // Return the "télécharger.jpg" image for other frameworks
+      return '/images/pages/télécharger.jpg';
     }
-  
-    // Return a default icon source path if no matching keywords are found
-    return '/images/icons/project-icons/default.png';
   };
-
-  
 
     
   
@@ -647,6 +652,9 @@ const ProjectListTable = ({ id }: Props) => {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 
+  const [isAddingFramework, setIsAddingFramework] = useState(false);
+  const [newFrameworkName, setNewFrameworkName] = useState('');
+
   const handleAddCategoryClick = () => {
     setIsAddingCategory(true);
   };
@@ -657,6 +665,18 @@ const ProjectListTable = ({ id }: Props) => {
     // Reset the input field and state
     setNewCategoryName('');
     setIsAddingCategory(false);
+  };
+
+  const handleAddFrameworkClick = () => {
+    setIsAddingFramework(true);
+  };
+
+  const handleAddFramework = () => {
+    // Add logic to handle adding the new category to your data or API
+    console.log('New framework:', newFrameworkName);
+    // Reset the input field and state
+    setNewFrameworkName('');
+    setIsAddingFramework(false);
   };
 
   //Post Project 
@@ -950,7 +970,7 @@ const ProjectListTable = ({ id }: Props) => {
       </Typography>
       <Box sx={{ mb: 8 }}>
         <Box
-          onClick={() => setValue('react')}
+          onClick={() => setValue('react native')}
           sx={{ mb: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -964,7 +984,7 @@ const ProjectListTable = ({ id }: Props) => {
               </Typography>
             </div>
           </Box>
-          <Radio value='react' onChange={handleChangeFramework} checked={framework === 'react'} />
+          <Radio value='react native' onChange={handleChangeFramework} checked={framework === 'react native'} />
         </Box>
 
         <Box
@@ -972,11 +992,11 @@ const ProjectListTable = ({ id }: Props) => {
           sx={{ mb: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <CustomAvatar skin='light' color='error' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
-              <Icon icon='mdi:angular' />
-            </CustomAvatar>
+          <CustomAvatar skin='light' color='info' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
+  <img src='/images/pages/logoFlutter.png' alt='Flutter Logo' style={{  width: '19px', height: '24px' }} />
+</CustomAvatar>
             <div>
-              <Typography sx={{ color: 'text.secondary' }}>Angular</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>Flutter</Typography>
               <Typography variant='caption' sx={{ color: 'text.disabled' }}>
                 Most suited for your application
               </Typography>
@@ -993,7 +1013,7 @@ const ProjectListTable = ({ id }: Props) => {
               <Icon icon='mdi:vuejs' />
             </CustomAvatar>
             <div>
-              <Typography sx={{ color: 'text.secondary' }}>Vue</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>Vue Js</Typography>
               <Typography variant='caption' sx={{ color: 'text.disabled' }}>
                 Progressive Framework
               </Typography>
@@ -1006,18 +1026,52 @@ const ProjectListTable = ({ id }: Props) => {
           sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <CustomAvatar skin='light' color='warning' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
-              <Icon icon='mdi:laravel' />
+            <CustomAvatar skin='light' color='secondary' variant='rounded' sx={{ mr: 3, width: 48, height: 48 }}>
+            <img src='/images/pages/logoNext.png' alt='Next Logo' style={{  width: '20px', height: '20px' }} />
             </CustomAvatar>
             <div>
-              <Typography sx={{ color: 'text.secondary' }}>Laravel</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>Next Js</Typography>
               <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                PHP web frameworks
+              Most suited for your application
               </Typography>
             </div>
           </Box>
           <Radio value='laravel' onChange={handleChangeFramework} checked={framework === 'laravel'} />
         </Box>
+
+        {isAddingFramework ? (
+        <Box sx={{  display: 'flex', alignItems: 'center', mt: 3 }}>
+          <TextField
+            
+            onChange={handleChangeFramework}
+            placeholder="Enter framework name"
+            fullWidth
+            sx={{ mr: 2, marginTop:"18px"  }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleAddFramework();
+                
+              }
+            }}
+          />
+         
+        </Box>
+      ) : (
+        <Box
+          onClick={handleAddFrameworkClick}
+          sx={{
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            textDecoration: 'underline',
+            color: 'info',
+            marginTop:"20px",
+            ml: '5px', 
+          }}>
+          <Icon icon="mdi:plus" style={{ mr: 2, color:"info", fontSize: 15 }}/> {/* Icon for "Autre" */}
+          <Typography variant="body2">Add another Framework</Typography>
+        </Box>
+      )}
       </Box>
     </div>
                 {renderTabFooter()}

@@ -146,8 +146,7 @@ const RowOptions = ({ userId }: Props) => {
       department:{ id:"" , name:""}
     });
     
-    //Get employee by userid
-    useEffect(() => {
+    const fetchEmployees = () => {
       fetch(`http://localhost:4001/employee/${userId}`)
         .then((response) => response.json())
         .then((data) => {
@@ -156,7 +155,8 @@ const RowOptions = ({ userId }: Props) => {
         .catch((error) => {
           console.error(error);
         });
-    }, [userId]);
+      };
+    
    
   
   
@@ -175,6 +175,7 @@ const RowOptions = ({ userId }: Props) => {
   
     useEffect(() => {
       fetchDepartments()
+      fetchEmployees()
     }, []);
   
     const router = useRouter();
@@ -192,6 +193,24 @@ const RowOptions = ({ userId }: Props) => {
       setDepartmentId(employee.department?.id);
       handleRowOptionsClose();
     }, [setShow, handleRowOptionsClose, employee]);
+
+    const updateEmployeeValues = (updatedEmployee) => {
+  setEmployee((prevEmployee) => ({
+    ...prevEmployee,
+    fullname: updatedEmployee.fullname,
+    user: {
+      ...prevEmployee.user,
+      email: updatedEmployee.user?.email,
+    },
+    phone: updatedEmployee.phone,
+    department: {
+      ...prevEmployee.department,
+      id: updatedEmployee.department?.id,
+      name: updatedEmployee.department?.name,
+    },
+  }));
+};
+
     
 
     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,12 +234,17 @@ const RowOptions = ({ userId }: Props) => {
         const data = await response.json();
         console.log(data.employee);
         console.log(employee)
-       
-        
+        updateEmployeeValues(data.employee);
         // Alert si la modification a réussi
+
+        
         if (response.ok) {
+          
           setShow(false); // Close the dialog
           toast.success('Ticket updated successfully');
+
+ 
+
         } else {
           toast.error('An error occurred');
         }
