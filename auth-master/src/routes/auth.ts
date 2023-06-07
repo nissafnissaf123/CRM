@@ -97,6 +97,7 @@ router.post('/register', async (req: Request, res: Response) => {
  res.send({user,admin })
  
 });
+/*
 router.post('/token/refresh', async (req, res) => {
   const {  refresh } = req.body;
  
@@ -121,5 +122,5 @@ router.post('/token/refresh', async (req, res) => {
     res.status(401).json({ error: 'Invalid refresh token' });
   }
 });
-
+*/
 export default router; 

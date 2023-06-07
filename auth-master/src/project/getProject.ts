@@ -59,6 +59,8 @@ router.get("/:id", async (req, res) => {
       let progress;
       if (totalTaskCount === 0) {
         progress = 0;
+      } else if(doneTaskCount) {
+        progress = Math.round(((doneTaskCount) / totalTaskCount) * 100);
       } else {
         progress = Math.round((((doingTaskCount+doneTaskCount)/2) / totalTaskCount) * 100);
       }
@@ -94,27 +96,5 @@ router.get("/:id", async (req, res) => {
     console.error('Error occurred while counting tasks:', error);
     }
   });
-
-
-//Get Tasks of projects
-router.get("/:id/tasks", async (req, res, next) => {
-  try {
-    const projectId = req.params.id;
-
-    const tasks = await prisma.task.findMany({
-      where: {
-        projectId: String(projectId),
-      },
-      include: {
-        employee: true,
-      },
-    });
-
-    res.json({ tasks });
-  } catch (error) {
-    next(error);
-  }
-});
-
 
 export default router;
