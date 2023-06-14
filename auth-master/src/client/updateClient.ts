@@ -38,11 +38,11 @@ const upload = multer({ storage: storage });
 router.patch("/:id",upload.single('avatar'), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { email, username, password,fullname,facebook,instagram,taxId,whatsapp, avatar, phone, companyName } = req.body;
+    const { email, username, password,fullname,facebook,instagram,taxId,whatsapp, phone, companyName } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: { id: id },
-      data: { email, username ,password},
+      data: { email, username ,password,phone},
     });
     let avatarPath = null;
     const existingClient = await prisma.client.findUnique({
@@ -57,7 +57,7 @@ router.patch("/:id",upload.single('avatar'), async (req, res, next) => {
     }
     const updatedClient = await prisma.client.update({
       where: { userId: id },
-      data: {fullname,facebook,instagram,taxId,whatsapp,avatar:avatarPath, phone,companyName  },
+      data: {fullname,facebook,instagram,taxId,whatsapp,avatar:avatarPath,companyName  },
     });
 
     console.log(updatedUser);

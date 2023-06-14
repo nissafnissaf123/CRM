@@ -42,7 +42,7 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
 
     const updatedUser = await prisma.user.update({
       where: { id: id },
-      data: { email, username, password },
+      data: { email, username, password,phone },
     });
 
     let avatarPath = null;
@@ -60,7 +60,7 @@ router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
     const updatedEmployee = await prisma.employee.update({
       where: { userId: id },
       data: {
-        avatar: avatarPath, phone, departmentId, fullname,
+        avatar: avatarPath, departmentId, fullname,
         poste, startDate, endDate, departmentRole, adresse,
         facebook,instagram, slack, github, gitlab
       },

@@ -39,11 +39,11 @@ router.patch("/",upload.single('avatar'), async (req, res, next) => {
   try {
       const admin = await prisma.admin.findFirst();
       const adminId = admin?.userId;
-      const { email, username, password, endpoint } = req.body;
+      const { email, username, password, endpoint,phone } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: { id: adminId },
-      data: { email, username ,password},
+      data: { email, username ,password,phone},
     });
     let avatarPath = null;
     const existingAdmin = await prisma.admin.findUnique({

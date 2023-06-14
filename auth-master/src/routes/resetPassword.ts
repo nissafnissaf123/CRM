@@ -1,7 +1,8 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 const nodemailer = require("nodemailer");
-require('dotenv').config();
+const twilio = require("twilio");
+require("dotenv").config();
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -10,30 +11,78 @@ router.use(express.urlencoded({ extended: true }));
 
 // Configure the email transporter
 const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-        user: process.env.Email,
-        pass: process.env.Pass,
-    },
+  service: "Gmail",
+  auth: {
+    user: process.env.Email,
+    pass: process.env.Pass,
+  },
 });
 
+// Configure the Twilio client
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 router.post("/reset", async (req, res, next) => {
-    try {
-        const password = generatePassword(); 
-        const email = req.body.email;
-        const username = email.split('@')[0];
-    
-        const user = await prisma.user.update({
-            where:{
-                email:email,
-            },
-            data: {
-               password,
-            },
-        });
-        console.log(user);
-    
-        const mailOptions = {
+  try {
+    const phone = req.body.phone;
+    // Generate a verification code
+    const verificationCode = generateVerificationCode();
+
+    // Send the verification cod e via SMS
+    const smsOptions = {
+      body: `Your verification code is: ${verificationCode}`,
+      to: phone,
+      from:process.env.TWILIO_PHONE_NUMBER,
+    };
+    await twilioClient.messages.create(smsOptions);
+    await prisma.user.update({
+      where: {
+        phone: phone,
+      },
+      data: {
+        verificationCode: verificationCode,
+      },
+    });
+  } catch (error: any) {
+    console.error(error);
+    next(new Error("Something went wrong to reset password!"));
+  }
+});
+
+router.post("/verify", async (req, res, next) => {
+  try {
+    const email = req.body.email;
+    const verificationCode = req.body.verificationCode;
+    const username = email.split("@")[0];
+    console.log(verificationCode)
+    // Retrieve the user from the database
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found!");
+    }
+
+    // Check if the verification code matches
+    if (user.verificationCode !== verificationCode) {
+      throw new Error("Invalid verification code!");
+    }
+    console.log(user.verificationCode)
+    // Generate a new password
+    const password = generatePassword();
+
+    // Update the user's password
+    await prisma.user.update({
+      where: {
+        email: email,
+      },
+      data: {
+        password: password,
+      },
+    });
+     const mailOptions = {
             from: "aftercode212@gmail.com",
             to: user.email,
             subject: "Your new password",
@@ -84,13 +133,12 @@ router.post("/reset", async (req, res, next) => {
         </table>
             `,
         };
-        await transporter.sendMail(mailOptions);
-
-        res.json({user });
-    } catch (error: any) {
-
-        next(new Error('Something went wrong to reset password!'));
-    }
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true });
+  } catch (error: any) {
+  console.error(error); // Log the error to the console for debugging purposes
+  res.status(500).json({ error: "An unexpected error occurred during verification." });
+}
 });
 
 // Function to generate a random password
@@ -104,5 +152,15 @@ function generatePassword() {
     return password;
 }
 
+// Function to generate a verification code
+function generateVerificationCode() {
+  const length = 6;
+  const charset = "0123456789";
+  let code = "";
+  for (let i = 0; i < length; i++) {
+    code += charset[Math.floor(Math.random() * charset.length)];
+  }
+  return code;
+}
+
 export default router;
-//<img src=${employee.avatar} alt="Avatar of employee" />
