@@ -50,6 +50,7 @@ router.patch("/",upload.single('avatar'), async (req, res, next) => {
       where: { userId: adminId },
     });
 
+    
     if (existingAdmin && req.file) {
       // New avatar is uploaded
       avatarPath = req.file.path;
