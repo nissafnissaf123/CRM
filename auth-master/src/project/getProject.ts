@@ -3,6 +3,20 @@ import { PrismaClient } from "@prisma/client";
 const router = express.Router();
 const prisma = new PrismaClient();
 
+router.get("/project", async (req, res) => {
+  try {
+    const projects = await prisma.project.groupBy({
+      by: ['category'],
+      _count: true,
+    });
+
+    res.json(projects);
+  } catch (error) {
+    console.error('Error retrieving project statistics:', error);
+    res.status(500).json({ error: 'Failed to retrieve project statistics!!!' });
+  }
+});
+
 // get all projects
 router.get("/", async (req, res, next) => {
     try {
@@ -66,6 +80,14 @@ router.get("/:id", async (req, res) => {
       }
   
       project.progress = progress;
+       await prisma.project.update({
+      where: {
+        id: String(req.params.id),
+      },
+      data: {
+        progress: progress,
+      },
+    });
       console.log(progress)
       const projects = await prisma.project.findUnique({
         where: {
@@ -96,5 +118,4 @@ router.get("/:id", async (req, res) => {
     console.error('Error occurred while counting tasks:', error);
     }
   });
-
 export default router;

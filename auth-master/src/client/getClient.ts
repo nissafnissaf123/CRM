@@ -15,6 +15,18 @@ router.get("/", async (req, res, next) => {
         next(error.message);
     }
 });
+//////
+router.get("/count", async (req, res, next) => {
+  try {
+    const clientCount = await prisma.client.count();
+
+    res.json({ clientCount });
+  } catch (error: any) {
+    console.error('Error counting clients:', error);
+    next(new Error('Something went wrong while counting clients!'));
+  }
+});
+
 // get a client by id
 
 router.get("/:userId", async (req, res, next) => {

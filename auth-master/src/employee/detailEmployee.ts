@@ -19,7 +19,17 @@ router.get("/", async (req, res, next) => {
     next(new Error('Something went wrong while fetching employees!'));
   }
 });
+///////
+router.get("/count", async (req, res, next) => {
+  try {
+    const employeeCount = await prisma.employee.count();
 
+    res.json({ employeeCount });
+  } catch (error: any) {
+    console.error('Error counting employees:', error);
+    next(new Error('Something went wrong while counting employees!'));
+  }
+});
 // get an employee by id
 router.get("/:userId", async (req, res, next) => {
     try {
