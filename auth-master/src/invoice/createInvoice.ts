@@ -10,6 +10,9 @@ router.post("/", async (req, res, next) => {
     try {
         const invoice = await prisma.invoice.create({
             data: { ...req.body },
+            include: {
+                project:true
+            }
         });
 
         res.json({ invoice });

@@ -14,17 +14,25 @@ export type InvoiceClientType = {
 }
 
 export type InvoiceType = {
-  id: number
+  id: string
   name: string
   total: number
   avatar: string
+  status: string
+  category: string
+  client:any
+  project:any
   service: string
-  dueDate: string
+  endDate: string
+  issueDate:string
   address: string
   company: string
   country: string
   contact: string
   avatarColor?: string
+  fullname: string
+  user:any
+  email:string
   issuedDate: string
   companyEmail: string
   balance: string | number

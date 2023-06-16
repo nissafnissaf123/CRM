@@ -132,7 +132,7 @@ const Img = styled('img')(({ theme }) => ({
   const getIconSrc = (framework) => {
     if (framework === null) {
       // Return a default icon source path if the framework is null
-      return '/images/icons/project-icons/default.png';
+      return '/images/pages/télécharger.jpg';
     }
   
     const lowercasedFramework = framework.toLowerCase();
@@ -142,12 +142,20 @@ const Img = styled('img')(({ theme }) => ({
     } else if (lowercasedFramework.includes('vue')) {
       return '/images/icons/project-icons/vue.png';
     } else if (lowercasedFramework.includes('angular')) {
-      return '/images/icons/project-icons/angular.png';
+      return '/images/pages/angular.png';
+    } else if (lowercasedFramework.includes('next')) {
+      return '/images/pages/next.png';
+    } else if (lowercasedFramework.includes('flutter')) {
+      return '/images/pages/flutter.jpg';
+    
+    } else if (lowercasedFramework.includes('laraval')) {
+      return '/images/pages/laraval2.jpg';
+    } else {
+      // Return the "télécharger.jpg" image for other frameworks
+      return '/images/pages/télécharger.jpg';
     }
-  
-    // Return a default icon source path if no matching keywords are found
-    return '/images/icons/project-icons/default.png';
   };
+
 
   const columns: GridColDef[] = [
     {
@@ -529,7 +537,7 @@ const fetchProjects = async () => {
         <Grid item spacing={6} xs={12} md={8}>
         <Grid item xs={12} >
         <Card>
-      <CardHeader title="Client Projects List" />
+      <CardHeader title="Customer Projects List" />
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           

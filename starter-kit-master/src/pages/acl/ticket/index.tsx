@@ -222,8 +222,6 @@ const columns: GridColDef[] = [
     renderCell: ({ row }: CellType) => {
 
    
-
-
       return (
         
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -231,7 +229,7 @@ const columns: GridColDef[] = [
         <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <LinkStyled href='/apps/employees/view/overview/'>{row.employee?.fullname}</LinkStyled>
             <Typography noWrap variant='caption'>
-
+            {row.employee?.user?.email}
             </Typography>
           </Box>
       </Box>

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef, SyntheticEvent, ForwardedRef } from 'react'
+import { useState, forwardRef, SyntheticEvent, ForwardedRef, useEffect } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -7,9 +7,11 @@ import Table from '@mui/material/Table'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Tooltip from '@mui/material/Tooltip'
+import Link from 'next/link'
 import TableRow from '@mui/material/TableRow'
 import Collapse from '@mui/material/Collapse'
 import TableBody from '@mui/material/TableBody'
+import toast from 'react-hot-toast'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -156,7 +158,66 @@ const AddCard = (props: Props) => {
     toggleAddCustomerDrawer()
   }
 
+  //Get Projects
+  const [projects, setProjects] = useState([]);
+
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('http://localhost:4001/project'); 
+      const data = await response.json();
+      setProjects(data.projects);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+
+  //Post invoice
+
+   //Post Project 
+
+   const [invoice, setInvoice] = useState({ endDate:'', issueDate:'', cost:'',jour:'',price:'',total:'', project: {name:" "}})
+
+   const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+  
+    const { endDate,issueDate, total, jour, cost, price, project  } = invoice;
+    if (endDate && issueDate && total && project) {
+      const newInvoice = { ...invoice, projectId: project };
+      fetch("http://localhost:4001/employee", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newInvoice),
+      })
+        .then((res) => res.json())
+        .then(() => {
+         
+          toast.success('Invoice added successfully');
+            // Fetch the updated employee list
+       
+        })
+        .catch((error) => {
+         
+          console.error(error);
+          toast.error('Failed to add invoice'); // Display error toast notification
+        });
+    } else {
+    
+      toast.error("Please fill out all the fields"); // Display error toast notification
+    }
+  };
+
   return (
+    <>
+
+<Grid container spacing={6}>
+<Grid item xl={9} md={8} xs={12}>
     <Card>
       <CardContent>
         <Grid container>
@@ -256,100 +317,9 @@ const AddCard = (props: Props) => {
         </Grid>
       </CardContent>
 
-      <Divider sx={{ my: theme => `${theme.spacing(1)} !important` }} />
+  
 
-      <CardContent sx={{ pb: 2 }}>
-        <Grid container>
-          <Grid item xs={12} sm={6} sx={{ mb: { lg: 0, xs: 4 } }}>
-            <Typography variant='subtitle2' sx={{ mb: 3, color: 'text.primary' }}>
-              Invoice To:
-            </Typography>
-            <Select size='small' value={selected} onChange={handleInvoiceChange} sx={{ mb: 4, width: '200px' }}>
-              <CustomSelectItem value='' onClick={handleAddNewCustomer}>
-                <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main', '& svg': { mr: 2 } }}>
-                  <Icon icon='mdi:plus' fontSize={20} />
-                  Add New Customer
-                </Box>
-              </CustomSelectItem>
-              {clients !== undefined &&
-                clients.map(client => (
-                  <MenuItem key={client.name} value={client.name}>
-                    {client.name}
-                  </MenuItem>
-                ))}
-            </Select>
-            {selectedClient !== null && selectedClient !== undefined ? (
-              <div>
-                <Typography variant='body2' sx={{ mb: 1, color: 'text.primary' }}>
-                  {selectedClient.company}
-                </Typography>
-                <Typography variant='body2' sx={{ mb: 1, color: 'text.primary' }}>
-                  {selectedClient.address}
-                </Typography>
-                <Typography variant='body2' sx={{ mb: 1, color: 'text.primary' }}>
-                  {selectedClient.contact}
-                </Typography>
-                <Typography variant='body2' sx={{ mb: 1, color: 'text.primary' }}>
-                  {selectedClient.companyEmail}
-                </Typography>
-              </div>
-            ) : null}
-          </Grid>
-          <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-            <div>
-              <Typography variant='subtitle2' sx={{ mb: 2.5, color: 'text.primary' }}>
-                Bill To:
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>Total Due:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>$12,110.55</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>Bank name:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>American Bank</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>Country:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>United States</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>IBAN:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>ETD95476213874685</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='body2'>SWIFT code:</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='body2'>BR91905</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          </Grid>
-        </Grid>
-      </CardContent>
+     
 
       <Divider sx={{ mb: theme => `${theme.spacing(1.25)} !important` }} />
 
@@ -369,13 +339,14 @@ const AddCard = (props: Props) => {
                           className='col-title'
                           sx={{ mb: { md: 2, xs: 0 }, color: 'text.primary' }}
                         >
-                          Item
+                        Project
                         </Typography>
-                        <Select fullWidth size='small' defaultValue='App Design'>
-                          <MenuItem value='App Design'>App Design</MenuItem>
-                          <MenuItem value='App Customization'>App Customization</MenuItem>
-                          <MenuItem value='ABC Template'>ABC Template</MenuItem>
-                          <MenuItem value='App Development'>App Development</MenuItem>
+                        <Select fullWidth size='small' defaultValue='Projects'>
+                        {projects.map((project) => (
+          <MenuItem key={project.id} value={project.name}>
+            {project.name}
+          </MenuItem>
+        ))}
                         </Select>
                         <TextField
                           rows={2}
@@ -401,24 +372,7 @@ const AddCard = (props: Props) => {
                           defaultValue='24'
                           InputProps={{ inputProps: { min: 0 } }}
                         />
-                        <Box sx={{ mt: 3.5 }}>
-                          <Typography component='span' variant='body2' sx={{ lineHeight: 2 }}>
-                            Discount:
-                          </Typography>{' '}
-                          <Typography component='span' variant='body2'>
-                            0%
-                          </Typography>
-                          <Tooltip title='Tax 1' placement='top'>
-                            <Typography component='span' variant='body2' sx={{ mx: 2 }}>
-                              0%
-                            </Typography>
-                          </Tooltip>
-                          <Tooltip title='Tax 2' placement='top'>
-                            <Typography component='span' variant='body2'>
-                              0%
-                            </Typography>
-                          </Tooltip>
-                        </Box>
+                        
                       </Grid>
                       <Grid item lg={2} md={2} xs={12} sx={{ px: 4, my: { lg: 0, xs: 4 } }}>
                         <Typography
@@ -436,7 +390,7 @@ const AddCard = (props: Props) => {
                           InputProps={{ inputProps: { min: 0 } }}
                         />
                       </Grid>
-                      <Grid item lg={2} md={1} xs={12} sx={{ px: 4, my: { lg: 0 }, mt: 2 }}>
+                      <Grid item lg={2} md={2} xs={12} sx={{ px: 4, my: { lg: 0, xs: 4 } }}>
                         <Typography
                           variant='subtitle2'
                           className='col-title'
@@ -444,14 +398,16 @@ const AddCard = (props: Props) => {
                         >
                           Price
                         </Typography>
-                        <Typography variant='body2'>$24.00</Typography>
+                        <TextField
+                          size='small'
+                          type='number'
+                          placeholder='1'
+                          defaultValue='1'
+                          InputProps={{ inputProps: { min: 0 } }}
+                        />
                       </Grid>
                     </Grid>
-                    <InvoiceAction>
-                      <IconButton size='small' onClick={deleteForm}>
-                        <Icon icon='mdi:close' fontSize={20} />
-                      </IconButton>
-                    </InvoiceAction>
+                  
                   </RepeatingContent>
                 </Grid>
               </Tag>
@@ -459,18 +415,7 @@ const AddCard = (props: Props) => {
           }}
         </Repeater>
 
-        <Grid container sx={{ mt: 4.75 }}>
-          <Grid item xs={12} sx={{ px: 0 }}>
-            <Button
-              size='small'
-              variant='contained'
-              startIcon={<Icon icon='mdi:plus' fontSize={20} />}
-              onClick={() => setCount(count + 1)}
-            >
-              Add Item
-            </Button>
-          </Grid>
-        </Grid>
+       
       </RepeaterWrapper>
 
       <Divider />
@@ -498,33 +443,18 @@ const AddCard = (props: Props) => {
             />
           </Grid>
           <Grid item xs={12} sm={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
-            <CalcWrapper>
-              <Typography variant='body2'>Subtotal:</Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-                $1800
+
+          <Typography
+                variant='body2'
+                sx={{ mr: 2, color: 'text.primary', fontWeight: 600, letterSpacing: '.25px' }}
+              >
+                Total:
               </Typography>
-            </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Discount:</Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-                $28
-              </Typography>
-            </CalcWrapper>
-            <CalcWrapper>
-              <Typography variant='body2'>Tax:</Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-                21%
-              </Typography>
-            </CalcWrapper>
-            <Divider
-              sx={{ mt: theme => `${theme.spacing(6)} !important`, mb: theme => `${theme.spacing(1.5)} !important` }}
-            />
-            <CalcWrapper>
-              <Typography variant='body2'>Total:</Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary', lineHeight: '.25px' }}>
-                $1690
-              </Typography>
-            </CalcWrapper>
+              <TextField
+                size='small'
+             defaultValue="120DT"
+                sx={{ maxWidth: '150px', '& .MuiInputBase-input': { color: 'text.secondary' } }}
+              />
           </Grid>
         </Grid>
       </CardContent>
@@ -542,7 +472,55 @@ const AddCard = (props: Props) => {
           defaultValue='It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance projects. Thank You!'
         />
       </CardContent>
+      
     </Card>
+
+</Grid>
+
+<Grid item xl={3} md={4} xs={12}>
+<Card>
+      <CardContent>
+        <Button
+          fullWidth
+          sx={{ mb: 3.5 }}
+          variant='contained'
+       
+          startIcon={<Icon icon='mdi:send-outline' />}
+        >
+          Send Invoice
+        </Button>
+        <Button fullWidth sx={{ mb: 3.5 }} color='secondary' variant='outlined'>
+          Download
+        </Button>
+        <Button
+          fullWidth
+          target='_blank'
+          sx={{ mb: 3.5 }}
+          component={Link}
+          color='secondary'
+          variant='outlined'
+          href='#'
+        >
+          Print
+        </Button>
+        <Button
+          fullWidth
+          sx={{ mb: 3.5 }}
+          component={Link}
+          color='secondary'
+          variant='outlined'
+ href='#'
+        >
+          Edit Invoice
+        </Button>
+       
+      </CardContent>
+    </Card></Grid>
+
+
+</Grid>
+
+    </>
   )
 }
 

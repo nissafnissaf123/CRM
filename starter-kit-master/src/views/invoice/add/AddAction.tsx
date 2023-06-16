@@ -35,9 +35,7 @@ const AddActions = () => {
             <Button fullWidth component={Link} sx={{ mb: 3.5 }} variant='outlined' href='/admin/invoice/preview'>
               Preview
             </Button>
-            <Button fullWidth variant='outlined' sx={{ mb: 3.5 }}>
-              Save
-            </Button>
+           
           </CardContent>
         </Card>
       </Grid>
@@ -58,33 +56,9 @@ const AddActions = () => {
             <MenuItem value='UPI Transfer'>UPI Transfer</MenuItem>
           </Select>
         </FormControl>
-        <OptionsWrapper sx={{ mb: 1 }}>
-          <InputLabel
-            htmlFor='invoice-add-payment-terms'
-            sx={{ cursor: 'pointer', fontSize: '0.875rem', color: 'text.secondary' }}
-          >
-            Payment Terms
-          </InputLabel>
-          <Switch defaultChecked id='invoice-add-payment-terms' />
-        </OptionsWrapper>
-        <OptionsWrapper sx={{ mb: 1 }}>
-          <InputLabel
-            htmlFor='invoice-add-client-notes'
-            sx={{ cursor: 'pointer', fontSize: '0.875rem', color: 'text.secondary' }}
-          >
-            Client Notes
-          </InputLabel>
-          <Switch id='invoice-add-client-notes' />
-        </OptionsWrapper>
-        <OptionsWrapper>
-          <InputLabel
-            htmlFor='invoice-add-payment-stub'
-            sx={{ cursor: 'pointer', fontSize: '0.875rem', color: 'text.secondary' }}
-          >
-            Payment Stub
-          </InputLabel>
-          <Switch id='invoice-add-payment-stub' />
-        </OptionsWrapper>
+        
+       
+       
       </Grid>
     </Grid>
   )
