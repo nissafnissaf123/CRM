@@ -70,8 +70,45 @@ const RolesCards = () => {
   const [dialogTitle, setDialogTitle] = useState<'Add' | 'Edit'>('Add')
   const [selectedCheckbox, setSelectedCheckbox] = useState<string[]>([])
   const [isIndeterminateCheckbox, setIsIndeterminateCheckbox] = useState<boolean>(false)
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [editDepartment, setEditDepartment] = useState<{ name: string, id: string }>({ name: '', id: '' });
 
   const handleClickOpen = () => setOpen(true)
+//Edit
+  const handleOpenEdit = (department: { name: string, id: string }) => {
+    setEditDepartment(department);
+    setOpenEdit(true);
+  };
+
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+    setEditDepartment({ name: '', id: '' });
+  };
+
+  const handleEditSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+  
+    const { name, id } = editDepartment;
+    if (name && id) {
+      fetch(`http://localhost:4001/department/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name }),
+      })
+        .then((res) => res.json())
+        .then(() => {
+          handleCloseEdit();
+          toast.success('Department updated successfully');
+          fetchDepartments();
+        });
+    } else {
+      alert('Invalid input');
+    }
+  };
+
+  //add
 
   const handleClose = () => {
     setOpen(false)
@@ -167,7 +204,9 @@ const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
 
 
 const renderCards = () =>
+
 departments.map((department) => (
+  <>
   <Grid item xs={12} sm={6} lg={4} key={department.id}>
     <Card>
       <CardContent>
@@ -188,9 +227,9 @@ departments.map((department) => (
               component={Link}
               sx={{ color: 'primary.main', textDecoration: 'none' }}
               onClick={(e) => {
+              
                 e.preventDefault();
-                handleClickOpen();
-                setDialogTitle('Edit');
+                handleOpenEdit(department);
               }}
             >
               Edit Department
@@ -199,7 +238,66 @@ departments.map((department) => (
         </Box>
       </CardContent>
     </Card>
+
+    
   </Grid>
+
+  <Dialog fullWidth maxWidth='sm' scroll='body' open={openEdit} onClose={handleCloseEdit}>
+      <form onSubmit={handleSubmit}>
+        <DialogTitle
+          sx={{
+            textAlign: 'center',
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+          }}
+        >
+          <Typography variant='h5' component='span'>
+            Edit Department
+          </Typography>
+          <Typography variant='body2'></Typography>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            pb: theme => `${theme.spacing(5)} !important`,
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
+          }}
+        >
+          <Box sx={{ my: 2 }}>
+            
+            <FormControl fullWidth>
+              <TextField 
+              label='Department Name'
+              name="name"
+               placeholder='Enter Department Name'
+               value={department.name}
+               onChange={handleChange} 
+               />
+            </FormControl>
+          </Box>
+          
+         
+        </DialogContent>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+          }}
+        >
+          <Box className='demo-space-x'>
+            <Button size='large' type='submit' variant='contained' >
+              Submit
+            </Button>
+            <Button size='large' color='secondary' variant='outlined' onClick={handleCloseEdit}>
+              Cancel
+            </Button>
+          </Box>
+        </DialogActions>
+        </form>
+      </Dialog>
+  </>
+  
 ));
 
   return (
@@ -293,6 +391,8 @@ departments.map((department) => (
         </DialogActions>
         </form>
       </Dialog>
+
+      
     </Grid>
   )
 }

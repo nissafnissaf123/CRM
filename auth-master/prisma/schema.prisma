@@ -53,6 +53,7 @@ model Project {
   status      EnumProjectStatus?
   tasks       Task[]
   tickets     Ticket[]
+  invoices    Invoice[]
   updatedAt   DateTime           @updatedAt
 }
 
@@ -108,13 +109,23 @@ model Invoice {
   client            Client?   @relation(fields: [clientId], references: [userId])
   clientId          String?
   createdAt         DateTime  @default(now())
-  date              DateTime?
+  endDate           DateTime?
+  issueDate         DateTime?
   id                String    @id @default(cuid())
   reference         String?
   totalIncludingVat String?
-  totalWithoutVat   String?
+  total             String?
+  status            String?
+  cost              String?
+  jour              String?
+  price             String?
+  description       String?
+  Salesperson       String?
+  invoice           String?
   updatedAt         DateTime  @updatedAt
   vatAmount         String?
+  project           Project?            @relation(fields: [projectId], references: [id])
+  projectId         String?
 }
 
 model Client {

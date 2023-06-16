@@ -238,7 +238,7 @@ const LoginV1 = () => {
               <Typography
                 variant='body2'
                 component={Link}
-                href='/pages/auth/forgot-password-v1'
+                href='/forget2'
                 sx={{ color: 'primary.main', textDecoration: 'none' }}
               >
                 Forgot Password?
@@ -260,5 +260,7 @@ const LoginV1 = () => {
 }
 
 LoginV1.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+
+LoginV1.guestGuard = true
 
 export default LoginV1

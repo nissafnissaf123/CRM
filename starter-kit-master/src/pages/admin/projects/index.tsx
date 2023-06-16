@@ -627,7 +627,7 @@ const ProjectListTable = ({ id }: Props) => {
   //Get projects 
 
   const [projects, setProjects] = useState([]);
-
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchProjects();
@@ -642,6 +642,14 @@ const ProjectListTable = ({ id }: Props) => {
       console.error('Error fetching projects:', error);
     }
   };
+
+  const handleSearchTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredProjects = projects.filter((project) =>
+  project.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const handleChangeFramework = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFramework(event.target.value)
@@ -784,7 +792,8 @@ const ProjectListTable = ({ id }: Props) => {
       
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         
-          <TextField sx={{ mr: 6, mb: 2 }} size='small' placeholder='Search Project' value={value} onChange={e => setValue(e.target.value)} />
+          <TextField sx={{ mr: 6, mb: 2 }} size='small' placeholder='Search Project' value={searchTerm}
+              onChange={handleSearchTermChange}  />
           <Button sx={{ mb: 2 }}  variant='contained' onClick={() => setShow(true)}>
           Add Project
         </Button>
@@ -793,7 +802,7 @@ const ProjectListTable = ({ id }: Props) => {
       </CardContent>
       <DataGrid
         autoHeight
-        rows={projects}
+        rows={filteredProjects}
         columns={columns}
         disableRowSelectionOnClick
         pageSizeOptions={[7, 10, 25, 50]}

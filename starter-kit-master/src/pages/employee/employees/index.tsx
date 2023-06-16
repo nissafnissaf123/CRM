@@ -61,12 +61,7 @@ const Connections = () => {
       
       <PageHeader
         title={<Typography variant='h5'>Employees List</Typography>}
-        subtitle={
-          <Typography variant='body2'>
-            A role provided access to predefined menus and features so that depending on assigned role an administrator
-            can have access to what he need
-          </Typography>
-        }
+        
       />
             {employees.map((employee) => (
         <Grid item xs={12} sm={6} md={4} key={employee.id}>

@@ -165,9 +165,9 @@ const defaultColumns: GridColDef[] = [
     }
   },
   {
-    flex: 0.25,
+    flex: 0.12,
     field: 'project',
-    minWidth: 300,
+    minWidth: 250,
     headerName: 'Project',
     renderCell: ({ row }: CellType) => {
       const { name, companyEmail, project, category } = row;
@@ -191,40 +191,36 @@ const defaultColumns: GridColDef[] = [
       )
     }
   },
+ 
   {
-    flex: 0.25,
-    field: 'name',
-    minWidth: 300,
-    headerName: 'Customer',
-    renderCell: ({ row }: CellType) => {
-      const { name, email, client, user, project } = row;
-
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {renderClient(row)}
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              noWrap
-              variant='body2'
-              sx={{ color: 'text.primary', fontWeight: 500, lineHeight: '22px', letterSpacing: '.1px' }}
-            >
-              {project.client?.fullname}
-            </Typography>
-            <Typography noWrap variant='caption'>
-            {project.client?.user?.email}
-            </Typography>
-          </Box>
-        </Box>
-      )
-    }
-  },
-  {
-    flex: 0.1,
+    flex: 0.15,
     minWidth: 90,
     field: 'total',
     headerName: 'Total',
     renderCell: ({ row }: CellType) => <Typography variant='body2'>{`$${row.total || 0}`}</Typography>
   },
+  {
+    flex: 0.15,
+    minWidth: 125,
+    field: 'issueDate',
+    headerName: 'Issue Date',
+    renderCell: ({ row }: CellType) => {
+
+    
+      
+      const date = new Date(row.issueDate);
+      const day = date.getDate().toString().padStart(2, '0'); // Get the day and pad with leading zeros if necessary
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get the month (+1 because it's zero-based) and pad with leading zeros if necessary
+      const year = date.getFullYear(); // Get the year
+  
+      const dateString = `${day}-${month}-${year}`;
+  
+      return (
+        <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+         {dateString}
+        </Typography>
+      );
+    }  },
   {
     flex: 0.15,
     minWidth: 125,
@@ -277,6 +273,12 @@ const InvoiceList = () => {
   // ** Hooks
  
 
+  
+
+  const handleFilter = (val: string) => {
+    setValue(val)
+  }
+
   const handleStatusValue = (e: SelectChangeEvent) => {
     setStatusValue(e.target.value)
   }
@@ -300,310 +302,11 @@ const InvoiceList = () => {
       headerName: 'Actions',
       renderCell: ({ row }: CellType) =>{
 
-        //Get invoice by id 
-        
-   useEffect(() => {
-    const fetchInvoiceById = async () => {
-
-      try {
-        const response = await fetch(`http://localhost:4001/invoice/${row.id}`);
-        const data = await response.json();
-        setInvoice(data.invoice);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchInvoiceById();
-  }, [row.id]);
-
-        const [showDialog, setShowDialog] = useState<boolean>(false);
-
-       //Edit invoice 
-
-       const [price, setPrice] = useState("");
-       const [cost, setCost] = useState("");
-       const [project, setProject] = useState("");
-       const [projectId, setProjectId] = useState('');
-       const [endDate, setEndDate] = useState("");
-       const [issueDate, setIssueDate] = useState("");
-       const [total, setTotal] = useState("");
-       const [status, setStatus] = useState("");
-       const [jour, setJour] = useState("");
-
-       const [invoice, setInvoice] = useState
-       ({
-         id: "",
-         cost:"",
-         project: {
-          id:"",
-          name: "",
-          category: "",
-          client: {
-            userId: "",
-            companyName: "",
-            fullname:"",
-            adresse:"",
-            phone:"",
-            user: {
-              id: "",
-              username: "",
-              email:""
-              }
-            }
-          },
-         price:"",
-         jour:"", 
-         total:"",
-        endDate:"",
-        issueDate:"",
-        status:"",
-        
-        });
-
-       const handleEdit = useCallback(() => {
-        setShowDialog(true);
-        setCost(invoice.cost);
-        setPrice(invoice.price);
-        setStatus(invoice.status);
-        setJour(invoice.jour);
-        setTotal(invoice.total);
-      setEndDate(invoice.endDate)
-      setIssueDate(invoice.issueDate)
-        setProject(invoice.project?.name)
-        setProjectId(invoice.project?.id); 
-      }, [setShowDialog, invoice]);
-
-      
-
-      //Update invoice 
-
-      const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-  
-        const formattedEndDate = new Date(endDate).toISOString();
-        const formattedIssueDate = new Date(issueDate).toISOString();
-
-        try {
-          const response = await fetch(`http://localhost:4001/invoice/${row.id}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              status: status,
-              projectId: projectId,
-              total:total,
-              cost: cost,
-              jour: jour,
-              price: price,
-              endDate: formattedEndDate,
-              issueDate: formattedIssueDate
-  
-  
-  
-            }),
-          });
-          const data = await response.json();
-          console.log(data.invoice);
-         
-  
-  
-          // Alert si la modification a réussi
-          if (response.ok) {
-            setShowDialog(false); // Close the dialog
-            toast.success('Invoice updated successfully');
-          } else {
-            toast.error('An error occurred');
-          }
-  
-        } catch (error) {
-          console.log(error);
-          // Alert en cas d'erreur
-         toast.error("Une erreur s'est produite. Veuillez réessayer plus tard.");
-        }
-      };
-
-        //Get projects
-        const [projects, setProjects] = useState([]);
-
-const fetchProjects = () => {
-  fetch("http://localhost:4001/project")
-    .then(response => response.json())
-    .then(data => {
-      setProjects(data.projects);
-
-    })
-    .catch(error => {
-      console.error(error);
-    });
-}
-
-useEffect(() => {
-  fetchProjects()
-}, []);
-         
-
         return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          
-         
-          <OptionsMenu
-            iconProps={{ fontSize: 20 }}
-            iconButtonProps={{ size: 'small' }}
-            menuProps={{ sx: { '& .MuiMenuItem-root svg': { mr: 2 } } }}
-            options={[
-              {
-                text: 'View',
-                href: `/admin/viewInvoice/${row.id}`,
-                icon: <Icon icon='mdi:eye-outline' fontSize={20} />
-              },
-              {
-                text: 'Edit',
-             
-                icon: <Icon icon='mdi:pencil-outline' onClick={handleEdit} fontSize={20} />
-              }
-              
-            ]}
-          />
-
-<Dialog
-        open={showDialog}
-        maxWidth='md'
-        scroll='body'
-        onClose={() => setShowDialog(false)}
-        TransitionComponent={Transition}
-        onBackdropClick={() => setShowDialog(false)}
-      ><form onSubmit={handleUpdate}>
-        <DialogContent
-          sx={{
-            position: 'relative',
-            pb: theme => `${theme.spacing(8)} !important`,
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <IconButton
-            size='small'
-            onClick={() => setShowDialog(false)}
-            sx={{ position: 'absolute', right: '1rem', top: '1rem' }}
-          >
-            <Icon icon='mdi:close' />
+            <IconButton href={`/acl/viewInvoice/${row.id}`}>
+            <Icon icon="mdi:eye-outline" />
           </IconButton>
-          <Box sx={{ mb: 8, textAlign: 'center' }}>
-            <Typography variant='h5' sx={{ mb: 3, lineHeight: '2rem' }}>
-              Edit  Invoice Information
-            </Typography>
-            <Typography variant='body2'></Typography>
-          </Box>
-
-          <Grid container spacing={6}>
-            <Grid item sm={6} xs={12}>
-              <TextField fullWidth  label='Customer' name="fullname" value={invoice.project?.client?.fullname}      placeholder='John' />
-            </Grid>
-            <Grid item sm={6} xs={12}>
-            <FormControl fullWidth>
-                <InputLabel id='project-select'>Select Project</InputLabel>
-                <Select
-                 inputProps={{ placeholder: 'Select Project' }} 
-                 fullWidth 
-                 labelId='project-select' 
-               value={projectId}
-                 name='employees'
-                 onChange={(e) => setProjectId(e.target.value)}
-                 label='Select Project'>
-
-{projects.map((dep) => ( 
-<MenuItem key={dep.id} value={dep.id}>
-<Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Typography>{dep.name}</Typography>
-  </Box>
-  </MenuItem> // Use dep.id as the value
-      ))}
-                </Select>
-              </FormControl>      </Grid>
-              <Grid item sm={4} xs={12}>
-              <TextField
-            type="date"
-            style={{width:"250px"}}
-            value={issueDate ? new Date(issueDate).toISOString().substr(0, 10) : ""}
-           onChange={(e) => setIssueDate(e.target.value)}
-          id="outlined-issueDtae"
-          label="IssueDate"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          />     </Grid>
-            <Grid item sm={4} xs={12}>
-            <TextField
-            type="date"
-            style={{width:"250px"}}
-          id="outlined-deadline"
-          value={endDate ? new Date(endDate).toISOString().substr(0, 10) : ""}
-          onChange={(e) => setEndDate(e.target.value)}
-          label="Deadline"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          />      </Grid>
-
-           
-            
-            <Grid item sm={4} xs={12}>
-              <FormControl fullWidth>
-                <InputLabel  id='status-select'>Select Status</InputLabel>
-                <Select
-  inputProps={{ placeholder: 'Select Status' }}
-  fullWidth
-  labelId='status-select'
-  label='Select Status'
-  onChange={(e) => setStatus(e.target.value)}
-  name='status'
- value={status}
->
-  <MenuItem value=''>select status</MenuItem>
-  <MenuItem value='paid'>Paid</MenuItem>
-</Select>
-              </FormControl>
-            </Grid>
-
-            <Grid item sm={3} xs={12}>
-            <TextField fullWidth  label='Cost' name="cost" value={cost} onChange={(e) => setCost(e.target.value)}  placeholder='24' />
-            </Grid>
-            <Grid item sm={3} xs={12}>
-            <TextField fullWidth  label='Days' name="days" value={jour} onChange={(e) => setJour(e.target.value)}  placeholder='24' />
-            </Grid> 
-            <Grid item sm={3} xs={12}>
-            <TextField fullWidth  label='Price' name="price" value={price} onChange={(e) => setPrice(e.target.value)}  placeholder='24' />
-            </Grid> 
-            <Grid item sm={3} xs={12}>
-            <TextField fullWidth  label='Total' name="total" value={total} onChange={(e) => setTotal(e.target.value)}  placeholder='0 DT' />
-            </Grid> 
-
-          
-
-          
-
-          </Grid>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            justifyContent: 'center',
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <Button variant='contained' sx={{ mr: 2 }} type='submit'  >
-            Submit
-          </Button>
-          <Button variant='outlined' color='secondary' onClick={() => setShowDialog(false)}>
-            Discard
-          </Button>
-        </DialogActions>
-       </form>
-      </Dialog>
-
-
-        </Box>
+       
     )
    }
     }
@@ -617,35 +320,31 @@ useEffect(() => {
    const [invoices, setInvoices] = useState("");
 
 
-   useEffect(() => {
-     fetchInvoices();
-   }, []);
- 
-   const fetchInvoices = async () => {
-    fetch("http://localhost:4001/invoice")
-    .then(response => response.json())
-    .then(data => {
-      setInvoices(data.invoice);
-      setFilteredInvoices(data.invoice);
-    })
-    .catch(error => {
-      console.error(error);
-    });
-   };
 
-   const [filteredInvoices, setFilteredInvoices] = useState([]);
+useEffect(() => {
+  fetchInvoices();
+}, []);
 
-   const handleFilter = (value: string) => {
-    // Filter the invoices list based on the input value
-    const filteredInvoices = invoices.filter((invoice: InvoiceType) => {
-      return invoice.project.client.fullname.toLowerCase().includes(value.toLowerCase());
-    });
+const fetchInvoices = async () => {
+    try {
+      const response = await fetch('http://localhost:4001/invoice');
+      if (response.ok) {
+        const data = await response.json();
   
-    // Update the state with the filtered invoices
-    setFilteredInvoices(filteredInvoices);
+        // Récupération de l'ID du client à partir du localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        const clientId = userData.id;
   
-    // Update the value of the search input field
-    setValue(value);
+        // Filtrage des factures pour ne récupérer que celles correspondant à l'ID du client
+        const clientInvoices = data.invoice.filter((invoice) => invoice.project.clientId === clientId);
+  
+        setInvoices(clientInvoices);
+      } else {
+        console.error('Error fetching invoices:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    }
   };
 
 
@@ -711,7 +410,7 @@ useEffect(() => {
             <DataGrid
               autoHeight
               pagination
-              rows={filteredInvoices}
+              rows={invoices}
               columns={columns}
             
               disableRowSelectionOnClick

@@ -6,8 +6,21 @@ const prisma = new PrismaClient();
 // get all facture
 router.get("/", async (req, res, next) => {
     try {
-        const invoice = await prisma.invoice.findMany({});
-
+        const invoice = await prisma.invoice.findMany({
+            include: {
+               
+                project: {
+                    include: {
+                        client: {
+                            include: {
+                              user: true,
+                            },
+                          },
+                    },
+                }
+            }
+        });
+       
         res.json({ invoice });
     } catch (error: any) {
         next(error.message);
@@ -21,6 +34,20 @@ router.get("/:id", async (req, res, next) => {
             where: {
                 id: String(req.params.id),
             },
+
+            include: {
+               
+                project: {
+                    include: {
+                        client: {
+                            include: {
+                              user: true,
+                            },
+                          },
+                    },
+                }
+            }
+            
         });
 
         res.json({ invoice });

@@ -76,9 +76,9 @@ router.post("/", async (req, res, next) => {
                                 <table style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; margin-top: 30px; margin: 0 auto;">
                                     <tr>
                                         <td>
-                                        <a href="https://yourcompany.com" style="text-decoration: none;">
-                                            <button style="background-color:  #009999; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;margin: 0 auto;">Reset Password </button>
-                                        </a> 
+                                        <a href="http://localhost:3000/login2/" style="text-decoration: none;">
+                                        <button style="background-color:  #009999; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;margin: 0 auto;"> Login Now </button>
+                                    </a>
                                         </td>
                                     </tr>
                                 </table>

@@ -449,10 +449,10 @@ return  (
                     <div>
                     <Typography sx={{ fontWeight: 500 }}>Facebook</Typography>
                     <Typography
-                          href='/'
-                          component={Link}
-                         
-                          sx={{ color: '.main', textDecoration: 'none' }}
+                            href='/'
+                            component={Link}
+                           
+                            sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
                           {employee.facebook}
                         </Typography>

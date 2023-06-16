@@ -80,7 +80,7 @@ router.post("/", async (req, res, next) => {
                                     <tr>
                                         <td>
                                         <a href="http://localhost:3000/login2/" style="text-decoration: none;">
-                                            <button style="background-color:  #009999; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;margin: 0 auto;">Reset Password </button>
+                                            <button style="background-color:  #009999; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;margin: 0 auto;"> Login Now </button>
                                         </a> 
                                         </td>
                                     </tr>

@@ -153,7 +153,9 @@ const LoginPage = () => {
           <LoginIllustrationWrapper>
             <LoginIllustration
               alt='login-illustration'
-              src={`/images/pages/${imageSource}-${theme.palette.mode}.png`}
+       
+              src={`/images/pages/auth-v2-register-illustration-light.png`}
+              
             />
           </LoginIllustrationWrapper>
           <FooterIllustrationsV2 />
@@ -168,6 +170,7 @@ const LoginPage = () => {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'background.paper'
+          
           }}
         >
           <BoxWrapper>
@@ -179,6 +182,7 @@ const LoginPage = () => {
                 position: 'absolute',
                 alignItems: 'center',
                 justifyContent: 'center'
+               
               }}
             >
               <svg style={{marginTop:"-20px"}} width={40} fill='none' height={50} viewBox='0 0 268 150' xmlns='http://www.w3.org/2000/svg'>
@@ -220,7 +224,7 @@ const LoginPage = () => {
                 {themeConfig.templateName}
               </Typography>
             </Box>
-            <Box sx={{ mb: 6 }} style={{marginTop:"-150px"}}>
+            <Box sx={{ mb: 6 }} style={{marginTop:"-50px"}}>
               <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
               <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
             </Box>
@@ -301,6 +305,7 @@ const LoginPage = () => {
               <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                 Login
               </Button>
+              
               
              
               

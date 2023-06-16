@@ -528,6 +528,16 @@ const TicketList = () => {
     fetchTickets();
   }, []);
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredTickets = tickets.filter((ticket) =>
+  ticket.client?.fullname.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
 
   return (
 
@@ -582,10 +592,19 @@ const TicketList = () => {
         </Grid>
         <Grid item xs={12}>
           <Card>
+          <CardContent>
+      
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+      
+        <TextField sx={{ mr: 6, mb: 2 }} size='small' placeholder='Search Customer' value={searchTerm}
+              onChange={handleSearchTermChange}  />
        
+       </Box>
+     
+    </CardContent>
           <DataGrid
             autoHeight
-            rows={tickets}
+            rows={filteredTickets}
             columns={columns}
 
             disableRowSelectionOnClick

@@ -1,13 +1,16 @@
 // ** Next Import
 import Link from 'next/link'
 
+import { useState } from 'react'
+
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Select from '@mui/material/Select'
-import { GridRowId } from '@mui/x-data-grid'
+import { GridBooleanCell, GridRowId } from '@mui/x-data-grid'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
+import  Grid from '@mui/material/Grid'
 
 interface TableHeaderProps {
   value: string
@@ -18,6 +21,12 @@ interface TableHeaderProps {
 const TableHeader = (props: TableHeaderProps) => {
   // ** Props
   const { value, selectedRows, handleFilter } = props
+  const [fullname, setFullname] = useState('')
+
+  const handleFullnameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFullname(event.target.value);
+    handleFilter(event.target.value);
+  };
 
   return (
     <Box
@@ -31,30 +40,22 @@ const TableHeader = (props: TableHeaderProps) => {
         justifyContent: 'space-between'
       }}
     >
-      <Select
-        size='small'
-        displayEmpty
-        defaultValue=''
+      <Grid
+        
         sx={{ mr: 4, mb: 2 }}
-        disabled={selectedRows && selectedRows.length === 0}
-        renderValue={selected => (selected.length === 0 ? 'Actions' : selected)}
+       
       >
-        <MenuItem disabled>Actions</MenuItem>
-        <MenuItem value='Delete'>Delete</MenuItem>
-        <MenuItem value='Edit'>Edit</MenuItem>
-        <MenuItem value='Send'>Send</MenuItem>
-      </Select>
+        
+      </Grid>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField
           size='small'
           value={value}
-          placeholder='Search Invoice'
+          placeholder='Search Customer'
           sx={{ mr: 4, mb: 2, maxWidth: '180px' }}
           onChange={e => handleFilter(e.target.value)}
         />
-        <Button sx={{ mb: 2 }} component={Link} variant='contained' href='/admin/invoice/add'>
-          Create Invoice
-        </Button>
+      
       </Box>
     </Box>
   )

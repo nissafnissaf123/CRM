@@ -31,7 +31,7 @@ const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
   [theme.breakpoints.up('sm')]: { width: 450 }
 }))
 
-const ForgotPassword = () => {
+const ForgotPassword2 = () => {
   // ** Hook
   const theme = useTheme()
 
@@ -121,7 +121,7 @@ const ForgotPassword = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Typography
                 component={Link}
-                href='/pages/login'
+                href='/pages/login2'
                 sx={{
                   display: 'flex',
                   '& svg': { mr: 1.5 },
@@ -131,8 +131,8 @@ const ForgotPassword = () => {
                   justifyContent: 'center'
                 }}
               >
-                <Icon icon='mdi:chevron-left' fontSize='2rem' />
-                <span>Back to login</span>
+              
+                
               </Typography>
             </Box>
           </form>
@@ -143,7 +143,7 @@ const ForgotPassword = () => {
   )
 }
 
-ForgotPassword.guestGuard = true
-ForgotPassword.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+ForgotPassword2.guestGuard = true
+ForgotPassword2.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
-export default ForgotPassword
+export default ForgotPassword2
