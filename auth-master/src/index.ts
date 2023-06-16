@@ -41,10 +41,6 @@ import createEmployee from './employee/createEmployee';
 import employeeDetails from './employee/detailEmployee';
 import updateEmployee from './employee/updateEmployee';
 
-import createTrainee from './trainee/createTrainee';
-import traineeDetails from './trainee/detailTrainee';
-import updateTrainee from './trainee/updateTrainee';
-
 const app = express();
 app.use(express.json());
 
@@ -78,7 +74,6 @@ app.use('/notification',  notificationDetails);
 app.use('/category', createCategory, categoryDetails);
 app.use('/ticket', createTicket, deleteTicket, ticketDetails, updateTicket);
 app.use('/employee', createEmployee, updateEmployee, employeeDetails);
-app.use('/trainee', createTrainee, traineeDetails, updateTrainee);
 app.use(errorHandler);
 
 async function testConnection() {

@@ -33,7 +33,6 @@ router.post("/", async (req, res, next) => {
                     fullname: req.body.fullname,
                     companyName:req.body.companyName,
                     avatar: req.body.avatar,
-                    phone:req.body.phone,
                     userId: user.id
                 },
         include:{

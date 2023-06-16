@@ -35,7 +35,7 @@ router.post("/", async (req, res, next) => {
                 data: {
                     avatar: req.body.avatar,
                     fullname: req.body.fullname,
-                    phone:req.body.phone,departmentId:req.body.departmentId,
+                    departmentId:req.body.departmentId,
                     userId: user.id
                 },
         include:{
