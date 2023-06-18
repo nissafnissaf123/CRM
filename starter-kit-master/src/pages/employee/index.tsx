@@ -102,7 +102,7 @@ const ACLPage = () => {
           </Typography>
           <Typography variant='body2'>
            
-       We are so happy to be a part of our company after using the code.
+       We are so happy to be a part of our company AfterCode.
        We hope you enjoy our services.🎉
              
           </Typography>
