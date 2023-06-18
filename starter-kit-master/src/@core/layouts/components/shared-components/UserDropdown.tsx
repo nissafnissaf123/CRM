@@ -104,6 +104,7 @@ const UserDropdown = (props: Props) => {
 
   const [avatar, setAvatar] = useState('')
   const [fullname, setFullname] = useState('')
+  const [email, setEmail] = useState('')
   const [departmentRole, setDepartmentRole] = useState('')
   const [companyName, setCompanyName] = useState('')
 
@@ -125,9 +126,18 @@ const UserDropdown = (props: Props) => {
   });
 
 
+  const [admin, setAdmin] = useState({
+    id: "",
+    fullname: "",
+    
+    user: { email: "", username: "" },
+   
+    avatar:""
+  });
+
 
   useEffect(() => {
-    const fetchEmployeeById = async () => {
+    const fetchUserData = async () => {
       try {
         const userData = JSON.parse(localStorage.getItem('userData'));
         console.log(userData);
@@ -137,19 +147,19 @@ const UserDropdown = (props: Props) => {
           console.log(clientId);
           const response = await fetch(`http://localhost:4001/client/${clientId}`);
           const data = await response.json();
-          
+  
           setClient(data.client);
           console.log(data.client);
-
+  
           // Extraire l'avatar du client si disponible
-  const clientAvatar = data.client.avatar;
-  setAvatar(clientAvatar);
-
-  const clientFullname = data.client.fullname;
-  setFullname(clientFullname);
-
-  const clientCompany = data.client.companyName;
-  setCompanyName(clientCompany);
+          const clientAvatar = data.client.avatar;
+          setAvatar(clientAvatar);
+  
+          const clientFullname = data.client.fullname;
+          setFullname(clientFullname);
+  
+          const clientCompany = data.client.companyName;
+          setCompanyName(clientCompany);
         } else if (userData.role === 'Employee') {
           const employeeId = userData.id;
           console.log(employeeId);
@@ -157,24 +167,45 @@ const UserDropdown = (props: Props) => {
           const data = await response.json();
           setEmployee(data.employee);
           console.log(data.employee);
+  
+          // Extraire l'avatar de l'employé si disponible
+          const employeeAvatar = data.employee.avatar;
+          setAvatar(employeeAvatar);
+          console.log(employeeAvatar);
+  
+          const employeeFullname = data.employee.fullname;
+          setFullname(employeeFullname);
+  
+          const employeeRole = data.employee.departmentRole;
+          setDepartmentRole(employeeRole);
+        } else if (userData.role === 'admin') {
+          // Logique spécifique pour l'administrateur
+          const adminId = userData.id;
+          console.log(adminId);
+          const response = await fetch(`http://localhost:4001/admin/${adminId}`);
+          const data = await response.json();
+          setAdmin(data.admin);
+          console.log(data.admin);
+  
+          // Extraire l'avatar de l'administrateur si disponible
+          const adminAvatar = data.admin.avatar;
+          setAvatar(adminAvatar);
+          console.log(adminAvatar);
+  
+          const adminFullname = data.admin.fullname;
+          setFullname(adminFullname);
 
-           // Extraire l'avatar de l'employé si disponible
-  const employeeAvatar = data.employee.avatar;
-  setAvatar(employeeAvatar);
-  console.log(employeeAvatar)
-
-  const employeeFullname = data.employee.fullname;
-  setFullname(employeeFullname);
-
-  const employeeRole= data.employee.departmentRole;
-  setDepartmentRole(employeeRole);
+          const adminEmail = data.admin.user?.email;
+          setEmail(adminEmail);
+  
+          // Ajoutez d'autres données spécifiques à l'administrateur si nécessaire
         }
       } catch (error) {
         console.log(error);
       }
     };
   
-    fetchEmployeeById();
+    fetchUserData();
   }, []);
 
   return (
@@ -220,35 +251,15 @@ const UserDropdown = (props: Props) => {
             <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography sx={{ fontWeight: 600 }}>{fullname}</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-            {departmentRole}{companyName}
+            {departmentRole}{companyName}{admin.user?.email}
               </Typography>
             </Box>
           </Box>
         </Box>
         <Divider sx={{ mt: '0 !important' }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='mdi:account-outline' />
-            Profile
-          </Box>
-        </MenuItem>
        
-       
-        <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='mdi:cog-outline' />
-            Settings
-          </Box>
-        </MenuItem>
         
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='mdi:help-circle-outline' />
-            FAQ
-          </Box>
-        </MenuItem>
-        <Divider />
+     
         <MenuItem
           onClick={handleLogout}
           sx={{ py: 2, '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' } }}

@@ -227,7 +227,7 @@ const columns: GridColDef[] = [
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
         {renderClient(row)}
         <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href='/apps/employees/view/overview/'>{row.employee?.fullname}</LinkStyled>
+            <LinkStyled href='#'>{row.employee?.fullname}</LinkStyled>
             <Typography noWrap variant='caption'>
             {row.employee?.user?.email}
             </Typography>
@@ -697,6 +697,17 @@ const TicketList = () => {
       }
     };
 
+    //filtrage 
+    const [ticketStatus, setTicketStatus] = useState<string>('');
+const [ticketEmergency, setTicketEmergency] = useState<string>('');
+const [searchTerm, setSearchTerm] = useState('');
+
+const filteredTickets = tickets.filter((ticket) =>
+  ticket.client?.fullname.toLowerCase().includes(searchTerm.toLowerCase()) &&
+(ticketStatus === '' || ticket.status === ticketStatus)&&
+(ticketEmergency === '' || ticket.emergencyLevel === ticketEmergency)
+);
+
 
 
 
@@ -718,12 +729,15 @@ const TicketList = () => {
 
                       sx={{ mr: 4, mb: 2 }}
                       label=' Ticket EmergencyLevel'
-
+                      value={ticketEmergency}
+                      onChange={(event) => setTicketEmergency(event.target.value as string)}
+                    
                       labelId='Ticket-EmergencyLevel-select'
                     >
-                      <MenuItem value=''>Hight</MenuItem>
-                      <MenuItem value='downloaded'>Meduim</MenuItem>
-                      <MenuItem value='draft'>Low</MenuItem>
+                      <MenuItem value=''>All</MenuItem>
+                      <MenuItem value='High'>High</MenuItem>
+                      <MenuItem value='Meduim'>Meduim</MenuItem>
+                      <MenuItem value='Low'>Low</MenuItem>
 
                     </Select>
                   </FormControl>
@@ -737,12 +751,15 @@ const TicketList = () => {
 
                       sx={{ mr: 4, mb: 2 }}
                       label='Invoice Status'
-
+                      value={ticketStatus}
+                      onChange={(event) => setTicketStatus(event.target.value as string)}
+                    
                       labelId='invoice-status-select'
                     >
-                      <MenuItem value=''>Resolved</MenuItem>
-                      <MenuItem value='downloaded'>Pending</MenuItem>
-                      <MenuItem value='draft'>Readonly</MenuItem>
+                      <MenuItem value=''>All</MenuItem>
+                      <MenuItem value='resolved'>Resolved</MenuItem>
+                      <MenuItem value='pending'>Pending</MenuItem>
+                      
                     </Select>
                   </FormControl>
                 </Grid>
@@ -765,7 +782,7 @@ const TicketList = () => {
     </CardContent>
           <DataGrid
             autoHeight
-            rows={tickets}
+            rows={filteredTickets}
             columns={columns}
 
             disableRowSelectionOnClick

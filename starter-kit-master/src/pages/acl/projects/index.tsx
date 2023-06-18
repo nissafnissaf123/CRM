@@ -1,6 +1,8 @@
 // ** React Imports
-import { useState, useEffect,  forwardRef, ReactElement, Ref } from 'react'
+import { useState, useEffect,  forwardRef, ReactElement, Ref, useCallback } from 'react'
 import { useRouter } from 'next/router';
+import { Select } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
 
 import toast from 'react-hot-toast'
 import Tooltip from '@mui/material/Tooltip';
@@ -125,7 +127,113 @@ const columns: GridColDef[] = [
     headerName: 'Project',
     
     renderCell: ({ row }: CellType) => {
+      const [showDialog, setShowDialog] = useState<boolean>(false);
+      const [name, setName] = useState("");
+      const [framework, setFramework] = useState("");
+      const [client, setClient] = useState("");
+      const [clientId, setClientId] = useState('');
+      const [endDate, setEndDate] = useState("");
+      const [description, setDescription] = useState("");
+      const [category, setCategory] = useState("");
       
+      const [project, setProject] = useState
+      ({
+        id: "",
+        name:"",
+        client: { fullname: "", userId:"" },
+        category:"",
+        framework:"", 
+        description:"",
+       endDate:"",
+       
+       
+       });
+    
+          useEffect(() => {
+            const fetchProjectById = async () => {
+              try {
+                const response = await fetch(`http://localhost:4001/project/${row.id}`);
+                const data = await response.json();
+                setProject(data.project);
+              } catch (error) {
+                console.log(error);
+              }
+            };
+            fetchProjectById();
+          }, [row.id]);
+
+ //Update project 
+ const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  e.preventDefault();
+
+  try {
+    const formattedEndDate = new Date(endDate).toISOString(); // Format the endDate
+    const response = await fetch(`http://localhost:4001/project/${row.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        
+        name: name,
+        category: category,
+      framework:framework,
+      description: description,
+      endDate: formattedEndDate, // Use the formatted endDate
+      clientId: clientId,
+      }),
+    });
+    
+    const data = await response.json();
+    console.log(data.project);
+
+    // Alert si la modification a réussi
+    if (response.ok) {
+      setShowDialog(false); // Close the dialog
+      toast.success('Ticket updated successfully');
+    } else {
+      toast.error('An error occurred');
+    }
+    
+  } catch (error) {
+    console.log(error);
+    // Alert en cas d'erreur
+   toast.error("Une erreur s'est produite. Veuillez réessayer plus tard.");
+  }
+};
+
+const handleEdit = useCallback(() => {
+  setShowDialog(true);
+  setName(project.name);
+  setCategory(project.category);
+  setFramework(project.framework);
+setEndDate(project.endDate)
+  setDescription(project.description);
+  setClient(project.client?.fullname)
+  setClientId(project.client?.userId); 
+}, [setShowDialog, project]);
+
+
+
+// Get clients
+const [clients, setClients] = useState([]);
+
+const fetchClients = () => {
+  fetch("http://localhost:4001/client")
+    .then(response => response.json())
+    .then(data => {
+      setClients(data.client);
+
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
+
+useEffect(() => {
+  fetchClients()
+}, []);
+         
 
    return(
     <>
@@ -134,14 +242,127 @@ const columns: GridColDef[] = [
           <Img src={getIconSrc(row.framework)} alt="Project Icon" style={{ marginLeft: '10px' }} />
         )}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <LinkStyled href='' sx={{ fontWeight: 500, fontSize: '0.875rem' }} onClick={() => setShowDialog(true)}>{row.name}</LinkStyled >
+          <LinkStyled href='' sx={{ fontWeight: 500, fontSize: '0.875rem' }} onClick={handleEdit}>{row.name}</LinkStyled >
           <Typography variant='caption' sx={{ color: 'text.disabled' }}>
            {row.framework}
           </Typography>
         </Box> 
       </Box>
 
+      <Dialog
+        open={showDialog}
+        maxWidth='md'
+        scroll='body'
+        onClose={() => setShowDialog(false)}
+        TransitionComponent={Transition}
+        onBackdropClick={() => setShowDialog(false)}
+      ><form onSubmit={handleUpdate}>
+        <DialogContent
+          sx={{
+            position: 'relative',
+            pb: theme => `${theme.spacing(8)} !important`,
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+          }}
+        >
+<IconButton
+            size='small'
+            onClick={() => setShowDialog(false)}
+            sx={{ position: 'absolute', right: '1rem', top: '1rem' }}
+          >
+            <Icon icon='mdi:close' />
+          </IconButton>
+          <Box sx={{ mb: 8, textAlign: 'center' }}>
+            <Typography variant='h5' sx={{ mb: 3, lineHeight: '2rem' }}>
+              View  Project Information
+            </Typography>
+            <Typography variant='body2'></Typography>
+          </Box>
+          
+          <Grid container spacing={6}>
+            <Grid item sm={6} xs={12}>
+              <TextField fullWidth   label='Project Name' name="name" value={name}  onChange={(e) => setName(e.target.value)}
+     placeholder='John' />
+            </Grid>
+            <Grid item sm={6} xs={12}>
+             <FormControl fullWidth>
+                <InputLabel id='status-select'>Select Customer</InputLabel>
+                <Select
+                 inputProps={{ placeholder: 'Select Customer' }} 
+                 fullWidth 
+                 labelId='customer-select' 
+                 value={clientId}
+                 name='employees'
+              
+                 label='Select Customer'>
+
+{clients.map((dep) => ( 
+<MenuItem key={dep.id} value={dep.userId}>
+<Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <CustomAvatar src={dep.avatar} sx={{ marginRight: '0.5rem', width: '20px', height: '20px' }} />
+    <Typography>{dep.fullname}</Typography>
+  </Box>
+  </MenuItem> // Use dep.id as the value
+      ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+
+            <Grid item sm={4} xs={12}>
+            <TextField
+            type="date"
+            style={{width:"250px"}}
+            value={endDate ? new Date(endDate).toISOString().substr(0, 10) : ""}
+
+ id="outlined-deadline"
+          label="Deadline"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          /> 
+
+         </Grid>
+         <Grid item sm={4} xs={12}>
+         <TextField fullWidth  label='Category' name="name" value={category} 
+         ></TextField></Grid>
+         <Grid item sm={4} xs={12}>
+         <TextField fullWidth  label='Framework' name="name" value={framework} 
+
+    placeholder='johnDoe' />
+          </Grid>
+           
+            
+            <Grid item  xs={12}>
+            <TextField
+        fullWidth
+        sx={{ mb: 4 }}
+        label='Description'
+        multiline
+        rows={4}
+        value={description}
       
+        
+      />
+            </Grid>
+          
+           
+          </Grid>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: 'center',
+            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+          }}
+        >
+      
+          <Button variant='outlined' color='secondary' onClick={() => setShowDialog(false)}>
+            Discard
+          </Button>
+        </DialogActions>
+        </form>
+        </Dialog>
     </>
     )}
   },

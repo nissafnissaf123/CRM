@@ -502,9 +502,7 @@ const TicketList = () => {
     setPlan(e.target.value)
   }, [])
 
-  const handleStatusChange = useCallback((e: SelectChangeEvent) => {
-    setStatus(e.target.value)
-  }, [])
+  
 
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
@@ -534,9 +532,22 @@ const TicketList = () => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredTickets = tickets.filter((ticket) =>
-  ticket.client?.fullname.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const [emergencyLevel, setEmergencyLevel] = useState<string>('');
+
+  
+
+
+const [ticketStatus, setTicketStatus] = useState<string>('');
+const [ticketEmergency, setTicketEmergency] = useState<string>('');
+
+const filteredTickets = tickets.filter((ticket) =>
+  ticket.client?.fullname.toLowerCase().includes(searchTerm.toLowerCase()) &&
+(ticketStatus === '' || ticket.status === ticketStatus)&&
+(ticketEmergency === '' || ticket.emergencyLevel === ticketEmergency)
 );
+
+
 
 
   return (
@@ -557,12 +568,15 @@ const TicketList = () => {
 
                       sx={{ mr: 4, mb: 2 }}
                       label=' Ticket EmergencyLevel'
-
+                      value={ticketEmergency}
+                      onChange={(event) => setTicketEmergency(event.target.value as string)}
+                    
                       labelId='Ticket-EmergencyLevel-select'
                     >
-                      <MenuItem value=''>Hight</MenuItem>
-                      <MenuItem value='downloaded'>Meduim</MenuItem>
-                      <MenuItem value='draft'>Low</MenuItem>
+                      <MenuItem value=''>All</MenuItem>
+                      <MenuItem value='High'>High</MenuItem>
+                      <MenuItem value='Meduim'>Meduim</MenuItem>
+                      <MenuItem value='Low'>Low</MenuItem>
 
                     </Select>
                   </FormControl>
@@ -576,12 +590,15 @@ const TicketList = () => {
 
                       sx={{ mr: 4, mb: 2 }}
                       label='Invoice Status'
-
+                      value={ticketStatus}
+                      onChange={(event) => setTicketStatus(event.target.value as string)}
+                    
                       labelId='invoice-status-select'
                     >
-                      <MenuItem value=''>Resolved</MenuItem>
-                      <MenuItem value='downloaded'>Pending</MenuItem>
-                      <MenuItem value='draft'>Readonly</MenuItem>
+                      <MenuItem value=''>All</MenuItem>
+                      <MenuItem value='resolved'>Resolved</MenuItem>
+                      <MenuItem value='pending'>Pending</MenuItem>
+                      
                     </Select>
                   </FormControl>
                 </Grid>
