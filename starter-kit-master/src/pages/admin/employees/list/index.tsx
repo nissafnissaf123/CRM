@@ -457,7 +457,7 @@ const RowOptions = ({ userId }: Props) => {
       renderCell: ({ row }: CellType) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.phone}
+            {row.user?.phone}
           </Typography>
         )
       }
@@ -583,21 +583,38 @@ const ListEmployee = () => {
     e.preventDefault();
   
     const { email, fullname, phone } = employee;
-    if (email && fullname && phone && department) {
+  
+    // Extract only the digits from the phone number
+    const formattedPhone = phone.replace(/\D/g, '');
+
+    // Validate the phone number length
+    if (formattedPhone.length !== 11) {
+      handleClose();
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+  
+     // Construct the formatted phone number with the country code
+     const formattedPhoneNumber = `+${formattedPhone}`;
+  
+    if (email && fullname && formattedPhoneNumber && department) {
       const newEmployee = { ...employee, departmentId: department };
       fetch("http://localhost:4001/employee", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newEmployee),
+        body: JSON.stringify({
+          ...newEmployee,
+          phone: formattedPhoneNumber,
+        }),
       })
         .then((res) => res.json())
         .then(() => {
           handleClose();
           toast.success('Employee added successfully');
-            // Fetch the updated employee list
-        fetchEmployees();
+          // Fetch the updated employee list
+          fetchEmployees();
         })
         .catch((error) => {
           handleClose();

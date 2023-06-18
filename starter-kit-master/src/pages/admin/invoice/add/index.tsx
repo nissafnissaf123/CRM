@@ -269,6 +269,46 @@ const AddCard = (props: Props) => {
     router.push('/admin/invoice'); // Remplacez '/link-to-list' par le lien vers la liste souhaitée
   };
 
+
+  //Get admin 
+const [admin, setAdmin] = useState({
+  id: "",
+  fullname: "",
+
+  user: { email: "", username: "", phone:"" },
+  
+  adresse:"",
+  facebook:"",
+  instagram:"",
+  whatsapp:"", 
+  createdAt:"",
+  avatar:"",
+  linkedin:""
+});
+
+useEffect(() => {
+  const fetchAdminById = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      console.log(userData)
+      const adminId = userData.id;
+      console.log(adminId)
+      
+     // Retrieve the employee data from local storage or from an API
+    const response = await fetch(`http://localhost:4001/admin/${adminId}`);
+    const data = await response.json();
+
+    // Set the employee state with the retrieved data
+    setAdmin(data.admin);
+    console.log(data.admin);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  fetchAdminById();
+}, []);
+
   return (
     <>
 
@@ -322,12 +362,10 @@ const AddCard = (props: Props) => {
               </Box>
               <div>
                 <Typography variant='body2' sx={{ mb: 1 }}>
-                  Office 149, 450 South Brand Brooklyn
+                 {admin.adresse}
                 </Typography>
-                <Typography variant='body2' sx={{ mb: 1 }}>
-                  San Diego County, CA 91905, USA
-                </Typography>
-                <Typography variant='body2'>+1 (123) 456 7891, +44 (876) 543 2198</Typography>
+               
+                <Typography variant='body2'>{admin.user?.phone}</Typography>
               </div>
             </Box>
           </Grid>
@@ -501,7 +539,7 @@ const AddCard = (props: Props) => {
               >
                 Salesperson:
               </Typography>
-              <Typography variant='body2'>Tommy Shelby</Typography>
+              <Typography variant='body2'>{admin.fullname}</Typography>
             </Box>
             <Typography variant='body2' >Thanks for your business</Typography>
           </Grid>

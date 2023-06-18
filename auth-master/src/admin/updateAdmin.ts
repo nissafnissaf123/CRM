@@ -35,41 +35,48 @@ format: async (file: { mimetype: string; }) => {
   }
 });
     const upload = multer({ storage: storage });
-router.patch("/",upload.single('avatar'), async (req, res, next) => {
-  try {
-      const admin = await prisma.admin.findFirst();
-      const adminId = admin?.userId;
-      const { email, username, password, endpoint,phone } = req.body;
-
-    const updatedUser = await prisma.user.update({
-      where: { id: adminId },
-      data: { email, username ,password,phone},
-    });
-    let avatarPath = null;
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { userId: adminId },
-    });
-
+    router.patch("/:id", upload.single('avatar'), async (req, res, next) => {
+      try {
+        const { id } = req.params;
+        const { email, username, password, phone, 
+          fullname,  adresse, facebook, instagram,
+          linkedin,  createdAt } = req.body;
     
-    if (existingAdmin && req.file) {
-      // New avatar is uploaded
-      avatarPath = req.file.path;
-    } else if (existingAdmin) {
-      avatarPath = existingAdmin.avatar;
-    }
-    const updatedAdmin = await prisma.admin.update({
-      where: { userId: adminId },
-      data: {avatar:avatarPath,endpoint },
+        const updatedUser = await prisma.user.update({
+          where: { id: id },
+          data: { email, username, password,phone },
+        });
+    
+        let avatarPath = null;
+        const existingAdmin = await prisma.admin.findUnique({
+          where: { userId: id },
+        });
+    
+        if (existingAdmin && req.file) {
+          // New avatar is uploaded
+          avatarPath = req.file.path;
+        } else if (existingAdmin) {
+          avatarPath = existingAdmin.avatar;
+        }
+    
+        const updatedAdmin = await prisma.admin.update({
+          where: { userId: id },
+          data: {
+            avatar: avatarPath, fullname,
+             createdAt, adresse,
+            facebook,instagram,linkedin
+          },
+         
+        });
+    
+        console.log(updatedUser);
+        console.log(updatedAdmin);
+    
+        res.json({ employee: updatedAdmin });
+      } catch (error: any) {
+      console.error('Error updating employee:', error);
+        const updatedError = new error('Something went wrong while updating the employee!');
+        next(updatedError);
+      }
     });
-
-    console.log(updatedUser);
-    console.log(updatedAdmin);
-
-    res.json({ admin: updatedAdmin });
-  } catch (error: any) {
-    console.error('Error updating Manager:', error);
-    next(new Error('Something went wrong while updating the Manager!'));
-  }
-});
-
 export default router;

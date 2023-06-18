@@ -114,8 +114,8 @@ const UserProfileHeader = ({ id }: Props) => {
         const [admin, setAdmin] = useState({
           id: "",
           fullname: "",
-          phone: "",
-          user: { email: "", username: "" },
+       
+          user: { email: "", username: "", phone:"" },
           
           adresse:"",
           facebook:"",
@@ -215,7 +215,7 @@ return  (
             >
               <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
               <Icon icon='mdi:home-outline' />
-                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}></Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 600 }}>Manager</Typography>
               </Box>
               <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1, color: 'text.secondary' } }}>
                 <Icon icon='mdi:map-marker-outline' />
@@ -312,7 +312,7 @@ return  (
             Phone :
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-             {admin.phone}
+             +{admin.user?.phone}
             </Typography>
           </Box>
 
@@ -404,7 +404,7 @@ return  (
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                        
+                          {admin.facebook}
                         </Typography>
                         
                      
@@ -440,7 +440,7 @@ return  (
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                          
+                            {admin.instagram}
                         </Typography>
                         
                      
@@ -476,7 +476,7 @@ return  (
                          
                           sx={{ color: 'primary.main', textDecoration: 'none' }}
                         >
-                         
+                           {admin.linkedin}
                         </Typography>
                         
                      

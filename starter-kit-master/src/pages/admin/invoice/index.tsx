@@ -441,6 +441,8 @@ const fetchProjects = () => {
 useEffect(() => {
   fetchProjects()
 }, []);
+
+
          
 
         return (
@@ -638,7 +640,7 @@ useEffect(() => {
    const handleFilter = (value: string) => {
     // Filter the invoices list based on the input value
     const filteredInvoices = invoices.filter((invoice: InvoiceType) => {
-      return invoice.project.client.fullname.toLowerCase().includes(value.toLowerCase());
+      return invoice.project.name.toLowerCase().includes(value.toLowerCase());
     });
   
     // Update the state with the filtered invoices

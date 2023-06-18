@@ -198,7 +198,10 @@ const TabAccount = ({ id }: Props) => {
   }
 
  
-
+  const isValidPhoneNumber = (phone) => {
+    const phoneRegex = /^\+216\d{8}$/; // Regex pour le format attendu "+216XXXXXXXX"
+    return phoneRegex.test(phone);
+  };
 
   //Get Employee: 
 
@@ -207,54 +210,47 @@ const TabAccount = ({ id }: Props) => {
   const [admin, setAdmin] = useState({
     id: "",
     fullname: "",
-    phone: "",
-    user: { email: "", username: "", password:"" },
-    
-    companyName:"",
-    adresse:"",
-    facebook:"",
-    instagram:"",
-    whatsapp:"",
-    
-    avatar:"",
-    password:""
+    user: { email: "", username: "", password: "", phone: "" },
+    adresse: "",
+    facebook: "",
+    instagram: "",
+   
+    linkedin: "",
+    avatar: "",
+    password: ""
   });
-
+  
   useEffect(() => {
     const fetchAdminById = async () => {
       try {
         const userData = JSON.parse(localStorage.getItem('userData'));
-        console.log(userData)
+        console.log(userData);
         const adminId = userData.id;
-        console.log(adminId)
-        
-       // Retrieve the employee data from local storage or from an API
-      const response = await fetch(`http://localhost:4001/admin/${adminId}`);
-      const data = await response.json();
-
-      // Set the employee state with the retrieved data
-      setAdmin(data.admin);
-      console.log(data.admin);
-      setAvatar(data.admin.avatar);
-
-   
- 
+        console.log(adminId);
+  
+        // Retrieve the admin data from the local storage or API
+        const response = await fetch(`http://localhost:4001/admin/${adminId}`);
+        const data = await response.json();
+  
+        // Set the admin state with the retrieved data
+        setAdmin(data.admin);
+        console.log(data.admin);
       } catch (error) {
         console.log(error);
       }
     };
-    
+  
     fetchAdminById();
   }, [id]);
 
   const handleUpdateAdmin = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
+
     try {
       const userData = JSON.parse(localStorage.getItem('userData'));
       const adminId = userData.id;
 
-     
-  
+    
       const response = await fetch(`http://localhost:4001/admin/${adminId}`, {
         method: 'PATCH',
         headers: {
@@ -279,8 +275,11 @@ const TabAccount = ({ id }: Props) => {
 
   const handleInputChange = (field: string, value: string) => {
     setAdmin((prevAdmin) => ({
-      ...prevAdmint,
-      [field]: value,
+      ...prevAdmin,
+      user: {
+        ...prevAdmin.user,
+        [field]: value,
+      },
     }));
   };
 
@@ -385,8 +384,9 @@ const TabAccount = ({ id }: Props) => {
                   <TextField
                     fullWidth
                     label='UserName'
-                    placeholder='Doe'
+                    placeholder='John'
                     value={admin.user?.username}
+                    onChange={(e) => handleInputChange('username', e.target.value)}
                     
                   />
                 </Grid>
@@ -400,15 +400,17 @@ const TabAccount = ({ id }: Props) => {
                     
                   />
                 </Grid>
+               
                 <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type='number'
-                    label='Phone Number'
-                    value={admin.phone}
-                    placeholder='202 555 0111'
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    />
+                <TextField
+  fullWidth
+  type='text'
+  label='Phone Number'
+  value={admin.user?.phone}
+  placeholder='+216 22 555 011'
+  
+  onChange={(e) => handleInputChange('phone', e.target.value)}
+/>
                 </Grid>
                
                 

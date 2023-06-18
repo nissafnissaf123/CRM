@@ -954,16 +954,19 @@ const ProjectListTable = ({ id }: Props) => {
       <Grid item xs={4}>
         <FormControl fullWidth sx={{ mb: 4 }}>
          
-          <TextField
-            type="date"
-            id="outlined-deadline"
-            value={endDate ? new Date(endDate).toISOString().substr(0, 10) : ''}
-            onChange={(e) => setEndDate(e.target.value)}
-          label="Deadline"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          />
+        <TextField
+  type="date"
+  id="outlined-deadline"
+  value={endDate ? new Date(endDate).toISOString().substr(0, 10) : ''}
+  onChange={(e) => setEndDate(e.target.value)}
+  label="Deadline"
+  InputLabelProps={{
+    shrink: true,
+  }}
+  inputProps={{
+    min: new Date().toISOString().split('T')[0], // Set the minimum date to the current date
+  }}
+/>
         </FormControl>
       </Grid>
     </Grid>

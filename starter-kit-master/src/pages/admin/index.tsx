@@ -1,7 +1,7 @@
 
 
 // ** React Imports
-import { ReactElement } from 'react'
+import { ReactElement, useState, useEffect } from 'react'
 
 // ** Context Imports
 import { AbilityContext } from 'src/layouts/components/acl/Can'
@@ -137,6 +137,116 @@ const ACLPage = () => {
 
    //get projects 
 
+   const [projectStats, setProjectStats] = useState([]);
+   useEffect(() => {
+    const fetchProjectStats = async () => {
+      try {
+        const response = await fetch('http://localhost:4001/project/project');
+        const data = await response.json();
+        setProjectStats(data);
+      } catch (error) {
+        console.error('Error retrieving project statistics:', error);
+      }
+    };
+  
+    fetchProjectStats();
+  }, []);
+  
+  useEffect(() => {
+    console.log('projectStats:', projectStats);
+  }, [projectStats]);
+
+  //Get employees
+
+  const [employeeCount, setEmployeeCount] = useState(0);
+
+  useEffect(() => {
+    const fetchEmployeeCount = async () => {
+      try {
+        const response = await fetch('http://localhost:4001/employee/count'); // Assuming the endpoint is relative to the current domain
+        const data = await response.json();
+        setEmployeeCount(data.employeeCount);
+      } catch (error) {
+        console.error('Error retrieving employee count:', error);
+      }
+    };
+
+    fetchEmployeeCount();
+  }, []);
+
+  //get client
+
+  const [clientCount, setClientCount] = useState(null);
+
+  useEffect(() => {
+    const fetchClientCount = async () => {
+      try {
+        const response = await fetch('http://localhost:4001/client/count'); // Assuming the endpoint is relative to the current domain
+        const data = await response.json();
+        setClientCount(data.clientCount);
+      } catch (error) {
+        console.error('Error retrieving client count:', error);
+      }
+    };
+
+    fetchClientCount();
+  }, []);
+
+  //Get notification 
+  const [notification, setNotification] = useState([]);
+const [isOpen, setIsOpen] = useState(false); // Nouvel état pour suivre si les notifications sont ouvertes ou fermées
+const [unreadNotifications, setUnreadNotifications] = useState(0); // Initialise le nombre de nouvelles notifications à 0
+const [employeeId, setEmployeeId] = useState<string | null>(null)
+// ...
+
+const [notifications, setNotifications] = useState([]);
+const [employeeUnreadCount, setEmployeeUnreadNotificationCount] = useState(0);
+const [adminUnreadCount, setAdminUnreadNotificationCount] = useState(0);
+const [clientUnreadCount, setClientUnreadNotificationCount] = useState(0);
+const [userRole, setUserRole] = useState('');
+
+
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (userData) {
+      const userId = userData.id;
+      const userRole = userData.role;
+  
+      const fetchNotifications = async (filterKey) => {
+        try {
+          const response = await fetch('http://localhost:4001/notification');
+          const data = await response.json();
+  
+          // Récupérer les données de l'API
+          const notifications = data.notifications.filter(notification => notification[filterKey] === userId);
+          const employeeUnreadCount = data.employeeUnreadNotificationCount;
+          const adminUnreadCount = data.adminUnreadNotificationCount;
+          const clientUnreadCount = data.clientUnreadNotificationCount;
+  
+          // Mettre à jour les états de l'interface utilisateur
+          setNotification(notifications);
+          setEmployeeUnreadNotificationCount(employeeUnreadCount);
+          setAdminUnreadNotificationCount(adminUnreadCount);
+          setClientUnreadNotificationCount(clientUnreadCount);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des notifications :', error);
+        }
+      };
+  
+      if (userRole === 'admin') {
+        fetchNotifications('adminId');
+      } else if (userRole === 'client') {
+        fetchNotifications('clientId');
+      } else if (userRole === 'Employee') {
+        setEmployeeId(userId); // Définir l'ID de l'employé
+        fetchNotifications('employeeId');
+      }
+    }
+  }, []);
+
+  
+
   return (
     <ApexChartWrapper>
       <KeenSliderWrapper>
@@ -145,7 +255,7 @@ const ACLPage = () => {
           <Card>
       <CardHeader
         sx={{ pb: 3.25 }}
-        title='Sales Overview'
+        title='Welcome Back'
         titleTypographyProps={{ variant: 'h6' }}
        
         subheader={
@@ -170,11 +280,11 @@ const ACLPage = () => {
           <Grid item xs={12} sm={6} md={3}>
             <CardStatisticsCharacter
               data={{
-                stats: '8.14k',
-                title: 'Ratings',
+                stats: employeeCount !== null ? employeeCount : 'Loading...',
+                title: 'Employees',
                 chipColor: 'primary',
-                trendNumber: '+15.6%',
-                chipText: 'Year of 2022',
+                
+                chipText: 'Year of 2023',
                 src: '/images/pages/card-stats-img-1.png'
               }}
             />
@@ -182,12 +292,12 @@ const ACLPage = () => {
           <Grid item xs={12} sm={6} md={3}>
             <CardStatisticsCharacter
               data={{
-                stats: '12.2k',
+                stats: clientCount !== null ? clientCount : 'Loading...',
                 trend: 'negative',
-                title: 'Sessions',
+                title: 'Customers',
                 chipColor: 'success',
-                trendNumber: '-25.5%',
-                chipText: 'Last Month',
+                
+                chipText: 'Year of 2023',
                 src: '/images/pages/card-stats-img-2.png'
               }}
             />
@@ -245,21 +355,22 @@ const ACLPage = () => {
                   justifyContent: 'space-between'
                 }}
               >
-                <Typography sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>Web Application</Typography>
-        
-                <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>
-                  
-                  </Typography>
-                  <Typography variant='caption'></Typography>
-                </Box>
-                <CustomChip
-                  skin='light'
-                  size='small'
-                  color='primary'
-                 label=""
-                  sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
-                />
+              <Typography sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>Web Application</Typography>
+<Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
+  <Typography variant='body2' sx={{ mb: 0.5, fontWeight: 600, color: 'text.primary' }}>
+  
+  </Typography>
+  <Typography variant='caption'></Typography>
+</Box>
+
+  <CustomChip
+    skin='light'
+    size='small'
+    color='primary'
+      label={projectStats.filter(item => item.category === 'Web Application').length}
+    sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
+  />
+
               </Box>
             </Box>
             <Box
@@ -289,13 +400,15 @@ const ACLPage = () => {
                   </Typography>
                   <Typography variant='caption'></Typography>
                 </Box>
-                <CustomChip
-                  skin='light'
-                  size='small'
-                  color='primary'
-                 
-                  sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
-                />
+           
+    <CustomChip
+      skin='light'
+      size='small'
+      color='primary'
+      label={projectStats.filter(item => item.category === 'Marketplace').length}
+      sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
+    />
+ 
               </Box>
             </Box>
 
@@ -330,8 +443,7 @@ const ACLPage = () => {
                   skin='light'
                   size='small'
                   color='primary'
-                 
-                  sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
+                  label={projectStats.filter(item => item.category === 'E-commerce Site').length}   sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
                 />
               </Box>
             </Box>
@@ -367,7 +479,8 @@ const ACLPage = () => {
                   skin='light'
                   size='small'
                   color='primary'
-                 
+                  label={projectStats.filter(item => item.category !== 'E-commerce Site' && item.category !== 'Marketplace' && item.category !== 'Web Application').length}
+
                   sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500 }}
                 />
               </Box>
@@ -386,95 +499,30 @@ const ACLPage = () => {
      
       />
       <CardContent sx={{ pt: theme => `${theme.spacing(2.5)} !important` }}>
-        <Timeline sx={{ my: 0, py: 0 }}>
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='error' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent sx={{ mt: 0, overflow: 'hidden', mb: theme => `${theme.spacing(2)} !important` }}>
-              <Box
-                sx={{
-                  mb: 3,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Typography sx={{ mr: 2, fontWeight: 600 }}>Create youtube video for next product 😎</Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                  Tomorrow
-                </Typography>
-              </Box>
-              <Typography variant='body2' sx={{ mb: 2 }}>
-                Product introduction and details video
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 2.5, color: 'error.main' } }}>
-                <Icon icon='mdi:play-circle' />
-                <Typography noWrap variant='subtitle2' sx={{ fontWeight: 600 }}>
-                  www.youtube.com/channel/UCuryo5s0CW4aP83itLjIdZg
-                </Typography>
-              </Box>
-            </TimelineContent>
-          </TimelineItem>
-
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='primary' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}>
-              <Box
-                sx={{
-                  mb: 3,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Typography sx={{ mr: 2, fontWeight: 600 }}>Received payment from USA client 😍</Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                  January, 18
-                </Typography>
-              </Box>
-              <Typography variant='body2'>Received payment $1,490 for banking ios app</Typography>
-            </TimelineContent>
-          </TimelineItem>
-
-          <TimelineItem sx={{ minHeight: 0 }}>
-            <TimelineSeparator>
-              <TimelineDot color='info' />
-              <TimelineConnector sx={{ mb: 4 }} />
-            </TimelineSeparator>
-            <TimelineContent sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}>
-              <Box
-                sx={{
-                  mb: 3,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Typography sx={{ mr: 2, fontWeight: 600 }}>Meeting with joseph morgan for next project</Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                  April, 23
-                </Typography>
-              </Box>
-              <Typography variant='body2' sx={{ mb: 2 }}>
-                Meeting Video call on zoom at 9pm
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <img width={24} height={24} alt='invoice.pdf' src='/images/icons/file-icons/pdf.png' />
-                <Typography variant='subtitle2' sx={{ ml: 2, fontWeight: 600 }}>
-                  presentation.pdf
-                </Typography>
-              </Box>
-            </TimelineContent>
-          </TimelineItem>
-        </Timeline>
+      <Timeline>
+      {notifications.map(notification => (
+        <TimelineItem key={notification.id}>
+          <TimelineSeparator>
+            <TimelineDot color="primary" />
+            <TimelineConnector />
+          </TimelineSeparator>
+          <TimelineContent sx={{ mt: 0, overflow: 'hidden', mb: '16px !important' }}>
+            <Box
+              sx={{
+                mb: 3,
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Typography>{notification.name}</Typography>
+              <Typography variant='caption' sx={{ color: 'text.disabled' }}>{notification.date}</Typography>
+            </Box>
+          </TimelineContent>
+        </TimelineItem>
+      ))}
+    </Timeline>
       </CardContent>
     </Card>
          

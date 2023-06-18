@@ -398,7 +398,7 @@ interface UserRoleType {
       renderCell: ({ row }: CellType) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.phone}
+            {row.user?.phone}
           </Typography>
         )
       }
@@ -505,29 +505,45 @@ const ListClient = () => {
     e.preventDefault();
   
     const { companyName, email, fullname, phone } = client;
-    if ( phone && companyName && email && fullname  ) {
-      fetch("http://localhost:4001/client", {
-        method: "POST",
+  
+    // Extract only the digits from the phone number
+    const formattedPhone = phone.replace(/\D/g, '');
+  
+    // Validate the phone number length
+    if (formattedPhone.length !== 11) {
+      handleClose();
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+  
+    // Construct the formatted phone number with the country code
+    const formattedPhoneNumber = `+${formattedPhone}`;
+  
+    if (formattedPhoneNumber && companyName && email && fullname) {
+      fetch('http://localhost:4001/client', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(client),
+        body: JSON.stringify({
+          ...client,
+          phone: formattedPhoneNumber,
+        }),
       })
         .then((res) => res.json())
         .then((data) => {
-         handleClose();
-         toast.success('Customer added successfully');
-         fetchClients()
-          
+          handleClose();
+          toast.success('Customer added successfully');
+          fetchClients();
         })
         .catch((error) => {
-         handleClose();
-         console.error(error);
-         toast.error('Failed to add customer'); // Display error toast notification
+          handleClose();
+          console.error(error);
+          toast.error('Failed to add customer'); // Display error toast notification
         });
     } else {
-     handleClose();
-     toast.error("Please fill out all the fields"); // Display error toast notification
+      handleClose();
+      toast.error('Please fill out all the fields'); // Display error toast notification
     }
   };
   
@@ -539,6 +555,8 @@ const ListClient = () => {
     })
  }
 
+
+ 
   return (
     <Grid container spacing={6}>
       
@@ -615,7 +633,7 @@ const ListClient = () => {
                   label='Phone'
                   name='phone'
                   onChange={handleChange}
-                  placeholder='(397) 294-5153'
+                  placeholder='+216 32 145 214'
                 
                 />
              

@@ -3,7 +3,10 @@ import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth';
 import resetPassword from './routes/resetPassword';
+
 import updateAdmin from './admin/updateAdmin';
+import detailAdmin from './admin/detailAdmin';
+
 import createProject from './project/createProject';
 import projectDetails from './project/getProject';
 import updateProject from './project/updateProject';
@@ -64,7 +67,7 @@ app.use(function(req, res, next) {
 
 
 app.use('/auth', authRoutes, resetPassword);
-app.use('/admin', updateAdmin);
+app.use('/admin', updateAdmin, detailAdmin);
 app.use('/project', createProject, projectDetails, updateProject, deleteProject);
 app.use('/client', createClient, deleteClient, clientUpdate, clientDetails);
 app.use('/department', createDepartment, departmentDetails,updateDepartment);

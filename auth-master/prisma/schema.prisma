@@ -29,6 +29,11 @@ model Admin {
   createdAt     DateTime       @default(now())
   id            String         @id @default(cuid())
   avatar        String?
+  fullname        String?
+  facebook        String?
+  adresse         String?
+  instagram       String?
+  linkedin        String?
   user          User           @relation(fields: [userId], references: [id])
   userId        String         @unique
   updatedAt     DateTime       @updatedAt
@@ -163,6 +168,7 @@ model Employee {
   adresse        String?
   facebook       String?
   instagram      String?
+  linkedin       String?
   slack          String?
   github         String?
   gitlab         String?

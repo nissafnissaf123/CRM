@@ -433,6 +433,16 @@ const fetchProjects = async () => {
     }
   };
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredProjects = projects.filter((project) =>
+  project.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
 
   return (
     <>
@@ -449,14 +459,14 @@ const fetchProjects = async () => {
     title={<Typography variant='h5' style={{marginRight:"780px"}}>My Projects</Typography>}
     
   />
-          <TextField sx={{ mr: 6, mb: 2 }} size='small' placeholder='Search Project' value={value} onChange={e => setValue(e.target.value)} />
-        
+          <TextField sx={{ mr: 6, mb: 2 }} size='small' placeholder='Search Project' value={searchTerm}
+              onChange={handleSearchTermChange}  />
          </Box>
        
       </CardContent>
       <DataGrid
         autoHeight
-        rows={projects}
+        rows={filteredProjects}
         columns={columns}
         disableRowSelectionOnClick
         pageSizeOptions={[7, 10, 25, 50]}

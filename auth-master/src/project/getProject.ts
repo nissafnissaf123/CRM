@@ -119,4 +119,24 @@ router.get("/:id", async (req, res) => {
     }
   });
 
+  //Get Tasks of projects
+router.get("/:id/tasks", async (req, res, next) => {
+  try {
+    const projectId = req.params.id;
+
+    const tasks = await prisma.task.findMany({
+      where: {
+        projectId: String(projectId),
+      },
+      include: {
+        employee: true,
+      },
+    });
+
+    res.json({ tasks });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

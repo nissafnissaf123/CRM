@@ -21,12 +21,13 @@ router.post("/", async (req, res, next) => {
     try {
         const password = generatePassword(); 
         const email = req.body.email;
+        const phone = req.body.phone;
         const username = email.split('@')[0]; // Génération du nom d'utilisateur à partir de l'adresse e-mail
     
         const user = await prisma.user.create({
             
             data: {
-                email:req.body.email, username: username, roles: 'Employee', password,
+                email:req.body.email, phone:req.body.phone, username: username, roles: 'Employee', password,
             },
         });
         console.log(user);

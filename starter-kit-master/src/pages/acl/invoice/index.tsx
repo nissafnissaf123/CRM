@@ -273,11 +273,6 @@ const InvoiceList = () => {
   // ** Hooks
  
 
-  
-
-  const handleFilter = (val: string) => {
-    setValue(val)
-  }
 
   const handleStatusValue = (e: SelectChangeEvent) => {
     setStatusValue(e.target.value)
@@ -347,6 +342,21 @@ const fetchInvoices = async () => {
     }
   };
 
+  const [filteredInvoices, setFilteredInvoices] = useState([]);
+
+   const handleFilter = (value: string) => {
+    // Filter the invoices list based on the input value
+    const filteredInvoices = invoices.filter((invoice: InvoiceType) => {
+      return invoice.project.name.toLowerCase().includes(value.toLowerCase());
+    });
+  
+    // Update the state with the filtered invoices
+    setFilteredInvoices(filteredInvoices);
+  
+    // Update the value of the search input field
+    setValue(value);
+  };
+
 
   return (
     <DatePickerWrapper>
@@ -410,7 +420,7 @@ const fetchInvoices = async () => {
             <DataGrid
               autoHeight
               pagination
-              rows={invoices}
+              rows={filteredInvoices}
               columns={columns}
             
               disableRowSelectionOnClick

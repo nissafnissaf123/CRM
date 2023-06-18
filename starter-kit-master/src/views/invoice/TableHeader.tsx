@@ -3,6 +3,9 @@ import Link from 'next/link'
 
 import { useState } from 'react'
 
+import { useRouter } from 'next/router';
+
+
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -28,6 +31,13 @@ const TableHeader = (props: TableHeaderProps) => {
     handleFilter(event.target.value);
   };
 
+  const router = useRouter();
+
+  const handleAddInvoice = () => {
+   
+    router.push('/admin/invoice/add');
+  };
+
   return (
     <Box
       sx={{
@@ -51,12 +61,15 @@ const TableHeader = (props: TableHeaderProps) => {
         <TextField
           size='small'
           value={value}
-          placeholder='Search Customer'
+          placeholder='Search Project'
           sx={{ mr: 4, mb: 2, maxWidth: '180px' }}
           onChange={e => handleFilter(e.target.value)}
         />
-      
-      </Box>
+       
+        <Button sx={{ mb: 2 }}  variant='contained' onClick={handleAddInvoice} >
+        Add Invoice
+      </Button>
+    </Box>
     </Box>
   )
 }
